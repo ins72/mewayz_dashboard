@@ -62,6 +62,23 @@ const Routes = () => {
               <OnboardingWizard />
             </ProtectedRoute>
           } />
+          
+          {/* Quick Actions Routes */}
+          <Route path="/dashboard/quick-actions" element={
+            <ProtectedRoute>
+              <QuickActionsHub />
+            </ProtectedRoute>
+          } />
+          <Route path="/dashboard/instagram" element={
+            <ProtectedRoute>
+              <InstagramManagement />
+            </ProtectedRoute>
+          } />
+          <Route path="/dashboard/link-builder" element={
+            <ProtectedRoute>
+              <LinkInBioBuilder />
+            </ProtectedRoute>
+          } />
           <Route path="/dashboard-screen" element={
             <ProtectedRoute>
               <DashboardScreen />
