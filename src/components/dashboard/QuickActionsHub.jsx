@@ -62,7 +62,7 @@ const QuickActionsHub = () => {
       description: 'Create and schedule Instagram content',
       icon: Instagram,
       color: 'from-pink-500 to-purple-500',
-      action: () => console.log('Create Instagram Post'),
+      action: () => navigate('/dashboard/instagram'),
       category: 'social_media'
     },
     {
