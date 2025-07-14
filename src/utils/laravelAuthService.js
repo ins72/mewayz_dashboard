@@ -235,35 +235,34 @@ const laravelAuthService = {
     }
   },
 
-  // Mock auth state change listener (Laravel doesn't have real-time auth changes)
-  onAuthStateChange: (callback) => {
-    // This is a mock implementation since Laravel doesn't have real-time auth changes
-    // In a real app, you might use WebSockets or polling
-    
-    // Check for auth changes periodically
-    const interval = setInterval(async () => {
-      const session = await laravelAuthService.getSession();
-      if (session.success) {
-        const currentUser = session.data.session?.user;
-        const storedUser = JSON.parse(localStorage.getItem('user') || 'null');
-        
-        // Compare current user with stored user
-        if (currentUser && !storedUser) {
-          callback('SIGNED_IN', { user: currentUser });
-        } else if (!currentUser && storedUser) {
-          callback('SIGNED_OUT', null);
-        }
+  // Sign in with Google
+  signInWithGoogle: async () => {
+    try {
+      const response = await apiClient.get('/auth/google');
+      
+      if (response.data.success && response.data.url) {
+        // Redirect to Google OAuth
+        window.location.href = response.data.url;
+        return { success: true };
       }
-    }, 30000); // Check every 30 seconds
 
-    return {
-      data: {
-        subscription: {
-          unsubscribe: () => clearInterval(interval)
-        }
+      return { success: false, error: response.data.message || 'Google OAuth failed' };
+    } catch (error) {
+      if (error.response?.data?.message) {
+        return { success: false, error: error.response.data.message };
       }
+      
+      return { success: false, error: 'Google OAuth failed' };
+    }
+  },
+
+  // Sign in with Apple (placeholder for future implementation)
+  signInWithApple: async () => {
+    return { 
+      success: false, 
+      error: 'Apple OAuth integration coming soon' 
     };
-  }
+  },
 };
 
 export default laravelAuthService;
