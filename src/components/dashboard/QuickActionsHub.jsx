@@ -25,6 +25,7 @@ import Button from '../ui/Button';
 import { Card } from '../ui/Card';
 
 const QuickActionsHub = () => {
+  const navigate = useNavigate();
   const { user } = useAuth();
   const [recentActivity, setRecentActivity] = useState([]);
   const [quickStats, setQuickStats] = useState({
