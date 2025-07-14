@@ -20,7 +20,8 @@ export default defineConfig({
     watch: {
       ignored: [
         '**/backend/vendor/**', 
-        '**/node_modules/**'
+        '**/node_modules/**',
+        '**/src/pages/workspace-setup-wizard-*/**'
       ]
     }
   }
