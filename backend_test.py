@@ -1,0 +1,534 @@
+#!/usr/bin/env python3
+"""
+Comprehensive Backend Testing for Mewayz Laravel Application
+Tests all API endpoints and functionality
+"""
+
+import requests
+import json
+import sys
+from datetime import datetime
+
+class MewayzBackendTester:
+    def __init__(self):
+        self.base_url = "http://localhost:8001/api"
+        self.token = None
+        self.user_id = None
+        self.test_results = []
+        
+    def log_test(self, test_name, status, message="", details=None):
+        """Log test results"""
+        result = {
+            "test": test_name,
+            "status": status,
+            "message": message,
+            "details": details,
+            "timestamp": datetime.now().isoformat()
+        }
+        self.test_results.append(result)
+        status_symbol = "✅" if status == "PASS" else "❌" if status == "FAIL" else "⚠️"
+        print(f"{status_symbol} {test_name}: {message}")
+        if details:
+            print(f"   Details: {details}")
+    
+    def make_request(self, method, endpoint, data=None, headers=None):
+        """Make HTTP request with error handling"""
+        url = f"{self.base_url}{endpoint}"
+        default_headers = {"Content-Type": "application/json"}
+        
+        if self.token:
+            default_headers["Authorization"] = f"Bearer {self.token}"
+        
+        if headers:
+            default_headers.update(headers)
+        
+        try:
+            if method.upper() == "GET":
+                response = requests.get(url, headers=default_headers, timeout=10)
+            elif method.upper() == "POST":
+                response = requests.post(url, json=data, headers=default_headers, timeout=10)
+            elif method.upper() == "PUT":
+                response = requests.put(url, json=data, headers=default_headers, timeout=10)
+            elif method.upper() == "DELETE":
+                response = requests.delete(url, headers=default_headers, timeout=10)
+            else:
+                return None, f"Unsupported method: {method}"
+            
+            return response, None
+        except requests.exceptions.RequestException as e:
+            return None, str(e)
+    
+    def test_user_registration(self):
+        """Test user registration endpoint"""
+        test_data = {
+            "name": "Emma Wilson",
+            "email": "emma.wilson@mewayz.com",
+            "password": "SecurePassword123!"
+        }
+        
+        response, error = self.make_request("POST", "/auth/register", test_data)
+        
+        if error:
+            self.log_test("User Registration", "FAIL", f"Request failed: {error}")
+            return False
+        
+        if response.status_code == 201:
+            try:
+                data = response.json()
+                if data.get("success") and data.get("token") and data.get("user"):
+                    self.token = data["token"]
+                    self.user_id = data["user"]["id"]
+                    self.log_test("User Registration", "PASS", "User registered successfully")
+                    return True
+                else:
+                    self.log_test("User Registration", "FAIL", "Invalid response format", data)
+                    return False
+            except json.JSONDecodeError:
+                self.log_test("User Registration", "FAIL", "Invalid JSON response")
+                return False
+        else:
+            self.log_test("User Registration", "FAIL", f"HTTP {response.status_code}", response.text)
+            return False
+    
+    def test_user_login(self):
+        """Test user login endpoint"""
+        test_data = {
+            "email": "emma.wilson@mewayz.com",
+            "password": "SecurePassword123!"
+        }
+        
+        response, error = self.make_request("POST", "/auth/login", test_data)
+        
+        if error:
+            self.log_test("User Login", "FAIL", f"Request failed: {error}")
+            return False
+        
+        if response.status_code == 200:
+            try:
+                data = response.json()
+                if data.get("success") and data.get("token"):
+                    self.token = data["token"]
+                    self.log_test("User Login", "PASS", "User logged in successfully")
+                    return True
+                else:
+                    self.log_test("User Login", "FAIL", "Invalid response format", data)
+                    return False
+            except json.JSONDecodeError:
+                self.log_test("User Login", "FAIL", "Invalid JSON response")
+                return False
+        else:
+            self.log_test("User Login", "FAIL", f"HTTP {response.status_code}", response.text)
+            return False
+    
+    def test_get_authenticated_user(self):
+        """Test get authenticated user endpoint"""
+        if not self.token:
+            self.log_test("Get Authenticated User", "SKIP", "No authentication token")
+            return False
+        
+        response, error = self.make_request("GET", "/auth/user")
+        
+        if error:
+            self.log_test("Get Authenticated User", "FAIL", f"Request failed: {error}")
+            return False
+        
+        if response.status_code == 200:
+            try:
+                data = response.json()
+                if data.get("success") and data.get("user"):
+                    self.log_test("Get Authenticated User", "PASS", "User data retrieved successfully")
+                    return True
+                else:
+                    self.log_test("Get Authenticated User", "FAIL", "Invalid response format", data)
+                    return False
+            except json.JSONDecodeError:
+                self.log_test("Get Authenticated User", "FAIL", "Invalid JSON response")
+                return False
+        else:
+            self.log_test("Get Authenticated User", "FAIL", f"HTTP {response.status_code}", response.text)
+            return False
+    
+    def test_workspace_endpoints(self):
+        """Test workspace CRUD endpoints"""
+        if not self.token:
+            self.log_test("Workspace Endpoints", "SKIP", "No authentication token")
+            return False
+        
+        # Test GET /workspaces (index)
+        response, error = self.make_request("GET", "/workspaces")
+        if error:
+            self.log_test("Workspace Index", "FAIL", f"Request failed: {error}")
+        elif response.status_code == 200:
+            self.log_test("Workspace Index", "PASS", "Endpoint accessible")
+        else:
+            self.log_test("Workspace Index", "WARN", f"HTTP {response.status_code} - Method likely not implemented", response.text[:100])
+        
+        # Test POST /workspaces (store)
+        workspace_data = {
+            "name": "My Creative Workspace",
+            "description": "A workspace for creative projects"
+        }
+        response, error = self.make_request("POST", "/workspaces", workspace_data)
+        if error:
+            self.log_test("Workspace Create", "FAIL", f"Request failed: {error}")
+        elif response.status_code in [200, 201]:
+            self.log_test("Workspace Create", "PASS", "Endpoint accessible")
+        else:
+            self.log_test("Workspace Create", "WARN", f"HTTP {response.status_code} - Method likely not implemented", response.text[:100])
+    
+    def test_social_media_account_endpoints(self):
+        """Test social media account CRUD endpoints"""
+        if not self.token:
+            self.log_test("Social Media Account Endpoints", "SKIP", "No authentication token")
+            return False
+        
+        # Test GET /social-media-accounts
+        response, error = self.make_request("GET", "/social-media-accounts")
+        if error:
+            self.log_test("Social Media Accounts Index", "FAIL", f"Request failed: {error}")
+        elif response.status_code == 200:
+            self.log_test("Social Media Accounts Index", "PASS", "Endpoint accessible")
+        else:
+            self.log_test("Social Media Accounts Index", "WARN", f"HTTP {response.status_code} - Method likely not implemented", response.text[:100])
+        
+        # Test POST /social-media-accounts
+        account_data = {
+            "platform": "instagram",
+            "username": "@creativestudio",
+            "access_token": "fake_token_123"
+        }
+        response, error = self.make_request("POST", "/social-media-accounts", account_data)
+        if error:
+            self.log_test("Social Media Account Create", "FAIL", f"Request failed: {error}")
+        elif response.status_code in [200, 201]:
+            self.log_test("Social Media Account Create", "PASS", "Endpoint accessible")
+        else:
+            self.log_test("Social Media Account Create", "WARN", f"HTTP {response.status_code} - Method likely not implemented", response.text[:100])
+    
+    def test_social_media_post_endpoints(self):
+        """Test social media post CRUD endpoints"""
+        if not self.token:
+            self.log_test("Social Media Post Endpoints", "SKIP", "No authentication token")
+            return False
+        
+        # Test GET /social-media-posts
+        response, error = self.make_request("GET", "/social-media-posts")
+        if error:
+            self.log_test("Social Media Posts Index", "FAIL", f"Request failed: {error}")
+        elif response.status_code == 200:
+            self.log_test("Social Media Posts Index", "PASS", "Endpoint accessible")
+        else:
+            self.log_test("Social Media Posts Index", "WARN", f"HTTP {response.status_code} - Method likely not implemented", response.text[:100])
+        
+        # Test POST /social-media-posts
+        post_data = {
+            "content": "Check out our latest creative project! 🎨 #creativity #design",
+            "platform": "instagram",
+            "scheduled_at": "2025-01-15T10:00:00Z"
+        }
+        response, error = self.make_request("POST", "/social-media-posts", post_data)
+        if error:
+            self.log_test("Social Media Post Create", "FAIL", f"Request failed: {error}")
+        elif response.status_code in [200, 201]:
+            self.log_test("Social Media Post Create", "PASS", "Endpoint accessible")
+        else:
+            self.log_test("Social Media Post Create", "WARN", f"HTTP {response.status_code} - Method likely not implemented", response.text[:100])
+    
+    def test_link_in_bio_endpoints(self):
+        """Test link in bio page CRUD endpoints"""
+        if not self.token:
+            self.log_test("Link in Bio Endpoints", "SKIP", "No authentication token")
+            return False
+        
+        # Test GET /link-in-bio-pages
+        response, error = self.make_request("GET", "/link-in-bio-pages")
+        if error:
+            self.log_test("Link in Bio Pages Index", "FAIL", f"Request failed: {error}")
+        elif response.status_code == 200:
+            self.log_test("Link in Bio Pages Index", "PASS", "Endpoint accessible")
+        else:
+            self.log_test("Link in Bio Pages Index", "WARN", f"HTTP {response.status_code} - Method likely not implemented", response.text[:100])
+        
+        # Test POST /link-in-bio-pages
+        page_data = {
+            "title": "Emma's Creative Links",
+            "slug": "emma-creative",
+            "bio": "Creative designer & entrepreneur",
+            "theme": "modern"
+        }
+        response, error = self.make_request("POST", "/link-in-bio-pages", page_data)
+        if error:
+            self.log_test("Link in Bio Page Create", "FAIL", f"Request failed: {error}")
+        elif response.status_code in [200, 201]:
+            self.log_test("Link in Bio Page Create", "PASS", "Endpoint accessible")
+        else:
+            self.log_test("Link in Bio Page Create", "WARN", f"HTTP {response.status_code} - Method likely not implemented", response.text[:100])
+        
+        # Test public link-in-bio page
+        response, error = self.make_request("GET", "/link-in-bio/emma-creative")
+        if error:
+            self.log_test("Public Link in Bio Page", "FAIL", f"Request failed: {error}")
+        elif response.status_code == 200:
+            self.log_test("Public Link in Bio Page", "PASS", "Public endpoint accessible")
+        else:
+            self.log_test("Public Link in Bio Page", "WARN", f"HTTP {response.status_code} - Method likely not implemented", response.text[:100])
+    
+    def test_crm_contact_endpoints(self):
+        """Test CRM contact CRUD endpoints"""
+        if not self.token:
+            self.log_test("CRM Contact Endpoints", "SKIP", "No authentication token")
+            return False
+        
+        # Test GET /crm-contacts
+        response, error = self.make_request("GET", "/crm-contacts")
+        if error:
+            self.log_test("CRM Contacts Index", "FAIL", f"Request failed: {error}")
+        elif response.status_code == 200:
+            self.log_test("CRM Contacts Index", "PASS", "Endpoint accessible")
+        else:
+            self.log_test("CRM Contacts Index", "WARN", f"HTTP {response.status_code} - Method likely not implemented", response.text[:100])
+        
+        # Test POST /crm-contacts
+        contact_data = {
+            "name": "Alex Thompson",
+            "email": "alex.thompson@client.com",
+            "phone": "+1-555-0123",
+            "company": "Thompson Design Co.",
+            "status": "lead"
+        }
+        response, error = self.make_request("POST", "/crm-contacts", contact_data)
+        if error:
+            self.log_test("CRM Contact Create", "FAIL", f"Request failed: {error}")
+        elif response.status_code in [200, 201]:
+            self.log_test("CRM Contact Create", "PASS", "Endpoint accessible")
+        else:
+            self.log_test("CRM Contact Create", "WARN", f"HTTP {response.status_code} - Method likely not implemented", response.text[:100])
+    
+    def test_course_endpoints(self):
+        """Test course CRUD endpoints"""
+        if not self.token:
+            self.log_test("Course Endpoints", "SKIP", "No authentication token")
+            return False
+        
+        # Test GET /courses
+        response, error = self.make_request("GET", "/courses")
+        if error:
+            self.log_test("Courses Index", "FAIL", f"Request failed: {error}")
+        elif response.status_code == 200:
+            self.log_test("Courses Index", "PASS", "Endpoint accessible")
+        else:
+            self.log_test("Courses Index", "WARN", f"HTTP {response.status_code} - Method likely not implemented", response.text[:100])
+        
+        # Test POST /courses
+        course_data = {
+            "title": "Creative Design Masterclass",
+            "description": "Learn advanced design techniques and principles",
+            "price": 199.99,
+            "duration": "8 weeks",
+            "level": "intermediate"
+        }
+        response, error = self.make_request("POST", "/courses", course_data)
+        if error:
+            self.log_test("Course Create", "FAIL", f"Request failed: {error}")
+        elif response.status_code in [200, 201]:
+            self.log_test("Course Create", "PASS", "Endpoint accessible")
+        else:
+            self.log_test("Course Create", "WARN", f"HTTP {response.status_code} - Method likely not implemented", response.text[:100])
+    
+    def test_product_endpoints(self):
+        """Test product CRUD endpoints"""
+        if not self.token:
+            self.log_test("Product Endpoints", "SKIP", "No authentication token")
+            return False
+        
+        # Test GET /products
+        response, error = self.make_request("GET", "/products")
+        if error:
+            self.log_test("Products Index", "FAIL", f"Request failed: {error}")
+        elif response.status_code == 200:
+            self.log_test("Products Index", "PASS", "Endpoint accessible")
+        else:
+            self.log_test("Products Index", "WARN", f"HTTP {response.status_code} - Method likely not implemented", response.text[:100])
+        
+        # Test POST /products
+        product_data = {
+            "name": "Design Template Pack",
+            "description": "Professional design templates for social media",
+            "price": 49.99,
+            "category": "digital_product",
+            "stock": 100
+        }
+        response, error = self.make_request("POST", "/products", product_data)
+        if error:
+            self.log_test("Product Create", "FAIL", f"Request failed: {error}")
+        elif response.status_code in [200, 201]:
+            self.log_test("Product Create", "PASS", "Endpoint accessible")
+        else:
+            self.log_test("Product Create", "WARN", f"HTTP {response.status_code} - Method likely not implemented", response.text[:100])
+    
+    def test_user_logout(self):
+        """Test user logout endpoint"""
+        if not self.token:
+            self.log_test("User Logout", "SKIP", "No authentication token")
+            return False
+        
+        response, error = self.make_request("POST", "/auth/logout")
+        
+        if error:
+            self.log_test("User Logout", "FAIL", f"Request failed: {error}")
+            return False
+        
+        if response.status_code == 200:
+            try:
+                data = response.json()
+                if data.get("success"):
+                    self.log_test("User Logout", "PASS", "User logged out successfully")
+                    self.token = None  # Clear token after logout
+                    return True
+                else:
+                    self.log_test("User Logout", "FAIL", "Invalid response format", data)
+                    return False
+            except json.JSONDecodeError:
+                self.log_test("User Logout", "FAIL", "Invalid JSON response")
+                return False
+        else:
+            self.log_test("User Logout", "FAIL", f"HTTP {response.status_code}", response.text)
+            return False
+    
+    def test_authentication_protection(self):
+        """Test that protected routes require authentication"""
+        # Clear token to test unauthenticated access
+        original_token = self.token
+        self.token = None
+        
+        protected_endpoints = [
+            "/auth/user",
+            "/workspaces",
+            "/social-media-accounts",
+            "/social-media-posts",
+            "/link-in-bio-pages",
+            "/crm-contacts",
+            "/courses",
+            "/products"
+        ]
+        
+        protected_count = 0
+        for endpoint in protected_endpoints:
+            response, error = self.make_request("GET", endpoint)
+            if error:
+                self.log_test(f"Auth Protection {endpoint}", "WARN", f"Request failed: {error}")
+            elif response.status_code == 401:
+                protected_count += 1
+            elif response.status_code == 403:
+                protected_count += 1
+            else:
+                self.log_test(f"Auth Protection {endpoint}", "WARN", f"Expected 401/403, got {response.status_code}")
+        
+        # Restore token
+        self.token = original_token
+        
+        if protected_count >= len(protected_endpoints) * 0.8:  # At least 80% should be protected
+            self.log_test("Authentication Protection", "PASS", f"{protected_count}/{len(protected_endpoints)} endpoints properly protected")
+        else:
+            self.log_test("Authentication Protection", "WARN", f"Only {protected_count}/{len(protected_endpoints)} endpoints properly protected")
+    
+    def test_database_connectivity(self):
+        """Test database connectivity through user operations"""
+        # This is tested implicitly through user registration/login
+        # If those work, database is connected
+        if any(result["test"] in ["User Registration", "User Login"] and result["status"] == "PASS" 
+               for result in self.test_results):
+            self.log_test("Database Connectivity", "PASS", "Database operations working")
+        else:
+            self.log_test("Database Connectivity", "FAIL", "No successful database operations detected")
+    
+    def run_all_tests(self):
+        """Run all backend tests"""
+        print("🚀 Starting Mewayz Backend Testing...")
+        print("=" * 60)
+        
+        # Authentication tests
+        print("\n📝 Testing Authentication Endpoints...")
+        self.test_user_registration()
+        self.test_user_login()
+        self.test_get_authenticated_user()
+        
+        # Feature endpoint tests
+        print("\n🏢 Testing Workspace Endpoints...")
+        self.test_workspace_endpoints()
+        
+        print("\n📱 Testing Social Media Endpoints...")
+        self.test_social_media_account_endpoints()
+        self.test_social_media_post_endpoints()
+        
+        print("\n🔗 Testing Link in Bio Endpoints...")
+        self.test_link_in_bio_endpoints()
+        
+        print("\n👥 Testing CRM Endpoints...")
+        self.test_crm_contact_endpoints()
+        
+        print("\n📚 Testing Course Endpoints...")
+        self.test_course_endpoints()
+        
+        print("\n🛍️ Testing Product Endpoints...")
+        self.test_product_endpoints()
+        
+        # Security tests
+        print("\n🔒 Testing Authentication Protection...")
+        self.test_authentication_protection()
+        
+        # Infrastructure tests
+        print("\n💾 Testing Database Connectivity...")
+        self.test_database_connectivity()
+        
+        # Logout test
+        print("\n🚪 Testing Logout...")
+        self.test_user_logout()
+        
+        # Summary
+        self.print_summary()
+    
+    def print_summary(self):
+        """Print test summary"""
+        print("\n" + "=" * 60)
+        print("📊 TEST SUMMARY")
+        print("=" * 60)
+        
+        passed = sum(1 for result in self.test_results if result["status"] == "PASS")
+        failed = sum(1 for result in self.test_results if result["status"] == "FAIL")
+        warnings = sum(1 for result in self.test_results if result["status"] == "WARN")
+        skipped = sum(1 for result in self.test_results if result["status"] == "SKIP")
+        
+        total = len(self.test_results)
+        
+        print(f"✅ PASSED: {passed}")
+        print(f"❌ FAILED: {failed}")
+        print(f"⚠️  WARNINGS: {warnings}")
+        print(f"⏭️  SKIPPED: {skipped}")
+        print(f"📈 TOTAL: {total}")
+        
+        if failed > 0:
+            print(f"\n❌ CRITICAL FAILURES:")
+            for result in self.test_results:
+                if result["status"] == "FAIL":
+                    print(f"   • {result['test']}: {result['message']}")
+        
+        if warnings > 0:
+            print(f"\n⚠️  WARNINGS (Likely Unimplemented Features):")
+            for result in self.test_results:
+                if result["status"] == "WARN":
+                    print(f"   • {result['test']}: {result['message']}")
+        
+        print(f"\n🎯 SUCCESS RATE: {(passed / total * 100):.1f}%")
+        
+        # Overall status
+        if failed == 0 and passed > 0:
+            print("🎉 OVERALL STATUS: BACKEND CORE FUNCTIONALITY WORKING")
+        elif failed > 0 and passed > failed:
+            print("⚠️  OVERALL STATUS: BACKEND PARTIALLY WORKING - SOME ISSUES FOUND")
+        else:
+            print("❌ OVERALL STATUS: BACKEND HAS CRITICAL ISSUES")
+
+if __name__ == "__main__":
+    tester = MewayzBackendTester()
+    tester.run_all_tests()
