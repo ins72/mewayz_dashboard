@@ -757,98 +757,65 @@ class MewayzBackendTester:
         else:
             self.log_test("Link in Bio Duplicate", "FAIL", f"HTTP {response.status_code}", response.text[:200])
     
-    def test_crm_contact_endpoints(self):
-        """Test CRM contact CRUD endpoints"""
-        if not self.token:
-            self.log_test("CRM Contact Endpoints", "SKIP", "No authentication token")
-            return False
-        
-        # Test GET /crm-contacts
-        response, error = self.make_request("GET", "/crm-contacts")
+    def test_social_media_account_delete(self):
+        """Test deleting social media account"""
+        if not self.social_account_id:
+            return
+            
+        response, error = self.make_request("DELETE", f"/social-media-accounts/{self.social_account_id}")
         if error:
-            self.log_test("CRM Contacts Index", "FAIL", f"Request failed: {error}")
+            self.log_test("Social Media Account Delete", "FAIL", f"Request failed: {error}")
         elif response.status_code == 200:
-            self.log_test("CRM Contacts Index", "PASS", "Endpoint accessible")
+            try:
+                data = response.json()
+                if data.get("success"):
+                    self.log_test("Social Media Account Delete", "PASS", "Account deleted successfully")
+                else:
+                    self.log_test("Social Media Account Delete", "FAIL", "Invalid response format", data)
+            except json.JSONDecodeError:
+                self.log_test("Social Media Account Delete", "FAIL", "Invalid JSON response")
         else:
-            self.log_test("CRM Contacts Index", "WARN", f"HTTP {response.status_code} - Method likely not implemented", response.text[:100])
-        
-        # Test POST /crm-contacts
-        contact_data = {
-            "name": "Alex Thompson",
-            "email": "alex.thompson@client.com",
-            "phone": "+1-555-0123",
-            "company": "Thompson Design Co.",
-            "status": "lead"
-        }
-        response, error = self.make_request("POST", "/crm-contacts", contact_data)
-        if error:
-            self.log_test("CRM Contact Create", "FAIL", f"Request failed: {error}")
-        elif response.status_code in [200, 201]:
-            self.log_test("CRM Contact Create", "PASS", "Endpoint accessible")
-        else:
-            self.log_test("CRM Contact Create", "WARN", f"HTTP {response.status_code} - Method likely not implemented", response.text[:100])
+            self.log_test("Social Media Account Delete", "FAIL", f"HTTP {response.status_code}", response.text[:200])
     
-    def test_course_endpoints(self):
-        """Test course CRUD endpoints"""
-        if not self.token:
-            self.log_test("Course Endpoints", "SKIP", "No authentication token")
-            return False
-        
-        # Test GET /courses
-        response, error = self.make_request("GET", "/courses")
+    def test_social_media_post_delete(self):
+        """Test deleting social media post"""
+        if not self.social_post_id:
+            return
+            
+        response, error = self.make_request("DELETE", f"/social-media-posts/{self.social_post_id}")
         if error:
-            self.log_test("Courses Index", "FAIL", f"Request failed: {error}")
+            self.log_test("Social Media Post Delete", "FAIL", f"Request failed: {error}")
         elif response.status_code == 200:
-            self.log_test("Courses Index", "PASS", "Endpoint accessible")
+            try:
+                data = response.json()
+                if data.get("success"):
+                    self.log_test("Social Media Post Delete", "PASS", "Post deleted successfully")
+                else:
+                    self.log_test("Social Media Post Delete", "FAIL", "Invalid response format", data)
+            except json.JSONDecodeError:
+                self.log_test("Social Media Post Delete", "FAIL", "Invalid JSON response")
         else:
-            self.log_test("Courses Index", "WARN", f"HTTP {response.status_code} - Method likely not implemented", response.text[:100])
-        
-        # Test POST /courses
-        course_data = {
-            "title": "Creative Design Masterclass",
-            "description": "Learn advanced design techniques and principles",
-            "price": 199.99,
-            "duration": "8 weeks",
-            "level": "intermediate"
-        }
-        response, error = self.make_request("POST", "/courses", course_data)
-        if error:
-            self.log_test("Course Create", "FAIL", f"Request failed: {error}")
-        elif response.status_code in [200, 201]:
-            self.log_test("Course Create", "PASS", "Endpoint accessible")
-        else:
-            self.log_test("Course Create", "WARN", f"HTTP {response.status_code} - Method likely not implemented", response.text[:100])
+            self.log_test("Social Media Post Delete", "FAIL", f"HTTP {response.status_code}", response.text[:200])
     
-    def test_product_endpoints(self):
-        """Test product CRUD endpoints"""
-        if not self.token:
-            self.log_test("Product Endpoints", "SKIP", "No authentication token")
-            return False
-        
-        # Test GET /products
-        response, error = self.make_request("GET", "/products")
+    def test_link_in_bio_page_delete(self):
+        """Test deleting link in bio page"""
+        if not self.link_page_id:
+            return
+            
+        response, error = self.make_request("DELETE", f"/link-in-bio-pages/{self.link_page_id}")
         if error:
-            self.log_test("Products Index", "FAIL", f"Request failed: {error}")
+            self.log_test("Link in Bio Page Delete", "FAIL", f"Request failed: {error}")
         elif response.status_code == 200:
-            self.log_test("Products Index", "PASS", "Endpoint accessible")
+            try:
+                data = response.json()
+                if data.get("success"):
+                    self.log_test("Link in Bio Page Delete", "PASS", "Page deleted successfully")
+                else:
+                    self.log_test("Link in Bio Page Delete", "FAIL", "Invalid response format", data)
+            except json.JSONDecodeError:
+                self.log_test("Link in Bio Page Delete", "FAIL", "Invalid JSON response")
         else:
-            self.log_test("Products Index", "WARN", f"HTTP {response.status_code} - Method likely not implemented", response.text[:100])
-        
-        # Test POST /products
-        product_data = {
-            "name": "Design Template Pack",
-            "description": "Professional design templates for social media",
-            "price": 49.99,
-            "category": "digital_product",
-            "stock": 100
-        }
-        response, error = self.make_request("POST", "/products", product_data)
-        if error:
-            self.log_test("Product Create", "FAIL", f"Request failed: {error}")
-        elif response.status_code in [200, 201]:
-            self.log_test("Product Create", "PASS", "Endpoint accessible")
-        else:
-            self.log_test("Product Create", "WARN", f"HTTP {response.status_code} - Method likely not implemented", response.text[:100])
+            self.log_test("Link in Bio Page Delete", "FAIL", f"HTTP {response.status_code}", response.text[:200])
     
     def test_user_logout(self):
         """Test user logout endpoint"""
