@@ -764,7 +764,459 @@ class MewayzBackendTester:
         else:
             self.log_test("Link in Bio Duplicate", "FAIL", f"HTTP {response.status_code}", response.text[:200])
     
-    def test_social_media_account_delete(self):
+    def test_crm_contact_endpoints(self):
+        """Test CRM contact CRUD endpoints"""
+        if not self.token or not self.workspace_id:
+            self.log_test("CRM Contact Endpoints", "SKIP", "No authentication token or workspace")
+            return False
+        
+        # Test GET /crm-contacts (index)
+        response, error = self.make_request("GET", f"/crm-contacts?workspace_id={self.workspace_id}")
+        if error:
+            self.log_test("CRM Contacts Index", "FAIL", f"Request failed: {error}")
+        elif response.status_code == 200:
+            try:
+                data = response.json()
+                if data.get("success") and "contacts" in data:
+                    self.log_test("CRM Contacts Index", "PASS", f"Retrieved contacts successfully")
+                else:
+                    self.log_test("CRM Contacts Index", "FAIL", "Invalid response format", data)
+            except json.JSONDecodeError:
+                self.log_test("CRM Contacts Index", "FAIL", "Invalid JSON response")
+        else:
+            self.log_test("CRM Contacts Index", "FAIL", f"HTTP {response.status_code}", response.text[:200])
+        
+        # Test POST /crm-contacts (store)
+        contact_data = {
+            "workspace_id": self.workspace_id,
+            "name": "Sarah Johnson",
+            "email": "sarah.johnson@example.com",
+            "phone": "+1-555-0123",
+            "company": "Tech Innovations Inc",
+            "position": "Marketing Director",
+            "lead_score": 85,
+            "status": "qualified",
+            "source": "website",
+            "tags": ["high-priority", "marketing", "enterprise"],
+            "notes": "Interested in our premium social media management package. Follow up next week.",
+            "contact_date": "2025-01-15T10:30:00Z",
+            "follow_up_date": "2025-01-22T14:00:00Z"
+        }
+        
+        response, error = self.make_request("POST", "/crm-contacts", contact_data)
+        if error:
+            self.log_test("CRM Contact Create", "FAIL", f"Request failed: {error}")
+        elif response.status_code in [200, 201]:
+            try:
+                data = response.json()
+                if data.get("success") and data.get("contact"):
+                    self.crm_contact_id = data["contact"]["id"]
+                    self.log_test("CRM Contact Create", "PASS", "Contact created successfully")
+                    
+                    # Test additional CRM endpoints
+                    self.test_crm_contact_show()
+                    self.test_crm_contact_update()
+                    self.test_crm_contact_actions()
+                    
+                else:
+                    self.log_test("CRM Contact Create", "FAIL", "Invalid response format", data)
+            except json.JSONDecodeError:
+                self.log_test("CRM Contact Create", "FAIL", "Invalid JSON response")
+        else:
+            self.log_test("CRM Contact Create", "FAIL", f"HTTP {response.status_code}", response.text[:200])
+    
+    def test_crm_contact_show(self):
+        """Test getting specific CRM contact"""
+        if not hasattr(self, 'crm_contact_id') or not self.crm_contact_id:
+            return
+            
+        response, error = self.make_request("GET", f"/crm-contacts/{self.crm_contact_id}")
+        if error:
+            self.log_test("CRM Contact Show", "FAIL", f"Request failed: {error}")
+        elif response.status_code == 200:
+            try:
+                data = response.json()
+                if data.get("success") and data.get("contact"):
+                    self.log_test("CRM Contact Show", "PASS", "Contact retrieved successfully")
+                else:
+                    self.log_test("CRM Contact Show", "FAIL", "Invalid response format", data)
+            except json.JSONDecodeError:
+                self.log_test("CRM Contact Show", "FAIL", "Invalid JSON response")
+        else:
+            self.log_test("CRM Contact Show", "FAIL", f"HTTP {response.status_code}", response.text[:200])
+    
+    def test_crm_contact_update(self):
+        """Test updating CRM contact"""
+        if not hasattr(self, 'crm_contact_id') or not self.crm_contact_id:
+            return
+            
+        update_data = {
+            "lead_score": 95,
+            "status": "hot_lead",
+            "notes": "Very interested! Scheduled demo for next week. High conversion potential.",
+            "tags": ["high-priority", "marketing", "enterprise", "demo-scheduled"]
+        }
+        
+        response, error = self.make_request("PUT", f"/crm-contacts/{self.crm_contact_id}", update_data)
+        if error:
+            self.log_test("CRM Contact Update", "FAIL", f"Request failed: {error}")
+        elif response.status_code == 200:
+            try:
+                data = response.json()
+                if data.get("success") and data.get("contact"):
+                    self.log_test("CRM Contact Update", "PASS", "Contact updated successfully")
+                else:
+                    self.log_test("CRM Contact Update", "FAIL", "Invalid response format", data)
+            except json.JSONDecodeError:
+                self.log_test("CRM Contact Update", "FAIL", "Invalid JSON response")
+        else:
+            self.log_test("CRM Contact Update", "FAIL", f"HTTP {response.status_code}", response.text[:200])
+    
+    def test_crm_contact_actions(self):
+        """Test CRM contact specific actions"""
+        if not hasattr(self, 'crm_contact_id') or not self.crm_contact_id:
+            return
+        
+        # Test mark as contacted
+        response, error = self.make_request("POST", f"/crm-contacts/{self.crm_contact_id}/mark-contacted")
+        if error:
+            self.log_test("CRM Mark Contacted", "FAIL", f"Request failed: {error}")
+        elif response.status_code == 200:
+            self.log_test("CRM Mark Contacted", "PASS", "Contact marked as contacted")
+        else:
+            self.log_test("CRM Mark Contacted", "FAIL", f"HTTP {response.status_code}", response.text[:200])
+        
+        # Test update lead score
+        score_data = {"lead_score": 90}
+        response, error = self.make_request("POST", f"/crm-contacts/{self.crm_contact_id}/update-lead-score", score_data)
+        if error:
+            self.log_test("CRM Update Lead Score", "FAIL", f"Request failed: {error}")
+        elif response.status_code == 200:
+            self.log_test("CRM Update Lead Score", "PASS", "Lead score updated")
+        else:
+            self.log_test("CRM Update Lead Score", "FAIL", f"HTTP {response.status_code}", response.text[:200])
+    
+    def test_course_endpoints(self):
+        """Test course management CRUD endpoints"""
+        if not self.token or not self.workspace_id:
+            self.log_test("Course Endpoints", "SKIP", "No authentication token or workspace")
+            return False
+        
+        # Test GET /courses (index)
+        response, error = self.make_request("GET", f"/courses?workspace_id={self.workspace_id}")
+        if error:
+            self.log_test("Courses Index", "FAIL", f"Request failed: {error}")
+        elif response.status_code == 200:
+            try:
+                data = response.json()
+                if data.get("success") and "courses" in data:
+                    self.log_test("Courses Index", "PASS", f"Retrieved courses successfully")
+                else:
+                    self.log_test("Courses Index", "FAIL", "Invalid response format", data)
+            except json.JSONDecodeError:
+                self.log_test("Courses Index", "FAIL", "Invalid JSON response")
+        else:
+            self.log_test("Courses Index", "FAIL", f"HTTP {response.status_code}", response.text[:200])
+        
+        # Test POST /courses (store)
+        course_data = {
+            "workspace_id": self.workspace_id,
+            "title": "Complete Social Media Marketing Mastery",
+            "description": "Learn to create, manage, and optimize social media campaigns that drive real business results. From strategy to execution, this comprehensive course covers everything you need to know.",
+            "category": "marketing",
+            "level": "intermediate",
+            "duration_hours": 12,
+            "price": 299.99,
+            "currency": "USD",
+            "thumbnail": "https://example.com/course-thumbnail.jpg",
+            "status": "draft",
+            "tags": ["social-media", "marketing", "business", "strategy"],
+            "learning_objectives": [
+                "Create effective social media strategies",
+                "Design engaging content that converts",
+                "Analyze and optimize campaign performance",
+                "Build and manage online communities"
+            ]
+        }
+        
+        response, error = self.make_request("POST", "/courses", course_data)
+        if error:
+            self.log_test("Course Create", "FAIL", f"Request failed: {error}")
+        elif response.status_code in [200, 201]:
+            try:
+                data = response.json()
+                if data.get("success") and data.get("course"):
+                    self.course_id = data["course"]["id"]
+                    self.log_test("Course Create", "PASS", "Course created successfully")
+                    
+                    # Test additional course endpoints
+                    self.test_course_show()
+                    self.test_course_update()
+                    self.test_course_modules()
+                    
+                else:
+                    self.log_test("Course Create", "FAIL", "Invalid response format", data)
+            except json.JSONDecodeError:
+                self.log_test("Course Create", "FAIL", "Invalid JSON response")
+        else:
+            self.log_test("Course Create", "FAIL", f"HTTP {response.status_code}", response.text[:200])
+    
+    def test_course_show(self):
+        """Test getting specific course"""
+        if not hasattr(self, 'course_id') or not self.course_id:
+            return
+            
+        response, error = self.make_request("GET", f"/courses/{self.course_id}")
+        if error:
+            self.log_test("Course Show", "FAIL", f"Request failed: {error}")
+        elif response.status_code == 200:
+            try:
+                data = response.json()
+                if data.get("success") and data.get("course"):
+                    self.log_test("Course Show", "PASS", "Course retrieved successfully")
+                else:
+                    self.log_test("Course Show", "FAIL", "Invalid response format", data)
+            except json.JSONDecodeError:
+                self.log_test("Course Show", "FAIL", "Invalid JSON response")
+        else:
+            self.log_test("Course Show", "FAIL", f"HTTP {response.status_code}", response.text[:200])
+    
+    def test_course_update(self):
+        """Test updating course"""
+        if not hasattr(self, 'course_id') or not self.course_id:
+            return
+            
+        update_data = {
+            "title": "Complete Social Media Marketing Mastery - Updated",
+            "price": 349.99,
+            "status": "published"
+        }
+        
+        response, error = self.make_request("PUT", f"/courses/{self.course_id}", update_data)
+        if error:
+            self.log_test("Course Update", "FAIL", f"Request failed: {error}")
+        elif response.status_code == 200:
+            try:
+                data = response.json()
+                if data.get("success") and data.get("course"):
+                    self.log_test("Course Update", "PASS", "Course updated successfully")
+                else:
+                    self.log_test("Course Update", "FAIL", "Invalid response format", data)
+            except json.JSONDecodeError:
+                self.log_test("Course Update", "FAIL", "Invalid JSON response")
+        else:
+            self.log_test("Course Update", "FAIL", f"HTTP {response.status_code}", response.text[:200])
+    
+    def test_course_modules(self):
+        """Test course module creation"""
+        if not hasattr(self, 'course_id') or not self.course_id:
+            return
+        
+        module_data = {
+            "title": "Introduction to Social Media Strategy",
+            "description": "Learn the fundamentals of creating effective social media strategies",
+            "order": 1
+        }
+        
+        response, error = self.make_request("POST", f"/courses/{self.course_id}/modules", module_data)
+        if error:
+            self.log_test("Course Module Create", "FAIL", f"Request failed: {error}")
+        elif response.status_code in [200, 201]:
+            self.log_test("Course Module Create", "PASS", "Module created successfully")
+        else:
+            self.log_test("Course Module Create", "FAIL", f"HTTP {response.status_code}", response.text[:200])
+    
+    def test_product_endpoints(self):
+        """Test product/store management CRUD endpoints"""
+        if not self.token or not self.workspace_id:
+            self.log_test("Product Endpoints", "SKIP", "No authentication token or workspace")
+            return False
+        
+        # Test GET /products (index)
+        response, error = self.make_request("GET", f"/products?workspace_id={self.workspace_id}")
+        if error:
+            self.log_test("Products Index", "FAIL", f"Request failed: {error}")
+        elif response.status_code == 200:
+            try:
+                data = response.json()
+                if data.get("success") and "products" in data:
+                    self.log_test("Products Index", "PASS", f"Retrieved products successfully")
+                else:
+                    self.log_test("Products Index", "FAIL", "Invalid response format", data)
+            except json.JSONDecodeError:
+                self.log_test("Products Index", "FAIL", "Invalid JSON response")
+        else:
+            self.log_test("Products Index", "FAIL", f"HTTP {response.status_code}", response.text[:200])
+        
+        # Test POST /products (store)
+        product_data = {
+            "workspace_id": self.workspace_id,
+            "name": "Premium Social Media Template Pack",
+            "description": "A comprehensive collection of 50+ professionally designed social media templates for Instagram, Facebook, and LinkedIn. Perfect for businesses, influencers, and content creators.",
+            "category": "digital-templates",
+            "price": 49.99,
+            "currency": "USD",
+            "stock_quantity": 1000,
+            "sku": "SMTP-PREM-001",
+            "status": "active",
+            "images": [
+                "https://example.com/product-image-1.jpg",
+                "https://example.com/product-image-2.jpg"
+            ],
+            "tags": ["templates", "social-media", "design", "instagram"],
+            "specifications": {
+                "format": "PSD, AI, PNG",
+                "dimensions": "1080x1080, 1080x1920",
+                "software": "Photoshop, Illustrator",
+                "license": "Commercial Use"
+            },
+            "is_digital": True,
+            "weight": 0,
+            "shipping_required": False
+        }
+        
+        response, error = self.make_request("POST", "/products", product_data)
+        if error:
+            self.log_test("Product Create", "FAIL", f"Request failed: {error}")
+        elif response.status_code in [200, 201]:
+            try:
+                data = response.json()
+                if data.get("success") and data.get("product"):
+                    self.product_id = data["product"]["id"]
+                    self.log_test("Product Create", "PASS", "Product created successfully")
+                    
+                    # Test additional product endpoints
+                    self.test_product_show()
+                    self.test_product_update()
+                    self.test_product_stock_update()
+                    
+                else:
+                    self.log_test("Product Create", "FAIL", "Invalid response format", data)
+            except json.JSONDecodeError:
+                self.log_test("Product Create", "FAIL", "Invalid JSON response")
+        else:
+            self.log_test("Product Create", "FAIL", f"HTTP {response.status_code}", response.text[:200])
+    
+    def test_product_show(self):
+        """Test getting specific product"""
+        if not hasattr(self, 'product_id') or not self.product_id:
+            return
+            
+        response, error = self.make_request("GET", f"/products/{self.product_id}")
+        if error:
+            self.log_test("Product Show", "FAIL", f"Request failed: {error}")
+        elif response.status_code == 200:
+            try:
+                data = response.json()
+                if data.get("success") and data.get("product"):
+                    self.log_test("Product Show", "PASS", "Product retrieved successfully")
+                else:
+                    self.log_test("Product Show", "FAIL", "Invalid response format", data)
+            except json.JSONDecodeError:
+                self.log_test("Product Show", "FAIL", "Invalid JSON response")
+        else:
+            self.log_test("Product Show", "FAIL", f"HTTP {response.status_code}", response.text[:200])
+    
+    def test_product_update(self):
+        """Test updating product"""
+        if not hasattr(self, 'product_id') or not self.product_id:
+            return
+            
+        update_data = {
+            "name": "Premium Social Media Template Pack - Updated",
+            "price": 59.99,
+            "stock_quantity": 1500
+        }
+        
+        response, error = self.make_request("PUT", f"/products/{self.product_id}", update_data)
+        if error:
+            self.log_test("Product Update", "FAIL", f"Request failed: {error}")
+        elif response.status_code == 200:
+            try:
+                data = response.json()
+                if data.get("success") and data.get("product"):
+                    self.log_test("Product Update", "PASS", "Product updated successfully")
+                else:
+                    self.log_test("Product Update", "FAIL", "Invalid response format", data)
+            except json.JSONDecodeError:
+                self.log_test("Product Update", "FAIL", "Invalid JSON response")
+        else:
+            self.log_test("Product Update", "FAIL", f"HTTP {response.status_code}", response.text[:200])
+    
+    def test_product_stock_update(self):
+        """Test updating product stock"""
+        if not hasattr(self, 'product_id') or not self.product_id:
+            return
+        
+        stock_data = {"stock_quantity": 2000}
+        
+        response, error = self.make_request("POST", f"/products/{self.product_id}/update-stock", stock_data)
+        if error:
+            self.log_test("Product Stock Update", "FAIL", f"Request failed: {error}")
+        elif response.status_code == 200:
+            self.log_test("Product Stock Update", "PASS", "Stock updated successfully")
+        else:
+            self.log_test("Product Stock Update", "FAIL", f"HTTP {response.status_code}", response.text[:200])
+    
+    def test_crm_contact_delete(self):
+        """Test deleting CRM contact"""
+        if not hasattr(self, 'crm_contact_id') or not self.crm_contact_id:
+            return
+            
+        response, error = self.make_request("DELETE", f"/crm-contacts/{self.crm_contact_id}")
+        if error:
+            self.log_test("CRM Contact Delete", "FAIL", f"Request failed: {error}")
+        elif response.status_code == 200:
+            try:
+                data = response.json()
+                if data.get("success"):
+                    self.log_test("CRM Contact Delete", "PASS", "Contact deleted successfully")
+                else:
+                    self.log_test("CRM Contact Delete", "FAIL", "Invalid response format", data)
+            except json.JSONDecodeError:
+                self.log_test("CRM Contact Delete", "FAIL", "Invalid JSON response")
+        else:
+            self.log_test("CRM Contact Delete", "FAIL", f"HTTP {response.status_code}", response.text[:200])
+    
+    def test_course_delete(self):
+        """Test deleting course"""
+        if not hasattr(self, 'course_id') or not self.course_id:
+            return
+            
+        response, error = self.make_request("DELETE", f"/courses/{self.course_id}")
+        if error:
+            self.log_test("Course Delete", "FAIL", f"Request failed: {error}")
+        elif response.status_code == 200:
+            try:
+                data = response.json()
+                if data.get("success"):
+                    self.log_test("Course Delete", "PASS", "Course deleted successfully")
+                else:
+                    self.log_test("Course Delete", "FAIL", "Invalid response format", data)
+            except json.JSONDecodeError:
+                self.log_test("Course Delete", "FAIL", "Invalid JSON response")
+        else:
+            self.log_test("Course Delete", "FAIL", f"HTTP {response.status_code}", response.text[:200])
+    
+    def test_product_delete(self):
+        """Test deleting product"""
+        if not hasattr(self, 'product_id') or not self.product_id:
+            return
+            
+        response, error = self.make_request("DELETE", f"/products/{self.product_id}")
+        if error:
+            self.log_test("Product Delete", "FAIL", f"Request failed: {error}")
+        elif response.status_code == 200:
+            try:
+                data = response.json()
+                if data.get("success"):
+                    self.log_test("Product Delete", "PASS", "Product deleted successfully")
+                else:
+                    self.log_test("Product Delete", "FAIL", "Invalid response format", data)
+            except json.JSONDecodeError:
+                self.log_test("Product Delete", "FAIL", "Invalid JSON response")
+        else:
+            self.log_test("Product Delete", "FAIL", f"HTTP {response.status_code}", response.text[:200])
         """Test deleting social media account"""
         if not self.social_account_id:
             return
