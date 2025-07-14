@@ -4,6 +4,7 @@ import { useAuth } from '../../../contexts/AuthContext';
 import Input from '../../../components/ui/Input';
 import Button from '../../../components/ui/Button';
 import { Checkbox } from '../../../components/ui/Checkbox';
+import GoogleOAuthButton from '../../../components/ui/GoogleOAuthButton';
 import Icon from '../../../components/AppIcon';
 import PasswordStrengthIndicator from './PasswordStrengthIndicator';
 
@@ -114,130 +115,162 @@ const RegistrationForm = () => {
     }
   };
 
+  const handleGoogleSuccess = (data) => {
+    console.log('Google registration successful:', data);
+    navigate('/dashboard-screen');
+  };
+
+  const handleGoogleError = (error) => {
+    console.log('Google registration error:', error);
+    // Error is already handled by AuthContext
+  };
+
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      {authError && (
-        <div className="p-4 bg-destructive/10 border border-destructive/20 rounded-lg">
-          <p className="text-sm text-destructive">{authError}</p>
+    <div className="space-y-6">
+      {/* Google OAuth Button */}
+      <GoogleOAuthButton
+        onSuccess={handleGoogleSuccess}
+        onError={handleGoogleError}
+        disabled={isLoading}
+      />
+
+      {/* Divider */}
+      <div className="relative">
+        <div className="absolute inset-0 flex items-center">
+          <div className="w-full border-t border-muted-foreground/20"></div>
         </div>
-      )}
+        <div className="relative flex justify-center text-xs uppercase">
+          <span className="bg-background px-2 text-muted-foreground">
+            Or continue with email
+          </span>
+        </div>
+      </div>
 
-      {/* Full Name */}
-      <Input
-        label="Full Name"
-        type="text"
-        placeholder="Enter your full name"
-        value={formData.fullName}
-        onChange={(e) => handleInputChange('fullName', e.target.value)}
-        error={errors.fullName}
-        required
-        disabled={isLoading}
-      />
+      {/* Registration Form */}
+      <form onSubmit={handleSubmit} className="space-y-6">
+        {authError && (
+          <div className="p-4 bg-destructive/10 border border-destructive/20 rounded-lg">
+            <p className="text-sm text-destructive">{authError}</p>
+          </div>
+        )}
 
-      {/* Email */}
-      <Input
-        label="Email Address"
-        type="email"
-        placeholder="Enter your email address"
-        value={formData.email}
-        onChange={(e) => handleInputChange('email', e.target.value)}
-        error={errors.email}
-        required
-        disabled={isLoading}
-      />
+        {/* Full Name */}
+        <Input
+          label="Full Name"
+          type="text"
+          placeholder="Enter your full name"
+          value={formData.fullName}
+          onChange={(e) => handleInputChange('fullName', e.target.value)}
+          error={errors.fullName}
+          required
+          disabled={isLoading}
+        />
 
-      {/* Password */}
-      <div className="space-y-1">
+        {/* Email */}
+        <Input
+          label="Email Address"
+          type="email"
+          placeholder="Enter your email address"
+          value={formData.email}
+          onChange={(e) => handleInputChange('email', e.target.value)}
+          error={errors.email}
+          required
+          disabled={isLoading}
+        />
+
+        {/* Password */}
+        <div className="space-y-1">
+          <div className="relative">
+            <Input
+              label="Password"
+              type={showPassword ? "text" : "password"}
+              placeholder="Create a strong password"
+              value={formData.password}
+              onChange={(e) => handleInputChange('password', e.target.value)}
+              error={errors.password}
+              required
+              disabled={isLoading}
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-3 top-9 text-muted-foreground hover:text-foreground transition-colors"
+              disabled={isLoading}
+            >
+              <Icon name={showPassword ? "EyeOff" : "Eye"} size={16} />
+            </button>
+          </div>
+          <PasswordStrengthIndicator password={formData.password} />
+        </div>
+
+        {/* Confirm Password */}
         <div className="relative">
           <Input
-            label="Password"
-            type={showPassword ? "text" : "password"}
-            placeholder="Create a strong password"
-            value={formData.password}
-            onChange={(e) => handleInputChange('password', e.target.value)}
-            error={errors.password}
+            label="Confirm Password"
+            type={showConfirmPassword ? "text" : "password"}
+            placeholder="Confirm your password"
+            value={formData.confirmPassword}
+            onChange={(e) => handleInputChange('confirmPassword', e.target.value)}
+            error={errors.confirmPassword}
             required
             disabled={isLoading}
           />
           <button
             type="button"
-            onClick={() => setShowPassword(!showPassword)}
+            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
             className="absolute right-3 top-9 text-muted-foreground hover:text-foreground transition-colors"
             disabled={isLoading}
           >
-            <Icon name={showPassword ? "EyeOff" : "Eye"} size={16} />
+            <Icon name={showConfirmPassword ? "EyeOff" : "Eye"} size={16} />
           </button>
         </div>
-        <PasswordStrengthIndicator password={formData.password} />
-      </div>
 
-      {/* Confirm Password */}
-      <div className="relative">
-        <Input
-          label="Confirm Password"
-          type={showConfirmPassword ? "text" : "password"}
-          placeholder="Confirm your password"
-          value={formData.confirmPassword}
-          onChange={(e) => handleInputChange('confirmPassword', e.target.value)}
-          error={errors.confirmPassword}
-          required
+        {/* Terms and Privacy */}
+        <div className="space-y-4">
+          <Checkbox
+            label={
+              <span className="text-sm">
+                I agree to the{' '}
+                <a href="/terms" className="text-primary hover:text-primary/80 underline">
+                  Terms of Service
+                </a>
+              </span>
+            }
+            checked={formData.agreeToTerms}
+            onChange={(e) => handleInputChange('agreeToTerms', e.target.checked)}
+            error={errors.agreeToTerms}
+            disabled={isLoading}
+          />
+
+          <Checkbox
+            label={
+              <span className="text-sm">
+                I agree to the{' '}
+                <a href="/privacy" className="text-primary hover:text-primary/80 underline">
+                  Privacy Policy
+                </a>
+              </span>
+            }
+            checked={formData.agreeToPrivacy}
+            onChange={(e) => handleInputChange('agreeToPrivacy', e.target.checked)}
+            error={errors.agreeToPrivacy}
+            disabled={isLoading}
+          />
+        </div>
+
+        {/* Submit Button */}
+        <Button
+          type="submit"
+          variant="default"
+          size="lg"
+          loading={isLoading}
           disabled={isLoading}
-        />
-        <button
-          type="button"
-          onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-          className="absolute right-3 top-9 text-muted-foreground hover:text-foreground transition-colors"
-          disabled={isLoading}
+          className="w-full"
         >
-          <Icon name={showConfirmPassword ? "EyeOff" : "Eye"} size={16} />
-        </button>
-      </div>
-
-      {/* Terms and Privacy */}
-      <div className="space-y-4">
-        <Checkbox
-          label={
-            <span className="text-sm">
-              I agree to the{' '}
-              <a href="/terms" className="text-primary hover:text-primary/80 underline">
-                Terms of Service
-              </a>
-            </span>
-          }
-          checked={formData.agreeToTerms}
-          onChange={(e) => handleInputChange('agreeToTerms', e.target.checked)}
-          error={errors.agreeToTerms}
-          disabled={isLoading}
-        />
-
-        <Checkbox
-          label={
-            <span className="text-sm">
-              I agree to the{' '}
-              <a href="/privacy" className="text-primary hover:text-primary/80 underline">
-                Privacy Policy
-              </a>
-            </span>
-          }
-          checked={formData.agreeToPrivacy}
-          onChange={(e) => handleInputChange('agreeToPrivacy', e.target.checked)}
-          error={errors.agreeToPrivacy}
-          disabled={isLoading}
-        />
-      </div>
-
-      {/* Submit Button */}
-      <Button
-        type="submit"
-        variant="default"
-        size="lg"
-        loading={isLoading}
-        disabled={isLoading}
-        className="w-full"
-      >
-        Create Account
-      </Button>
-    </form>
+          Create Account
+        </Button>
+      </form>
+    </div>
   );
 };
 
