@@ -5,6 +5,7 @@ import ErrorBoundary from "components/ErrorBoundary";
 import ProtectedRoute from "components/ProtectedRoute";
 import { WizardProvider } from "contexts/WizardContext";
 // Add your imports here
+import LandingPage from "pages/LandingPage";
 import LoginScreen from "pages/login-screen";
 import DashboardScreen from "pages/dashboard-screen";
 import EnhancedDashboardScreen from "pages/enhanced-dashboard-screen";
@@ -27,6 +28,9 @@ const Routes = () => {
       <ScrollToTop />
       <WizardProvider>
         <RouterRoutes>
+          {/* Public landing page */}
+          <Route path="/" element={<LandingPage />} />
+          
           {/* Public routes - redirect to dashboard if authenticated */}
           <Route path="/login-screen" element={
             <ProtectedRoute requireAuth={false}>
@@ -45,11 +49,6 @@ const Routes = () => {
           } />
           
           {/* Protected routes - require authentication */}
-          <Route path="/" element={
-            <ProtectedRoute>
-              <DashboardScreen />
-            </ProtectedRoute>
-          } />
           <Route path="/dashboard-screen" element={
             <ProtectedRoute>
               <DashboardScreen />
