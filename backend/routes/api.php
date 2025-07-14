@@ -43,6 +43,9 @@ Route::middleware('auth:sanctum')->group(function () {
     
     // Link in Bio routes
     Route::apiResource('link-in-bio-pages', LinkInBioPageController::class);
+    Route::post('link-in-bio-pages/{linkInBioPage}/track-click', [LinkInBioPageController::class, 'trackClick']);
+    Route::get('link-in-bio-pages/{linkInBioPage}/analytics', [LinkInBioPageController::class, 'analytics']);
+    Route::post('link-in-bio-pages/{linkInBioPage}/duplicate', [LinkInBioPageController::class, 'duplicate']);
     
     // CRM routes
     Route::apiResource('crm-contacts', CrmContactController::class);
