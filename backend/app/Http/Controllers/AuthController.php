@@ -40,8 +40,8 @@ class AuthController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:8',
+            'email' => 'required|email|unique:users,email',
+            'password' => 'required|min:6',
         ]);
 
         $user = User::create([
@@ -51,12 +51,17 @@ class AuthController extends Controller
             'password' => Hash::make($request->password),
         ]);
 
-        $token = $user->createToken('mewayz-token')->plainTextToken;
+        $token = $user->createToken('auth_token')->plainTextToken;
+
+        // Send welcome email
+        $emailService = new \App\Services\ElasticMailService();
+        $emailService->sendWelcomeEmail($user);
 
         return response()->json([
             'success' => true,
             'token' => $token,
-            'user' => $user
+            'user' => $user,
+            'message' => 'User registered successfully'
         ], 201);
     }
 
