@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('workspace_members', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->uuid('workspace_id');
-            $table->unsignedBigInteger('user_id');
+            $table->uuid('user_id');
             $table->enum('role', ['owner', 'admin', 'editor', 'viewer'])->default('viewer');
             $table->enum('status', ['active', 'inactive', 'pending'])->default('pending');
             $table->json('permissions')->nullable();
