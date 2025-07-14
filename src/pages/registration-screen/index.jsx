@@ -112,30 +112,6 @@ const RegistrationScreen = () => {
 
           {/* Main Card */}
           <div className="bg-card border border-border rounded-lg p-6 shadow-card">
-            {/* Error Message */}
-            {error && (
-              <div className="mb-6 p-4 bg-destructive/10 border border-destructive/20 rounded-lg">
-                <div className="flex items-center space-x-2">
-                  <Icon name="AlertCircle" size={16} className="text-destructive" />
-                  <p className="text-sm text-destructive font-medium">
-                    {error}
-                  </p>
-                </div>
-              </div>
-            )}
-
-            {/* Success Message */}
-            {success && (
-              <div className="mb-6 p-4 bg-success/10 border border-success/20 rounded-lg">
-                <div className="flex items-center space-x-2">
-                  <Icon name="CheckCircle" size={16} className="text-success" />
-                  <p className="text-sm text-success font-medium">
-                    {success}
-                  </p>
-                </div>
-              </div>
-            )}
-
             {/* Registration Form */}
             <RegistrationForm />
 
