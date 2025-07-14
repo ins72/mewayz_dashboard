@@ -1,10 +1,10 @@
 import React, { useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useAuth } from '../../contexts/AuthContext';
-import { OnboardingProvider, useOnboarding } from '../../contexts/OnboardingContext';
-import GoalSelectionStep from './GoalSelectionStep';
-import FeatureSelectionStep from './FeatureSelectionStep';
-import TeamSetupStep from './TeamSetupStep';
+import { useAuth } from '../contexts/AuthContext';
+import { OnboardingProvider, useOnboarding } from '../contexts/OnboardingContext';
+import GoalSelectionStep from '../components/onboarding/GoalSelectionStep';
+import FeatureSelectionStep from '../components/onboarding/FeatureSelectionStep';
+import TeamSetupStep from '../components/onboarding/TeamSetupStep';
 import { Loader2 } from 'lucide-react';
 
 const OnboardingContent = () => {
