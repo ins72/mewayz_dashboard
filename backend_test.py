@@ -187,33 +187,140 @@ class MewayzBackendTester:
             return False
     
     def test_social_media_account_endpoints(self):
-        """Test social media account CRUD endpoints"""
-        if not self.token:
-            self.log_test("Social Media Account Endpoints", "SKIP", "No authentication token")
+        """Test social media account CRUD endpoints with comprehensive data"""
+        if not self.token or not self.workspace_id:
+            self.log_test("Social Media Account Endpoints", "SKIP", "No authentication token or workspace")
             return False
         
-        # Test GET /social-media-accounts
-        response, error = self.make_request("GET", "/social-media-accounts")
+        # Test GET /social-media-accounts (index)
+        response, error = self.make_request("GET", f"/social-media-accounts?workspace_id={self.workspace_id}")
         if error:
             self.log_test("Social Media Accounts Index", "FAIL", f"Request failed: {error}")
         elif response.status_code == 200:
-            self.log_test("Social Media Accounts Index", "PASS", "Endpoint accessible")
+            try:
+                data = response.json()
+                if data.get("success") and "accounts" in data:
+                    self.log_test("Social Media Accounts Index", "PASS", f"Retrieved {len(data['accounts'])} accounts")
+                else:
+                    self.log_test("Social Media Accounts Index", "FAIL", "Invalid response format", data)
+            except json.JSONDecodeError:
+                self.log_test("Social Media Accounts Index", "FAIL", "Invalid JSON response")
         else:
-            self.log_test("Social Media Accounts Index", "WARN", f"HTTP {response.status_code} - Method likely not implemented", response.text[:100])
+            self.log_test("Social Media Accounts Index", "FAIL", f"HTTP {response.status_code}", response.text[:200])
         
-        # Test POST /social-media-accounts
+        # Test POST /social-media-accounts (store)
         account_data = {
+            "workspace_id": self.workspace_id,
             "platform": "instagram",
-            "username": "@creativestudio",
-            "access_token": "fake_token_123"
+            "account_id": "creative_studio_2025",
+            "username": "@creativestudio2025",
+            "display_name": "Creative Studio 2025",
+            "profile_picture": "https://example.com/profile.jpg",
+            "access_tokens": {
+                "access_token": "fake_access_token_123",
+                "refresh_token": "fake_refresh_token_456"
+            },
+            "account_info": {
+                "followers_count": 15000,
+                "following_count": 500,
+                "posts_count": 250
+            }
         }
+        
         response, error = self.make_request("POST", "/social-media-accounts", account_data)
         if error:
             self.log_test("Social Media Account Create", "FAIL", f"Request failed: {error}")
         elif response.status_code in [200, 201]:
-            self.log_test("Social Media Account Create", "PASS", "Endpoint accessible")
+            try:
+                data = response.json()
+                if data.get("success") and data.get("account"):
+                    self.social_account_id = data["account"]["id"]
+                    self.log_test("Social Media Account Create", "PASS", "Account created successfully")
+                    
+                    # Test GET /social-media-accounts/{id} (show)
+                    self.test_social_media_account_show()
+                    
+                    # Test PUT /social-media-accounts/{id} (update)
+                    self.test_social_media_account_update()
+                    
+                    # Test POST /social-media-accounts/{id}/refresh-tokens
+                    self.test_social_media_account_refresh_tokens()
+                    
+                else:
+                    self.log_test("Social Media Account Create", "FAIL", "Invalid response format", data)
+            except json.JSONDecodeError:
+                self.log_test("Social Media Account Create", "FAIL", "Invalid JSON response")
         else:
-            self.log_test("Social Media Account Create", "WARN", f"HTTP {response.status_code} - Method likely not implemented", response.text[:100])
+            self.log_test("Social Media Account Create", "FAIL", f"HTTP {response.status_code}", response.text[:200])
+    
+    def test_social_media_account_show(self):
+        """Test getting specific social media account"""
+        if not self.social_account_id:
+            return
+            
+        response, error = self.make_request("GET", f"/social-media-accounts/{self.social_account_id}")
+        if error:
+            self.log_test("Social Media Account Show", "FAIL", f"Request failed: {error}")
+        elif response.status_code == 200:
+            try:
+                data = response.json()
+                if data.get("success") and data.get("account"):
+                    self.log_test("Social Media Account Show", "PASS", "Account retrieved successfully")
+                else:
+                    self.log_test("Social Media Account Show", "FAIL", "Invalid response format", data)
+            except json.JSONDecodeError:
+                self.log_test("Social Media Account Show", "FAIL", "Invalid JSON response")
+        else:
+            self.log_test("Social Media Account Show", "FAIL", f"HTTP {response.status_code}", response.text[:200])
+    
+    def test_social_media_account_update(self):
+        """Test updating social media account"""
+        if not self.social_account_id:
+            return
+            
+        update_data = {
+            "display_name": "Creative Studio 2025 - Updated",
+            "account_info": {
+                "followers_count": 16000,
+                "following_count": 520,
+                "posts_count": 260
+            }
+        }
+        
+        response, error = self.make_request("PUT", f"/social-media-accounts/{self.social_account_id}", update_data)
+        if error:
+            self.log_test("Social Media Account Update", "FAIL", f"Request failed: {error}")
+        elif response.status_code == 200:
+            try:
+                data = response.json()
+                if data.get("success") and data.get("account"):
+                    self.log_test("Social Media Account Update", "PASS", "Account updated successfully")
+                else:
+                    self.log_test("Social Media Account Update", "FAIL", "Invalid response format", data)
+            except json.JSONDecodeError:
+                self.log_test("Social Media Account Update", "FAIL", "Invalid JSON response")
+        else:
+            self.log_test("Social Media Account Update", "FAIL", f"HTTP {response.status_code}", response.text[:200])
+    
+    def test_social_media_account_refresh_tokens(self):
+        """Test refreshing social media account tokens"""
+        if not self.social_account_id:
+            return
+            
+        response, error = self.make_request("POST", f"/social-media-accounts/{self.social_account_id}/refresh-tokens")
+        if error:
+            self.log_test("Social Media Account Refresh Tokens", "FAIL", f"Request failed: {error}")
+        elif response.status_code == 200:
+            try:
+                data = response.json()
+                if data.get("success") and data.get("account"):
+                    self.log_test("Social Media Account Refresh Tokens", "PASS", "Tokens refreshed successfully")
+                else:
+                    self.log_test("Social Media Account Refresh Tokens", "FAIL", "Invalid response format", data)
+            except json.JSONDecodeError:
+                self.log_test("Social Media Account Refresh Tokens", "FAIL", "Invalid JSON response")
+        else:
+            self.log_test("Social Media Account Refresh Tokens", "FAIL", f"HTTP {response.status_code}", response.text[:200])
     
     def test_social_media_post_endpoints(self):
         """Test social media post CRUD endpoints"""
