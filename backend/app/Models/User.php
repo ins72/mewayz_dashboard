@@ -15,6 +15,20 @@ class User extends Authenticatable
     use HasFactory, Notifiable, HasApiTokens;
 
     /**
+     * Indicates if the IDs are auto-incrementing.
+     *
+     * @var bool
+     */
+    public $incrementing = false;
+
+    /**
+     * The "type" of the auto-incrementing ID.
+     *
+     * @var string
+     */
+    protected $keyType = 'string';
+
+    /**
      * Indicates if the model should use timestamps.
      *
      * @var bool
