@@ -1,19 +1,23 @@
 #!/usr/bin/env python3
 """
 Comprehensive Backend Testing for Mewayz Laravel Application
-Tests all API endpoints and functionality
+Tests all API endpoints and functionality - Focus on Social Media and Link in Bio Features
 """
 
 import requests
 import json
 import sys
-from datetime import datetime
+from datetime import datetime, timedelta
 
 class MewayzBackendTester:
     def __init__(self):
         self.base_url = "http://localhost:8001/api"
         self.token = None
         self.user_id = None
+        self.workspace_id = None
+        self.social_account_id = None
+        self.social_post_id = None
+        self.link_page_id = None
         self.test_results = []
         
     def log_test(self, test_name, status, message="", details=None):
