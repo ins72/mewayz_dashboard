@@ -9,38 +9,38 @@ import { useAuth } from '../../contexts/AuthContext';
 
 const RegistrationScreen = () => {
   const navigate = useNavigate();
-  const { signUp } = useAuth();
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
-
-  const handleRegistration = async (formData) => {
-    setIsLoading(true);
-    setError('');
-    setSuccess('');
-
-    try {
-      const result = await signUp(formData.email, formData.password, {
-        name: formData.fullName || formData.name,
-        fullName: formData.fullName || formData.name
-      });
-
-      if (result.success) {
-        setSuccess('Account created successfully! You are now logged in.');
-        
-        // Redirect to dashboard after successful registration
-        setTimeout(() => {
-          navigate('/dashboard-screen');
-        }, 1000);
-      } else {
-        setError(result.error || 'Registration failed. Please try again.');
-      }
-    } catch (err) {
-      setError(err.message || 'Registration failed. Please try again.');
-    } finally {
-      setIsLoading(false);
+  const { user, loading } = useAuth();
+  
+  // Redirect if user is already authenticated
+  React.useEffect(() => {
+    if (!loading && user) {
+      navigate('/dashboard-screen');
     }
-  };
+  }, [user, loading, navigate]);
+
+  // Show loading state while checking authentication
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center p-4">
+        <div className="w-full max-w-md">
+          <div className="bg-card border border-border rounded-xl p-8 shadow-card">
+            <div className="space-y-6 animate-pulse">
+              <div className="text-center space-y-4">
+                <div className="w-16 h-16 bg-muted rounded-lg mx-auto"></div>
+                <div className="w-32 h-6 bg-muted rounded mx-auto"></div>
+                <div className="w-48 h-4 bg-muted rounded mx-auto"></div>
+              </div>
+              <div className="space-y-4">
+                <div className="w-full h-12 bg-muted rounded"></div>
+                <div className="w-full h-12 bg-muted rounded"></div>
+                <div className="w-full h-12 bg-muted rounded"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   const handleGoogleSignup = async () => {
     setIsLoading(true);
