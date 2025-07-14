@@ -1,11 +1,11 @@
 <?php
 // Test database connection
 try {
-    $host = '109.106.255.240';
-    $port = '8443';
-    $dbname = 'test-mewayz';
-    $username = 'test-mewayz';
-    $password = 'duM4q6w153UUvfnlQNlU';
+    $host = '127.0.0.1';
+    $port = '3306';
+    $dbname = 'mewapp';
+    $username = 'mewapp';
+    $password = 'Q16hoLuCqtkJEfpzKOnu';
     
     // Create PDO connection
     $pdo = new PDO("mysql:host=$host;port=$port;dbname=$dbname", $username, $password);
