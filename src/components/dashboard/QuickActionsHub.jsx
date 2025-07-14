@@ -71,7 +71,7 @@ const QuickActionsHub = () => {
       description: 'Add new link to your bio page',
       icon: Link,
       color: 'from-blue-500 to-cyan-500',
-      action: () => console.log('Add Link'),
+      action: () => navigate('/dashboard/link-builder'),
       category: 'link_in_bio'
     },
     {
