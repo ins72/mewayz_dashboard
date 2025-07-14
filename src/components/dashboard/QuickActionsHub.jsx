@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import { 
   Plus, 
   Instagram, 
@@ -10,6 +11,7 @@ import {
   BarChart3,
   Calendar,
   MessageCircle,
+  CreditCard,
   Settings,
   ArrowRight,
   Zap,
