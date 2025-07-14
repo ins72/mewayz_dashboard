@@ -11,6 +11,7 @@ use App\Http\Controllers\CrmContactController;
 use App\Http\Controllers\CourseController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\WorkspaceInvitationController;
+use App\Http\Controllers\PaymentController;
 
 /*
 |--------------------------------------------------------------------------
