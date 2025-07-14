@@ -87,4 +87,30 @@ class User extends Authenticatable
             }
         });
     }
+
+    /**
+     * Get the user that owns the member.
+     */
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    /**
+     * Get the workspaces that the user belongs to.
+     */
+    public function workspaces()
+    {
+        return $this->belongsToMany(Workspace::class, 'workspace_members', 'user_id', 'workspace_id')
+                    ->withPivot('role', 'status', 'permissions', 'invited_at', 'joined_at')
+                    ->withTimestamps();
+    }
+
+    /**
+     * Get the workspace memberships for the user.
+     */
+    public function workspaceMemberships()
+    {
+        return $this->hasMany(WorkspaceMember::class);
+    }
 }
