@@ -471,20 +471,21 @@ class WorkspaceInvitationTester:
             self.log_test("Accept Invitation Auth Required", "FAIL", f"Request failed: {error}")
             return False
         
-        if response.status_code == 200:
+        # Since the email doesn't match the authenticated user, it should fail with 403
+        if response.status_code == 403:
             try:
                 data = response.json()
-                if data.get("success"):
-                    self.log_test("Accept Invitation Auth Required", "PASS", "Invitation accepted successfully with authentication")
+                if not data.get("success"):
+                    self.log_test("Accept Invitation Auth Required", "PASS", "Email mismatch properly rejected")
                     return True
                 else:
-                    self.log_test("Accept Invitation Auth Required", "FAIL", "Invalid response format", data)
+                    self.log_test("Accept Invitation Auth Required", "FAIL", "Email mismatch was accepted")
                     return False
             except json.JSONDecodeError:
                 self.log_test("Accept Invitation Auth Required", "FAIL", "Invalid JSON response")
                 return False
         else:
-            self.log_test("Accept Invitation Auth Required", "FAIL", f"HTTP {response.status_code}", response.text[:200])
+            self.log_test("Accept Invitation Auth Required", "FAIL", f"Expected 403, got {response.status_code}")
             return False
     
     def test_duplicate_invitation_handling(self):
