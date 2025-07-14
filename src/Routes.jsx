@@ -11,6 +11,8 @@ import OnboardingWizard from "components/onboarding/OnboardingWizard";
 import QuickActionsHub from "components/dashboard/QuickActionsHub";
 import InstagramManagement from "components/dashboard/InstagramManagement";
 import LinkInBioBuilder from "components/dashboard/LinkInBioBuilder";
+import PaymentDashboard from "components/dashboard/PaymentDashboard";
+import EmailCampaignBuilder from "components/dashboard/EmailCampaignBuilder";
 import LoginScreen from "pages/login-screen";
 import DashboardScreen from "pages/dashboard-screen";
 import EnhancedDashboardScreen from "pages/enhanced-dashboard-screen";
