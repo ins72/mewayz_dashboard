@@ -47,6 +47,20 @@ const QuickActionsGrid = () => {
       icon: "BarChart3",
       color: "#26DE81",
       onClick: () => navigate('/dashboard/analytics')
+    },
+    {
+      title: "Payments",
+      description: "Manage payments and subscriptions",
+      icon: "CreditCard",
+      color: "#22C55E",
+      onClick: () => navigate('/dashboard/payments')
+    },
+    {
+      title: "Email Campaigns",
+      description: "Create and send email campaigns",
+      icon: "Mail",
+      color: "#3B82F6",
+      onClick: () => navigate('/dashboard/email-campaigns')
     }
   ];
 
