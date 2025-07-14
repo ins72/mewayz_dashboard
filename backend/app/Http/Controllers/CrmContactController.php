@@ -77,11 +77,11 @@ class CrmContactController extends Controller
         if ($request->has('lead_category')) {
             $category = $request->input('lead_category');
             $query->where('lead_score', match ($category) {
-                'hot' => '>=', 80,
+                'hot' => ['>=', 80],
                 'warm' => ['>=', 60, '<', 80],
                 'cold' => ['>=', 40, '<', 60],
-                'unqualified' => '<', 40,
-                default => '>=', 0
+                'unqualified' => ['<', 40],
+                default => ['>=', 0]
             });
         }
 
