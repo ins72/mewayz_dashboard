@@ -101,8 +101,10 @@ class MewayzBackendTester:
     
     def test_user_login(self):
         """Test user login endpoint"""
+        import time
+        timestamp = int(time.time())
         test_data = {
-            "email": "emma.wilson@mewayz.com",
+            "email": f"emma.wilson.{timestamp}@mewayz.com",
             "password": "SecurePassword123!"
         }
         
