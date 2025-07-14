@@ -547,7 +547,7 @@ class MewayzBackendTester:
                 },
                 {
                     "title": "Contact Me",
-                    "url": "mailto:emma@creativestudio.com",
+                    "url": "https://creativestudio.com/contact",
                     "description": "Get in touch for collaborations",
                     "icon": "mail",
                     "is_active": True,
