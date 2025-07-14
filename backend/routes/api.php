@@ -64,11 +64,15 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('courses/{course}/analytics', [CourseController::class, 'analytics']);
     Route::post('courses/{course}/duplicate', [CourseController::class, 'duplicate']);
     
-    // Product/Store routes
-    Route::apiResource('products', ProductController::class);
-    Route::post('products/{product}/update-stock', [ProductController::class, 'updateStock']);
-    Route::post('products/{product}/duplicate', [ProductController::class, 'duplicate']);
-    Route::get('products-analytics', [ProductController::class, 'analytics']);
+    // Payment routes
+    Route::get('payments/packages', [PaymentController::class, 'getPackages']);
+    Route::post('payments/checkout/session', [PaymentController::class, 'createCheckoutSession']);
+    Route::get('payments/checkout/status/{sessionId}', [PaymentController::class, 'getCheckoutStatus']);
+    Route::get('payments/transactions', [PaymentController::class, 'getTransactions']);
+    Route::get('payments/subscription/{workspaceId}', [PaymentController::class, 'getSubscription']);
+    
+    // Stripe webhook (public route)
+    Route::post('webhook/stripe', [PaymentController::class, 'handleWebhook']);
     
 });
 
