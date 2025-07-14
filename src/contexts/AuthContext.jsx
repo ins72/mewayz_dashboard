@@ -126,6 +126,17 @@ export function AuthProvider({ children }) {
         return { success: false, error: result?.error };
       }
 
+      // Update user state after successful signup
+      if (result.data?.session?.user) {
+        setUser(result.data.session.user);
+        
+        // Fetch user profile
+        const profileResult = await authService.getUserProfile(result.data.session.user.id);
+        if (profileResult?.success) {
+          setUserProfile(profileResult.data);
+        }
+      }
+
       return { success: true, data: result.data };
     } catch (error) {
       const errorMsg = "Something went wrong during signup. Please try again.";
