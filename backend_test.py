@@ -1220,6 +1220,7 @@ class MewayzBackendTester:
                 self.log_test("Product Delete", "FAIL", "Invalid JSON response")
         else:
             self.log_test("Product Delete", "FAIL", f"HTTP {response.status_code}", response.text[:200])
+    def test_social_media_account_delete(self):
         """Test deleting social media account"""
         if not self.social_account_id:
             return
