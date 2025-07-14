@@ -38,7 +38,10 @@ class MewayzBackendTester:
     def make_request(self, method, endpoint, data=None, headers=None):
         """Make HTTP request with error handling"""
         url = f"{self.base_url}{endpoint}"
-        default_headers = {"Content-Type": "application/json"}
+        default_headers = {
+            "Content-Type": "application/json",
+            "Accept": "application/json"
+        }
         
         if self.token:
             default_headers["Authorization"] = f"Bearer {self.token}"
