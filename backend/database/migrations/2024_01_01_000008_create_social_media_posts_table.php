@@ -24,7 +24,7 @@ return new class extends Migration
             $table->timestamp('published_at')->nullable();
             $table->string('external_post_id')->nullable();
             $table->json('engagement_metrics')->nullable();
-            $table->unsignedBigInteger('created_by');
+            $table->uuid('created_by');
             $table->timestamps();
             
             $table->foreign('workspace_id')->references('id')->on('workspaces')->onDelete('cascade');
