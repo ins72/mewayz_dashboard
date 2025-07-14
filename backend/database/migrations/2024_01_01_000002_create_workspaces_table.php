@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('logo')->nullable();
             $table->json('branding')->nullable();
             $table->enum('status', ['active', 'inactive', 'suspended'])->default('active');
-            $table->uuid('owner_id');
+            $table->unsignedBigInteger('owner_id');
             $table->json('settings')->nullable();
             $table->timestamps();
             
