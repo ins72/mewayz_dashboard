@@ -1,0 +1,99 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Core Colors */
+    --color-background: #0A0A0A; /* deep-black */
+    --color-foreground: #FFFFFF; /* white */
+    --color-border: rgba(255, 255, 255, 0.1); /* white-10-opacity */
+    --color-input: #191919; /* gray-900 */
+    --color-ring: #007AFF; /* blue-500 */
+    
+    /* Card Colors */
+    --color-card: #191919; /* gray-900 */
+    --color-card-foreground: #FFFFFF; /* white */
+    --color-popover: #191919; /* gray-900 */
+    --color-popover-foreground: #FFFFFF; /* white */
+    
+    /* Muted Colors */
+    --color-muted: #191919; /* gray-900 */
+    --color-muted-foreground: #A0A0A0; /* gray-400 */
+    
+    /* Primary Colors */
+    --color-primary: #007AFF; /* blue-500 */
+    --color-primary-foreground: #FFFFFF; /* white */
+    
+    /* Secondary Colors */
+    --color-secondary: #A0A0A0; /* gray-400 */
+    --color-secondary-foreground: #0A0A0A; /* deep-black */
+    
+    /* Destructive Colors */
+    --color-destructive: #FF3838; /* red-500 */
+    --color-destructive-foreground: #FFFFFF; /* white */
+    
+    /* Accent Colors */
+    --color-accent: #26DE81; /* green-400 */
+    --color-accent-foreground: #0A0A0A; /* deep-black */
+    
+    /* Success Colors */
+    --color-success: #26DE81; /* green-400 */
+    --color-success-foreground: #0A0A0A; /* deep-black */
+    
+    /* Warning Colors */
+    --color-warning: #F9CA24; /* yellow-400 */
+    --color-warning-foreground: #0A0A0A; /* deep-black */
+    
+    /* Error Colors */
+    --color-error: #FF3838; /* red-500 */
+    --color-error-foreground: #FFFFFF; /* white */
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+
+  /* Typography */
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Inter', sans-serif;
+  }
+
+  body, p, span, div {
+    font-family: 'Inter', sans-serif;
+  }
+
+  .font-mono {
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* Animation */
+  * {
+    transition: all 200ms cubic-bezier(0.4, 0.0, 0.2, 1);
+  }
+
+  /* Shadows */
+  .shadow-card {
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  }
+
+  .shadow-modal {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  }
+
+  /* Hover Effects */
+  .hover-lift {
+    transition: transform 150ms ease-out;
+  }
+
+  .hover-lift:hover {
+    transform: translateY(-1px);
+  }
+}
