@@ -27,15 +27,7 @@ export function AuthProvider({ children }) {
         ) {
           const authUser = sessionResult.data.session.user;
           setUser(authUser);
-
-          // Fetch user profile
-          const profileResult = await authService.getUserProfile(authUser.id);
-
-          if (profileResult?.success && isMounted) {
-            setUserProfile(profileResult.data);
-          } else if (isMounted) {
-            setAuthError(profileResult?.error || "Failed to load user profile");
-          }
+          setUserProfile(authUser); // Use user data as profile
         }
       } catch (error) {
         if (isMounted) {
