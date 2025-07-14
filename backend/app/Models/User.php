@@ -90,14 +90,6 @@ class User extends Authenticatable
     }
 
     /**
-     * Get the user that owns the member.
-     */
-    public function user(): BelongsTo
-    {
-        return $this->belongsTo(User::class);
-    }
-
-    /**
      * Get the workspaces that the user belongs to.
      */
     public function workspaces()
@@ -114,4 +106,5 @@ class User extends Authenticatable
     {
         return $this->hasMany(WorkspaceMember::class);
     }
+}
 }
