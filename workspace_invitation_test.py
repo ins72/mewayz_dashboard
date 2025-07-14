@@ -327,11 +327,33 @@ class WorkspaceInvitationTester:
     
     def test_resend_invitation(self):
         """Test POST /api/invitations/{invitation}/resend"""
-        if not self.token or not self.invitation_id:
-            self.log_test("Resend Invitation", "SKIP", "Missing authentication or invitation ID")
+        if not self.token or not self.workspace_id:
+            self.log_test("Resend Invitation", "SKIP", "Missing authentication or workspace")
             return False
         
-        response, error = self.make_request("POST", f"/invitations/{self.invitation_id}/resend")
+        # Create a new invitation specifically for resend test
+        invitation_data = {
+            "email": "resend.test@example.com",
+            "role": "viewer",
+            "department": "Test",
+            "position": "Test User"
+        }
+        
+        response, error = self.make_request("POST", f"/workspaces/{self.workspace_id}/invitations", invitation_data)
+        
+        if error or response.status_code not in [200, 201]:
+            self.log_test("Resend Invitation", "FAIL", "Failed to create invitation for resend test")
+            return False
+        
+        try:
+            data = response.json()
+            resend_invitation_id = data["data"]["invitation"]["id"]
+        except:
+            self.log_test("Resend Invitation", "FAIL", "Failed to get invitation ID for resend test")
+            return False
+        
+        # Now test resending the invitation
+        response, error = self.make_request("POST", f"/invitations/{resend_invitation_id}/resend")
         
         if error:
             self.log_test("Resend Invitation", "FAIL", f"Request failed: {error}")
