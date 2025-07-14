@@ -152,6 +152,10 @@ export function AuthProvider({ children }) {
       setAuthError(null);
       const result = await authService.signOut();
 
+      // Clear user state regardless of API result
+      setUser(null);
+      setUserProfile(null);
+
       if (!result?.success) {
         setAuthError(result?.error || "Logout failed");
         return { success: false, error: result?.error };
@@ -159,6 +163,10 @@ export function AuthProvider({ children }) {
 
       return { success: true };
     } catch (error) {
+      // Still clear user state even if logout API fails
+      setUser(null);
+      setUserProfile(null);
+      
       const errorMsg = "Something went wrong during logout. Please try again.";
       setAuthError(errorMsg);
       console.log("Sign out error:", error);
