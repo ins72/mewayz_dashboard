@@ -1,49 +1,52 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import QuickActionCard from './QuickActionCard';
 
 const QuickActionsGrid = () => {
+  const navigate = useNavigate();
+
   const quickActions = [
     {
       title: "Instagram",
       description: "Manage your Instagram content and analytics",
       icon: "Instagram",
       color: "#FF6B6B",
-      onClick: () => console.log("Instagram clicked")
+      onClick: () => navigate('/dashboard/instagram')
     },
     {
       title: "Link Builder",
       description: "Create and manage custom links",
       icon: "Link",
       color: "#45B7D1",
-      onClick: () => console.log("Link Builder clicked")
+      onClick: () => navigate('/dashboard/link-builder')
     },
     {
       title: "Course Creator",
       description: "Build and publish online courses",
       icon: "GraduationCap",
       color: "#F9CA24",
-      onClick: () => console.log("Course Creator clicked")
+      onClick: () => navigate('/dashboard/course-creator')
     },
     {
       title: "Store Manager",
       description: "Manage your e-commerce store",
       icon: "Store",
       color: "#6C5CE7",
-      onClick: () => console.log("Store Manager clicked")
+      onClick: () => navigate('/dashboard/store-manager')
     },
     {
       title: "CRM Hub",
       description: "Customer relationship management",
       icon: "Users",
       color: "#FF3838",
-      onClick: () => console.log("CRM Hub clicked")
+      onClick: () => navigate('/dashboard/crm-hub')
     },
     {
       title: "Analytics",
       description: "View detailed performance analytics",
       icon: "BarChart3",
       color: "#26DE81",
-      onClick: () => console.log("Analytics clicked")
+      onClick: () => navigate('/dashboard/analytics')
     }
   ];
 
@@ -53,8 +56,11 @@ const QuickActionsGrid = () => {
         <h2 className="text-xl font-semibold text-foreground">
           Quick Actions
         </h2>
-        <button className="text-sm text-primary hover:text-primary/80 transition-colors">
-          Customize →
+        <button 
+          onClick={() => navigate('/dashboard/quick-actions')}
+          className="text-sm text-primary hover:text-primary/80 transition-colors"
+        >
+          View All →
         </button>
       </div>
       
