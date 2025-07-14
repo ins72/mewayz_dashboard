@@ -18,7 +18,11 @@ export default defineConfig({
     strictPort: true,
     allowedHosts: ['.amazonaws.com', '.builtwithrocket.new'],
     watch: {
-      ignored: ['**/backend/vendor/**', '**/node_modules/**']
+      ignored: [
+        '**/backend/vendor/**', 
+        '**/node_modules/**',
+        '**/src/pages/workspace-setup-wizard-*/**'
+      ]
     }
   }
 });
