@@ -2,6 +2,7 @@ import React from "react";
 import { BrowserRouter, Routes as RouterRoutes, Route } from "react-router-dom";
 import ScrollToTop from "components/ScrollToTop";
 import ErrorBoundary from "components/ErrorBoundary";
+import ProtectedRoute from "components/ProtectedRoute";
 import { WizardProvider } from "contexts/WizardContext";
 // Add your imports here
 import LoginScreen from "pages/login-screen";
@@ -26,21 +27,81 @@ const Routes = () => {
       <ScrollToTop />
       <WizardProvider>
         <RouterRoutes>
-          {/* Define your routes here */}
-          <Route path="/" element={<DashboardScreen />} />
-          <Route path="/login-screen" element={<LoginScreen />} />
-          <Route path="/dashboard-screen" element={<DashboardScreen />} />
-          <Route path="/enhanced-dashboard-screen" element={<EnhancedDashboardScreen />} />
-          <Route path="/password-reset-screen" element={<PasswordResetScreen />} />
-          <Route path="/registration-screen" element={<RegistrationScreen />} />
-          <Route path="/workspace-setup-wizard-welcome-basics" element={<WorkspaceSetupWizardWelcomeBasics />} />
-          <Route path="/workspace-setup-wizard-goal-selection" element={<WorkspaceSetupWizardGoalSelection />} />
-          <Route path="/workspace-setup-wizard-feature-selection" element={<WorkspaceSetupWizardFeatureSelection />} />
-          <Route path="/workspace-setup-wizard-subscription-plan" element={<WorkspaceSetupWizardSubscriptionPlan />} />
-          <Route path="/workspace-setup-wizard-team-setup" element={<WorkspaceSetupWizardTeamSetup />} />
-          <Route path="/workspace-setup-wizard-branding" element={<WorkspaceSetupWizardBranding />} />
-          <Route path="/invitation-management" element={<InvitationManagement />} />
-          <Route path="/accept-invitation/:token" element={<InvitationAcceptance />} />
+          {/* Public routes - redirect to dashboard if authenticated */}
+          <Route path="/login-screen" element={
+            <ProtectedRoute requireAuth={false}>
+              <LoginScreen />
+            </ProtectedRoute>
+          } />
+          <Route path="/registration-screen" element={
+            <ProtectedRoute requireAuth={false}>
+              <RegistrationScreen />
+            </ProtectedRoute>
+          } />
+          <Route path="/password-reset-screen" element={
+            <ProtectedRoute requireAuth={false}>
+              <PasswordResetScreen />
+            </ProtectedRoute>
+          } />
+          
+          {/* Protected routes - require authentication */}
+          <Route path="/" element={
+            <ProtectedRoute>
+              <DashboardScreen />
+            </ProtectedRoute>
+          } />
+          <Route path="/dashboard-screen" element={
+            <ProtectedRoute>
+              <DashboardScreen />
+            </ProtectedRoute>
+          } />
+          <Route path="/enhanced-dashboard-screen" element={
+            <ProtectedRoute>
+              <EnhancedDashboardScreen />
+            </ProtectedRoute>
+          } />
+          <Route path="/workspace-setup-wizard-welcome-basics" element={
+            <ProtectedRoute>
+              <WorkspaceSetupWizardWelcomeBasics />
+            </ProtectedRoute>
+          } />
+          <Route path="/workspace-setup-wizard-goal-selection" element={
+            <ProtectedRoute>
+              <WorkspaceSetupWizardGoalSelection />
+            </ProtectedRoute>
+          } />
+          <Route path="/workspace-setup-wizard-feature-selection" element={
+            <ProtectedRoute>
+              <WorkspaceSetupWizardFeatureSelection />
+            </ProtectedRoute>
+          } />
+          <Route path="/workspace-setup-wizard-subscription-plan" element={
+            <ProtectedRoute>
+              <WorkspaceSetupWizardSubscriptionPlan />
+            </ProtectedRoute>
+          } />
+          <Route path="/workspace-setup-wizard-team-setup" element={
+            <ProtectedRoute>
+              <WorkspaceSetupWizardTeamSetup />
+            </ProtectedRoute>
+          } />
+          <Route path="/workspace-setup-wizard-branding" element={
+            <ProtectedRoute>
+              <WorkspaceSetupWizardBranding />
+            </ProtectedRoute>
+          } />
+          <Route path="/invitation-management" element={
+            <ProtectedRoute>
+              <InvitationManagement />
+            </ProtectedRoute>
+          } />
+          <Route path="/accept-invitation/:token" element={
+            <ProtectedRoute>
+              <InvitationAcceptance />
+            </ProtectedRoute>
+          } />
+          
+          {/* 404 route */}
           <Route path="*" element={<NotFound />} />
         </RouterRoutes>
       </WizardProvider>
