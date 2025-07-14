@@ -78,5 +78,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('payments/subscription/{workspaceId}', [PaymentController::class, 'getSubscription']);
 });
 
-// Public routes
+// Public Link in Bio page view
 Route::get('/link-in-bio/{slug}', [LinkInBioPageController::class, 'public']);
+
+// Stripe webhook (public route)
+Route::post('webhook/stripe', [PaymentController::class, 'handleWebhook']);
