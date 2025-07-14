@@ -10,7 +10,7 @@ use App\Http\Controllers\LinkInBioPageController;
 use App\Http\Controllers\CrmContactController;
 use App\Http\Controllers\CourseController;
 use App\Http\Controllers\ProductController;
-use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\WorkspaceInvitationController;
 
 /*
 |--------------------------------------------------------------------------
