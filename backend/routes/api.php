@@ -65,6 +65,9 @@ Route::middleware('auth:sanctum')->group(function () {
     
     // Product/Store routes
     Route::apiResource('products', ProductController::class);
+    Route::post('products/{product}/update-stock', [ProductController::class, 'updateStock']);
+    Route::post('products/{product}/duplicate', [ProductController::class, 'duplicate']);
+    Route::get('products-analytics', [ProductController::class, 'analytics']);
     
 });
 
