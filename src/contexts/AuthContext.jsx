@@ -124,12 +124,7 @@ export function AuthProvider({ children }) {
       // Update user state after successful signup
       if (result.data?.session?.user) {
         setUser(result.data.session.user);
-        
-        // Fetch user profile
-        const profileResult = await authService.getUserProfile(result.data.session.user.id);
-        if (profileResult?.success) {
-          setUserProfile(profileResult.data);
-        }
+        setUserProfile(result.data.session.user); // Use user data as profile
       }
 
       return { success: true, data: result.data };
