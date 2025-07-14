@@ -67,9 +67,11 @@ class MewayzBackendTester:
     
     def test_user_registration(self):
         """Test user registration endpoint"""
+        import time
+        timestamp = int(time.time())
         test_data = {
             "name": "Emma Wilson",
-            "email": "emma.wilson@mewayz.com",
+            "email": f"emma.wilson.{timestamp}@mewayz.com",
             "password": "SecurePassword123!"
         }
         
