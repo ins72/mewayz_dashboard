@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import authService from "../utils/authService";
+import googleAuthService from "../utils/googleAuthService";
 
 const AuthContext = createContext();
 
@@ -102,6 +103,32 @@ export function AuthProvider({ children }) {
     }
   };
 
+  // Google Sign In function
+  const signInWithGoogle = async () => {
+    try {
+      setAuthError(null);
+      const result = await googleAuthService.signIn();
+
+      if (!result?.success) {
+        setAuthError(result?.error || "Google sign in failed");
+        return { success: false, error: result?.error };
+      }
+
+      // Update user state after successful Google login
+      if (result.data?.session?.user) {
+        setUser(result.data.session.user);
+        setUserProfile(result.data.session.user);
+      }
+
+      return { success: true, data: result.data };
+    } catch (error) {
+      const errorMsg = "Something went wrong during Google sign in. Please try again.";
+      setAuthError(errorMsg);
+      console.log("Google sign in error:", error);
+      return { success: false, error: errorMsg };
+    }
+  };
+
   // Sign up function
   const signUp = async (email, password, userData = {}) => {
     try {
@@ -132,15 +159,21 @@ export function AuthProvider({ children }) {
   const signOut = async () => {
     try {
       setAuthError(null);
-      const result = await authService.signOut();
+      
+      // Sign out from both regular auth and Google
+      const [authResult, googleResult] = await Promise.allSettled([
+        authService.signOut(),
+        googleAuthService.signOut()
+      ]);
 
       // Clear user state regardless of API result
       setUser(null);
       setUserProfile(null);
 
-      if (!result?.success) {
-        setAuthError(result?.error || "Logout failed");
-        return { success: false, error: result?.error };
+      // Check if main auth signout failed
+      if (authResult.status === 'rejected' || !authResult.value?.success) {
+        setAuthError(authResult.value?.error || "Logout failed");
+        return { success: false, error: authResult.value?.error };
       }
 
       return { success: true };
@@ -212,6 +245,7 @@ export function AuthProvider({ children }) {
     loading,
     authError,
     signIn,
+    signInWithGoogle,
     signUp,
     signOut,
     updateProfile,
