@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../contexts/AuthContext';
 import Button from '../../../components/ui/Button';
 import Input from '../../../components/ui/Input';
+import GoogleOAuthButton from '../../../components/ui/GoogleOAuthButton';
 import Icon from '../../../components/AppIcon';
 
 const LoginForm = () => {
@@ -73,74 +74,106 @@ const LoginForm = () => {
     }
   };
 
+  const handleGoogleSuccess = (data) => {
+    console.log('Google login successful:', data);
+    navigate('/dashboard-screen');
+  };
+
+  const handleGoogleError = (error) => {
+    console.log('Google login error:', error);
+    // Error is already handled by AuthContext
+  };
+
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      {authError && (
-        <div className="p-4 bg-destructive/10 border border-destructive/20 rounded-lg">
-          <p className="text-sm text-destructive">{authError}</p>
+    <div className="space-y-6">
+      {/* Google OAuth Button */}
+      <GoogleOAuthButton
+        onSuccess={handleGoogleSuccess}
+        onError={handleGoogleError}
+        disabled={isLoading}
+      />
+
+      {/* Divider */}
+      <div className="relative">
+        <div className="absolute inset-0 flex items-center">
+          <div className="w-full border-t border-muted-foreground/20"></div>
         </div>
-      )}
+        <div className="relative flex justify-center text-xs uppercase">
+          <span className="bg-background px-2 text-muted-foreground">
+            Or continue with email
+          </span>
+        </div>
+      </div>
 
-      <div className="space-y-4">
-        <Input
-          label="Email Address"
-          type="email"
-          name="email"
-          placeholder="Enter your email"
-          value={formData.email}
-          onChange={handleInputChange}
-          error={errors.email}
-          required
-          disabled={isLoading}
-        />
+      {/* Email/Password Form */}
+      <form onSubmit={handleSubmit} className="space-y-6">
+        {authError && (
+          <div className="p-4 bg-destructive/10 border border-destructive/20 rounded-lg">
+            <p className="text-sm text-destructive">{authError}</p>
+          </div>
+        )}
 
-        <div className="relative">
+        <div className="space-y-4">
           <Input
-            label="Password"
-            type={showPassword ? 'text' : 'password'}
-            name="password"
-            placeholder="Enter your password"
-            value={formData.password}
+            label="Email Address"
+            type="email"
+            name="email"
+            placeholder="Enter your email"
+            value={formData.email}
             onChange={handleInputChange}
-            error={errors.password}
+            error={errors.email}
             required
             disabled={isLoading}
           />
-          <button
-            type="button"
-            onClick={togglePasswordVisibility}
-            className="absolute right-3 top-9 text-muted-foreground hover:text-foreground transition-colors"
-            disabled={isLoading}
-          >
-            <Icon 
-              name={showPassword ? 'EyeOff' : 'Eye'} 
-              size={18} 
+
+          <div className="relative">
+            <Input
+              label="Password"
+              type={showPassword ? 'text' : 'password'}
+              name="password"
+              placeholder="Enter your password"
+              value={formData.password}
+              onChange={handleInputChange}
+              error={errors.password}
+              required
+              disabled={isLoading}
             />
-          </button>
+            <button
+              type="button"
+              onClick={togglePasswordVisibility}
+              className="absolute right-3 top-9 text-muted-foreground hover:text-foreground transition-colors"
+              disabled={isLoading}
+            >
+              <Icon 
+                name={showPassword ? 'EyeOff' : 'Eye'} 
+                size={18} 
+              />
+            </button>
+          </div>
         </div>
-      </div>
 
-      <Button
-        type="submit"
-        variant="default"
-        fullWidth
-        loading={isLoading}
-        disabled={isLoading}
-      >
-        {isLoading ? 'Signing In...' : 'Sign In'}
-      </Button>
+        <Button
+          type="submit"
+          variant="default"
+          fullWidth
+          loading={isLoading}
+          disabled={isLoading}
+        >
+          {isLoading ? 'Signing In...' : 'Sign In'}
+        </Button>
 
-      {/* Development hint */}
-      <div className="p-3 bg-muted/10 border border-muted/20 rounded-lg">
-        <p className="text-xs text-muted-foreground">
-          <strong>Development:</strong> Use admin@mewayz.com / admin123 for testing
-        </p>
-      </div>
-    </form>
+        {/* Development hint */}
+        <div className="p-3 bg-muted/10 border border-muted/20 rounded-lg">
+          <p className="text-xs text-muted-foreground">
+            <strong>Development:</strong> Use admin@mewayz.com / admin123 for testing
+          </p>
+        </div>
+      </form>
+    </div>
   );
 };
 
