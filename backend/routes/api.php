@@ -30,6 +30,10 @@ Route::post('/auth/logout', [AuthController::class, 'logout'])->middleware('auth
 Route::get('/auth/user', [AuthController::class, 'user'])->middleware('auth:sanctum');
 Route::post('/auth/password/reset', [AuthController::class, 'resetPassword']);
 
+// Google OAuth routes
+Route::get('/auth/google', [AuthController::class, 'redirectToGoogle']);
+Route::get('/auth/google/callback', [AuthController::class, 'handleGoogleCallback']);
+
 // Protected routes
 Route::middleware('auth:sanctum')->group(function () {
     // Workspace routes
