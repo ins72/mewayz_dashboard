@@ -88,4 +88,59 @@ class AuthController extends Controller
             'message' => 'Password reset email sent successfully'
         ]);
     }
+
+    public function redirectToGoogle()
+    {
+        return response()->json([
+            'success' => true,
+            'url' => Socialite::driver('google')->stateless()->redirect()->getTargetUrl()
+        ]);
+    }
+
+    public function handleGoogleCallback(Request $request)
+    {
+        try {
+            $googleUser = Socialite::driver('google')->stateless()->user();
+            
+            // Check if user exists
+            $user = User::where('email', $googleUser->email)->first();
+            
+            if (!$user) {
+                // Create new user
+                $user = User::create([
+                    'id' => Str::uuid(),
+                    'name' => $googleUser->name,
+                    'email' => $googleUser->email,
+                    'email_verified_at' => now(),
+                    'google_id' => $googleUser->id,
+                    'avatar' => $googleUser->avatar,
+                    'password' => Hash::make(Str::random(32)), // Random password since they'll use Google
+                ]);
+            } else {
+                // Update existing user with Google ID if not set
+                if (!$user->google_id) {
+                    $user->update([
+                        'google_id' => $googleUser->id,
+                        'avatar' => $googleUser->avatar,
+                    ]);
+                }
+            }
+
+            // Create token
+            $token = $user->createToken('auth_token')->plainTextToken;
+
+            return response()->json([
+                'success' => true,
+                'token' => $token,
+                'user' => $user,
+                'message' => 'Successfully logged in with Google'
+            ]);
+
+        } catch (Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Google authentication failed: ' . $e->getMessage()
+            ], 400);
+        }
+    }
 }
