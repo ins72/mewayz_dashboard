@@ -17,6 +17,18 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Frontend URL
+    |--------------------------------------------------------------------------
+    |
+    | This value is the URL of your frontend application, used for generating
+    | links in emails and other places where you need to link to the frontend.
+    |
+    */
+
+    'frontend_url' => env('FRONTEND_URL', 'http://localhost:3000'),
+
+    /*
+    |--------------------------------------------------------------------------
     | Application Environment
     |--------------------------------------------------------------------------
     |
