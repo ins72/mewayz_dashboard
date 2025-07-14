@@ -31,7 +31,7 @@ return new class extends Migration
             $table->decimal('weight', 8, 2)->nullable();
             $table->json('dimensions')->nullable();
             $table->boolean('requires_shipping')->default(true);
-            $table->unsignedBigInteger('created_by');
+            $table->uuid('created_by');
             $table->timestamps();
             
             $table->foreign('workspace_id')->references('id')->on('workspaces')->onDelete('cascade');

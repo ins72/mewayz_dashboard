@@ -26,7 +26,7 @@ return new class extends Migration
             $table->integer('lead_score')->default(0);
             $table->timestamp('last_contacted_at')->nullable();
             $table->json('custom_fields')->nullable();
-            $table->unsignedBigInteger('created_by');
+            $table->uuid('created_by');
             $table->timestamps();
             
             $table->foreign('workspace_id')->references('id')->on('workspaces')->onDelete('cascade');
