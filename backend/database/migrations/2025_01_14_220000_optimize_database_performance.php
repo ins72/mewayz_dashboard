@@ -108,9 +108,9 @@ return new class extends Migration
         });
         
         Schema::table('workspaces', function (Blueprint $table) {
-            $table->dropIndex('idx_workspaces_created_by');
+            $table->dropIndex('idx_workspaces_owner_created');
             $table->dropIndex('idx_workspaces_name');
-            $table->dropIndex('idx_workspaces_timestamps');
+            $table->dropIndex('idx_workspaces_status_created');
         });
         
         Schema::table('workspace_members', function (Blueprint $table) {
