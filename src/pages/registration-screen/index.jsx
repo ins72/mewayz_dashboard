@@ -5,19 +5,14 @@ import Icon from '../../components/AppIcon';
 import AuthNavigationLinks from '../../components/ui/AuthNavigationLinks';
 import RegistrationForm from './components/RegistrationForm';
 import SocialRegistrationButtons from './components/SocialRegistrationButtons';
+import { useAuth } from '../../contexts/AuthContext';
 
 const RegistrationScreen = () => {
   const navigate = useNavigate();
+  const { signUp } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
-
-  // Mock existing users for duplicate email validation
-  const existingUsers = [
-    'john.doe@example.com',
-    'jane.smith@example.com',
-    'admin@mewayz.com'
-  ];
 
   const handleRegistration = async (formData) => {
     setIsLoading(true);
@@ -25,22 +20,21 @@ const RegistrationScreen = () => {
     setSuccess('');
 
     try {
-      // Simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      const result = await signUp(formData.email, formData.password, {
+        name: formData.fullName || formData.name,
+        fullName: formData.fullName || formData.name
+      });
 
-      // Check for duplicate email
-      if (existingUsers.includes(formData.email.toLowerCase())) {
-        throw new Error('An account with this email already exists. Please use a different email or sign in.');
+      if (result.success) {
+        setSuccess('Account created successfully! You are now logged in.');
+        
+        // Redirect to dashboard after successful registration
+        setTimeout(() => {
+          navigate('/dashboard-screen');
+        }, 1000);
+      } else {
+        setError(result.error || 'Registration failed. Please try again.');
       }
-
-      // Simulate successful registration
-      setSuccess('Account created successfully! Please check your email to verify your account before signing in.');
-      
-      // Redirect to login after 3 seconds
-      setTimeout(() => {
-        navigate('/login-screen');
-      }, 3000);
-
     } catch (err) {
       setError(err.message || 'Registration failed. Please try again.');
     } finally {
