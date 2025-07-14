@@ -75,4 +75,17 @@ class AuthController extends Controller
             'user' => $request->user()
         ]);
     }
+
+    public function resetPassword(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email|exists:users,email',
+        ]);
+
+        // For now, just return success (in production, you'd send an email)
+        return response()->json([
+            'success' => true,
+            'message' => 'Password reset email sent successfully'
+        ]);
+    }
 }
