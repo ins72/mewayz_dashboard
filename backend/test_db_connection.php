@@ -1,11 +1,11 @@
 <?php
 // Test database connection
 try {
-    $host = '127.0.0.1';
+    $host = '109.106.255.240';
     $port = '3306';
-    $dbname = 'mewapp';
-    $username = 'mewapp';
-    $password = 'Q16hoLuCqtkJEfpzKOnu';
+    $dbname = 'test-mewayz';
+    $username = 'test-mewayz';
+    $password = 'duM4q6w153UUvfnlQNlU';
     
     // Create PDO connection
     $pdo = new PDO("mysql:host=$host;port=$port;dbname=$dbname", $username, $password);
@@ -18,10 +18,10 @@ try {
     $version = $stmt->fetchColumn();
     echo "Database version: $version\n";
     
-    // Show databases
-    $stmt = $pdo->query("SHOW DATABASES");
-    $databases = $stmt->fetchAll(PDO::FETCH_COLUMN);
-    echo "Available databases: " . implode(', ', $databases) . "\n";
+    // Show tables
+    $stmt = $pdo->query("SHOW TABLES");
+    $tables = $stmt->fetchAll(PDO::FETCH_COLUMN);
+    echo "Existing tables: " . (count($tables) > 0 ? implode(', ', $tables) : 'No tables yet') . "\n";
     
 } catch (PDOException $e) {
     echo "❌ Database connection failed: " . $e->getMessage() . "\n";
