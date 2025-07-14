@@ -476,43 +476,286 @@ class MewayzBackendTester:
             self.log_test("Social Media Post Duplicate", "FAIL", f"HTTP {response.status_code}", response.text[:200])
     
     def test_link_in_bio_endpoints(self):
-        """Test link in bio page CRUD endpoints"""
-        if not self.token:
-            self.log_test("Link in Bio Endpoints", "SKIP", "No authentication token")
+        """Test link in bio page CRUD endpoints with comprehensive data"""
+        if not self.token or not self.workspace_id:
+            self.log_test("Link in Bio Endpoints", "SKIP", "No authentication token or workspace")
             return False
         
-        # Test GET /link-in-bio-pages
-        response, error = self.make_request("GET", "/link-in-bio-pages")
+        # Test GET /link-in-bio-pages (index)
+        response, error = self.make_request("GET", f"/link-in-bio-pages?workspace_id={self.workspace_id}")
         if error:
             self.log_test("Link in Bio Pages Index", "FAIL", f"Request failed: {error}")
         elif response.status_code == 200:
-            self.log_test("Link in Bio Pages Index", "PASS", "Endpoint accessible")
+            try:
+                data = response.json()
+                if data.get("success") and "pages" in data:
+                    self.log_test("Link in Bio Pages Index", "PASS", f"Retrieved {len(data['pages'])} pages")
+                else:
+                    self.log_test("Link in Bio Pages Index", "FAIL", "Invalid response format", data)
+            except json.JSONDecodeError:
+                self.log_test("Link in Bio Pages Index", "FAIL", "Invalid JSON response")
         else:
-            self.log_test("Link in Bio Pages Index", "WARN", f"HTTP {response.status_code} - Method likely not implemented", response.text[:100])
+            self.log_test("Link in Bio Pages Index", "FAIL", f"HTTP {response.status_code}", response.text[:200])
         
-        # Test POST /link-in-bio-pages
+        # Test POST /link-in-bio-pages (store)
         page_data = {
-            "title": "Emma's Creative Links",
-            "slug": "emma-creative",
-            "bio": "Creative designer & entrepreneur",
-            "theme": "modern"
+            "workspace_id": self.workspace_id,
+            "title": "Emma's Creative Portfolio",
+            "slug": "emma-creative-portfolio-2025",
+            "description": "Creative designer & entrepreneur showcasing amazing projects and services",
+            "profile_image": "https://example.com/emma-profile.jpg",
+            "background_image": "https://example.com/creative-bg.jpg",
+            "theme_settings": {
+                "primary_color": "#6366f1",
+                "secondary_color": "#8b5cf6",
+                "background_color": "#f8fafc",
+                "text_color": "#1e293b",
+                "button_style": "rounded",
+                "font_family": "Inter"
+            },
+            "links": [
+                {
+                    "title": "Portfolio Website",
+                    "url": "https://emmacreative.com",
+                    "description": "Check out my latest creative projects",
+                    "icon": "globe",
+                    "is_active": True,
+                    "order": 0
+                },
+                {
+                    "title": "Instagram",
+                    "url": "https://instagram.com/emmacreative",
+                    "description": "Follow my creative journey",
+                    "icon": "instagram",
+                    "is_active": True,
+                    "order": 1
+                },
+                {
+                    "title": "Design Services",
+                    "url": "https://emmacreative.com/services",
+                    "description": "Professional design services",
+                    "icon": "briefcase",
+                    "is_active": True,
+                    "order": 2
+                },
+                {
+                    "title": "Contact Me",
+                    "url": "mailto:emma@creativestudio.com",
+                    "description": "Get in touch for collaborations",
+                    "icon": "mail",
+                    "is_active": True,
+                    "order": 3
+                }
+            ],
+            "is_active": True
         }
+        
         response, error = self.make_request("POST", "/link-in-bio-pages", page_data)
         if error:
             self.log_test("Link in Bio Page Create", "FAIL", f"Request failed: {error}")
         elif response.status_code in [200, 201]:
-            self.log_test("Link in Bio Page Create", "PASS", "Endpoint accessible")
+            try:
+                data = response.json()
+                if data.get("success") and data.get("page"):
+                    self.link_page_id = data["page"]["id"]
+                    page_slug = data["page"]["slug"]
+                    self.log_test("Link in Bio Page Create", "PASS", "Page created successfully")
+                    
+                    # Test GET /link-in-bio-pages/{id} (show)
+                    self.test_link_in_bio_page_show()
+                    
+                    # Test PUT /link-in-bio-pages/{id} (update)
+                    self.test_link_in_bio_page_update()
+                    
+                    # Test GET /link-in-bio/{slug} (public)
+                    self.test_link_in_bio_public(page_slug)
+                    
+                    # Test POST /link-in-bio-pages/{id}/track-click
+                    self.test_link_in_bio_track_click()
+                    
+                    # Test GET /link-in-bio-pages/{id}/analytics
+                    self.test_link_in_bio_analytics()
+                    
+                    # Test POST /link-in-bio-pages/{id}/duplicate
+                    self.test_link_in_bio_duplicate()
+                    
+                else:
+                    self.log_test("Link in Bio Page Create", "FAIL", "Invalid response format", data)
+            except json.JSONDecodeError:
+                self.log_test("Link in Bio Page Create", "FAIL", "Invalid JSON response")
         else:
-            self.log_test("Link in Bio Page Create", "WARN", f"HTTP {response.status_code} - Method likely not implemented", response.text[:100])
+            self.log_test("Link in Bio Page Create", "FAIL", f"HTTP {response.status_code}", response.text[:200])
+    
+    def test_link_in_bio_page_show(self):
+        """Test getting specific link in bio page"""
+        if not self.link_page_id:
+            return
+            
+        response, error = self.make_request("GET", f"/link-in-bio-pages/{self.link_page_id}")
+        if error:
+            self.log_test("Link in Bio Page Show", "FAIL", f"Request failed: {error}")
+        elif response.status_code == 200:
+            try:
+                data = response.json()
+                if data.get("success") and data.get("page"):
+                    self.log_test("Link in Bio Page Show", "PASS", "Page retrieved successfully")
+                else:
+                    self.log_test("Link in Bio Page Show", "FAIL", "Invalid response format", data)
+            except json.JSONDecodeError:
+                self.log_test("Link in Bio Page Show", "FAIL", "Invalid JSON response")
+        else:
+            self.log_test("Link in Bio Page Show", "FAIL", f"HTTP {response.status_code}", response.text[:200])
+    
+    def test_link_in_bio_page_update(self):
+        """Test updating link in bio page"""
+        if not self.link_page_id:
+            return
+            
+        update_data = {
+            "title": "Emma's Creative Portfolio - Updated",
+            "description": "Creative designer & entrepreneur showcasing amazing projects and services - Now with more content!",
+            "links": [
+                {
+                    "title": "Portfolio Website",
+                    "url": "https://emmacreative.com",
+                    "description": "Check out my latest creative projects",
+                    "icon": "globe",
+                    "is_active": True,
+                    "order": 0
+                },
+                {
+                    "title": "Instagram",
+                    "url": "https://instagram.com/emmacreative",
+                    "description": "Follow my creative journey",
+                    "icon": "instagram",
+                    "is_active": True,
+                    "order": 1
+                },
+                {
+                    "title": "New Blog",
+                    "url": "https://emmacreative.com/blog",
+                    "description": "Read my latest design insights",
+                    "icon": "book",
+                    "is_active": True,
+                    "order": 2
+                }
+            ]
+        }
         
-        # Test public link-in-bio page
-        response, error = self.make_request("GET", "/link-in-bio/emma-creative")
+        response, error = self.make_request("PUT", f"/link-in-bio-pages/{self.link_page_id}", update_data)
+        if error:
+            self.log_test("Link in Bio Page Update", "FAIL", f"Request failed: {error}")
+        elif response.status_code == 200:
+            try:
+                data = response.json()
+                if data.get("success") and data.get("page"):
+                    self.log_test("Link in Bio Page Update", "PASS", "Page updated successfully")
+                else:
+                    self.log_test("Link in Bio Page Update", "FAIL", "Invalid response format", data)
+            except json.JSONDecodeError:
+                self.log_test("Link in Bio Page Update", "FAIL", "Invalid JSON response")
+        else:
+            self.log_test("Link in Bio Page Update", "FAIL", f"HTTP {response.status_code}", response.text[:200])
+    
+    def test_link_in_bio_public(self, slug):
+        """Test public link in bio page access"""
+        if not slug:
+            return
+            
+        # Test without authentication (public endpoint)
+        original_token = self.token
+        self.token = None
+        
+        response, error = self.make_request("GET", f"/link-in-bio/{slug}")
+        
+        # Restore token
+        self.token = original_token
+        
         if error:
             self.log_test("Public Link in Bio Page", "FAIL", f"Request failed: {error}")
         elif response.status_code == 200:
-            self.log_test("Public Link in Bio Page", "PASS", "Public endpoint accessible")
+            try:
+                data = response.json()
+                if data.get("success") and data.get("page"):
+                    self.log_test("Public Link in Bio Page", "PASS", "Public page accessible")
+                else:
+                    self.log_test("Public Link in Bio Page", "FAIL", "Invalid response format", data)
+            except json.JSONDecodeError:
+                self.log_test("Public Link in Bio Page", "FAIL", "Invalid JSON response")
         else:
-            self.log_test("Public Link in Bio Page", "WARN", f"HTTP {response.status_code} - Method likely not implemented", response.text[:100])
+            self.log_test("Public Link in Bio Page", "FAIL", f"HTTP {response.status_code}", response.text[:200])
+    
+    def test_link_in_bio_track_click(self):
+        """Test tracking link clicks"""
+        if not self.link_page_id:
+            return
+            
+        # Test without authentication (public endpoint)
+        original_token = self.token
+        self.token = None
+        
+        click_data = {
+            "link_id": "test-link-id-123"
+        }
+        
+        response, error = self.make_request("POST", f"/link-in-bio-pages/{self.link_page_id}/track-click", click_data)
+        
+        # Restore token
+        self.token = original_token
+        
+        if error:
+            self.log_test("Link in Bio Track Click", "FAIL", f"Request failed: {error}")
+        elif response.status_code == 200:
+            try:
+                data = response.json()
+                if data.get("success"):
+                    self.log_test("Link in Bio Track Click", "PASS", "Click tracked successfully")
+                else:
+                    self.log_test("Link in Bio Track Click", "FAIL", "Invalid response format", data)
+            except json.JSONDecodeError:
+                self.log_test("Link in Bio Track Click", "FAIL", "Invalid JSON response")
+        else:
+            self.log_test("Link in Bio Track Click", "FAIL", f"HTTP {response.status_code}", response.text[:200])
+    
+    def test_link_in_bio_analytics(self):
+        """Test getting link in bio analytics"""
+        if not self.link_page_id:
+            return
+            
+        response, error = self.make_request("GET", f"/link-in-bio-pages/{self.link_page_id}/analytics")
+        if error:
+            self.log_test("Link in Bio Analytics", "FAIL", f"Request failed: {error}")
+        elif response.status_code == 200:
+            try:
+                data = response.json()
+                if data.get("success") and data.get("analytics"):
+                    self.log_test("Link in Bio Analytics", "PASS", "Analytics retrieved successfully")
+                else:
+                    self.log_test("Link in Bio Analytics", "FAIL", "Invalid response format", data)
+            except json.JSONDecodeError:
+                self.log_test("Link in Bio Analytics", "FAIL", "Invalid JSON response")
+        else:
+            self.log_test("Link in Bio Analytics", "FAIL", f"HTTP {response.status_code}", response.text[:200])
+    
+    def test_link_in_bio_duplicate(self):
+        """Test duplicating link in bio page"""
+        if not self.link_page_id:
+            return
+            
+        response, error = self.make_request("POST", f"/link-in-bio-pages/{self.link_page_id}/duplicate")
+        if error:
+            self.log_test("Link in Bio Duplicate", "FAIL", f"Request failed: {error}")
+        elif response.status_code == 200:
+            try:
+                data = response.json()
+                if data.get("success") and data.get("page"):
+                    self.log_test("Link in Bio Duplicate", "PASS", "Page duplicated successfully")
+                else:
+                    self.log_test("Link in Bio Duplicate", "FAIL", "Invalid response format", data)
+            except json.JSONDecodeError:
+                self.log_test("Link in Bio Duplicate", "FAIL", "Invalid JSON response")
+        else:
+            self.log_test("Link in Bio Duplicate", "FAIL", f"HTTP {response.status_code}", response.text[:200])
     
     def test_crm_contact_endpoints(self):
         """Test CRM contact CRUD endpoints"""
