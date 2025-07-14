@@ -1353,8 +1353,8 @@ class MewayzBackendTester:
             self.log_test("Database Connectivity", "FAIL", "No successful database operations detected")
     
     def run_all_tests(self):
-        """Run all backend tests with focus on social media and link in bio features"""
-        print("🚀 Starting Mewayz Backend Testing - Social Media & Link in Bio Focus...")
+        """Run all backend tests with comprehensive coverage of all features"""
+        print("🚀 Starting Mewayz Backend Comprehensive Testing...")
         print("=" * 80)
         
         # Authentication tests
@@ -1379,11 +1379,26 @@ class MewayzBackendTester:
         print("\n🔗 Testing Link in Bio Endpoints...")
         self.test_link_in_bio_endpoints()
         
+        # CRM Contact tests
+        print("\n👥 Testing CRM Contact Endpoints...")
+        self.test_crm_contact_endpoints()
+        
+        # Course Management tests
+        print("\n🎓 Testing Course Management Endpoints...")
+        self.test_course_endpoints()
+        
+        # Product Management tests
+        print("\n🛍️ Testing Product Management Endpoints...")
+        self.test_product_endpoints()
+        
         # Cleanup tests (delete resources)
         print("\n🗑️ Testing Delete Operations...")
         self.test_social_media_post_delete()
         self.test_social_media_account_delete()
         self.test_link_in_bio_page_delete()
+        self.test_crm_contact_delete()
+        self.test_course_delete()
+        self.test_product_delete()
         
         # Security tests
         print("\n🔒 Testing Authentication Protection...")
