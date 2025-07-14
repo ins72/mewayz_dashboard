@@ -36,7 +36,10 @@ Route::middleware('auth:sanctum')->group(function () {
     
     // Social Media routes
     Route::apiResource('social-media-accounts', SocialMediaAccountController::class);
+    Route::post('social-media-accounts/{socialMediaAccount}/refresh-tokens', [SocialMediaAccountController::class, 'refreshTokens']);
     Route::apiResource('social-media-posts', SocialMediaPostController::class);
+    Route::post('social-media-posts/{socialMediaPost}/publish', [SocialMediaPostController::class, 'publish']);
+    Route::post('social-media-posts/{socialMediaPost}/duplicate', [SocialMediaPostController::class, 'duplicate']);
     
     // Link in Bio routes
     Route::apiResource('link-in-bio-pages', LinkInBioPageController::class);
