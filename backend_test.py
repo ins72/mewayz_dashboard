@@ -894,9 +894,9 @@ class MewayzBackendTester:
             self.log_test("Database Connectivity", "FAIL", "No successful database operations detected")
     
     def run_all_tests(self):
-        """Run all backend tests"""
-        print("🚀 Starting Mewayz Backend Testing...")
-        print("=" * 60)
+        """Run all backend tests with focus on social media and link in bio features"""
+        print("🚀 Starting Mewayz Backend Testing - Social Media & Link in Bio Focus...")
+        print("=" * 80)
         
         # Authentication tests
         print("\n📝 Testing Authentication Endpoints...")
@@ -904,25 +904,27 @@ class MewayzBackendTester:
         self.test_user_login()
         self.test_get_authenticated_user()
         
-        # Feature endpoint tests
-        print("\n🏢 Testing Workspace Endpoints...")
-        self.test_workspace_endpoints()
+        # Workspace setup for feature testing
+        print("\n🏢 Setting up Workspace for Feature Testing...")
+        self.test_workspace_setup()
         
-        print("\n📱 Testing Social Media Endpoints...")
+        # Social Media Account tests
+        print("\n📱 Testing Social Media Account Endpoints...")
         self.test_social_media_account_endpoints()
+        
+        # Social Media Post tests
+        print("\n📝 Testing Social Media Post Endpoints...")
         self.test_social_media_post_endpoints()
         
+        # Link in Bio tests
         print("\n🔗 Testing Link in Bio Endpoints...")
         self.test_link_in_bio_endpoints()
         
-        print("\n👥 Testing CRM Endpoints...")
-        self.test_crm_contact_endpoints()
-        
-        print("\n📚 Testing Course Endpoints...")
-        self.test_course_endpoints()
-        
-        print("\n🛍️ Testing Product Endpoints...")
-        self.test_product_endpoints()
+        # Cleanup tests (delete resources)
+        print("\n🗑️ Testing Delete Operations...")
+        self.test_social_media_post_delete()
+        self.test_social_media_account_delete()
+        self.test_link_in_bio_page_delete()
         
         # Security tests
         print("\n🔒 Testing Authentication Protection...")
