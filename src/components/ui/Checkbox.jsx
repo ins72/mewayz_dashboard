@@ -25,6 +25,22 @@ const Checkbox = React.forwardRef(({
         lg: "h-5 w-5"
     };
 
+    // Handle click on the text label
+    const handleLabelClick = (e) => {
+        // Check if the clicked element is a link or inside a link
+        if (e.target.tagName === 'A' || e.target.closest('a')) {
+            return; // Let the link handle its own click
+        }
+        
+        // If it's not a link, trigger the checkbox
+        if (!disabled) {
+            const checkbox = document.getElementById(checkboxId);
+            if (checkbox) {
+                checkbox.click();
+            }
+        }
+    };
+
     return (
         <div className={cn("flex items-start space-x-2", className)}>
             <div className="relative flex items-center">
@@ -62,16 +78,17 @@ const Checkbox = React.forwardRef(({
             {(label || description || error) && (
                 <div className="flex-1 space-y-1">
                     {label && (
-                        <label
-                            htmlFor={checkboxId}
+                        <div
+                            onClick={handleLabelClick}
                             className={cn(
-                                "text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer",
-                                error ? "text-destructive" : "text-foreground"
+                                "text-sm font-medium leading-none cursor-pointer",
+                                error ? "text-destructive" : "text-foreground",
+                                disabled && "cursor-not-allowed opacity-70"
                             )}
                         >
                             {label}
                             {required && <span className="text-destructive ml-1">*</span>}
-                        </label>
+                        </div>
                     )}
 
                     {description && !error && (
