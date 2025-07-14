@@ -1,457 +1,109 @@
-import { supabase } from './supabase';
+import laravelWorkspaceService from './laravelWorkspaceService';
 
+// For now, use the Laravel service for basic workspace operations
+// and mock the wizard-specific methods that aren't implemented yet
 class WorkspaceService {
-  // Get all industries for workspace setup
-  async getIndustries() {
-    try {
-      const { data, error } = await supabase
-        .from('industries')
-        .select('*')
-        .eq('is_active', true)
-        .order('sort_order', { ascending: true });
-
-      if (error) {
-        return { success: false, error: error.message };
-      }
-
-      return { success: true, data: data || [] };
-    } catch (error) {
-      if (error?.message?.includes('Failed to fetch') || 
-          error?.message?.includes('NetworkError')) {
-        return { 
-          success: false, 
-          error: 'Cannot connect to database. Your Supabase project may be paused or deleted. Please visit your Supabase dashboard to check project status.' 
-        };
-      }
-      
-      return { 
-        success: false, 
-        error: 'Failed to load industries' 
-      };
-    }
+  // Basic workspace operations - delegated to Laravel service
+  async getWorkspaces() {
+    return await laravelWorkspaceService.getWorkspaces();
   }
 
-  // Get all goals for goal selection
-  async getGoals() {
-    try {
-      const { data, error } = await supabase
-        .from('goals')
-        .select('*')
-        .eq('is_active', true)
-        .order('sort_order', { ascending: true });
-
-      if (error) {
-        return { success: false, error: error.message };
-      }
-
-      return { success: true, data: data || [] };
-    } catch (error) {
-      if (error?.message?.includes('Failed to fetch') || 
-          error?.message?.includes('NetworkError')) {
-        return { 
-          success: false, 
-          error: 'Cannot connect to database. Your Supabase project may be paused or deleted. Please visit your Supabase dashboard to check project status.' 
-        };
-      }
-      
-      return { 
-        success: false, 
-        error: 'Failed to load goals' 
-      };
-    }
-  }
-
-  // Check if workspace slug is available
-  async checkSlugAvailability(slug) {
-    try {
-      const { data, error } = await supabase
-        .rpc('is_workspace_slug_available', { slug_to_check: slug });
-
-      if (error) {
-        return { success: false, error: error.message };
-      }
-
-      return { success: true, data: data };
-    } catch (error) {
-      if (error?.message?.includes('Failed to fetch') || 
-          error?.message?.includes('NetworkError')) {
-        return { 
-          success: false, 
-          error: 'Cannot connect to database. Your Supabase project may be paused or deleted. Please visit your Supabase dashboard to check project status.' 
-        };
-      }
-      
-      return { 
-        success: false, 
-        error: 'Failed to check slug availability' 
-      };
-    }
-  }
-
-  // Generate workspace slug from name
-  async generateSlug(workspaceName) {
-    try {
-      const { data, error } = await supabase
-        .rpc('generate_workspace_slug', { workspace_name: workspaceName });
-
-      if (error) {
-        return { success: false, error: error.message };
-      }
-
-      return { success: true, data: data };
-    } catch (error) {
-      if (error?.message?.includes('Failed to fetch') || 
-          error?.message?.includes('NetworkError')) {
-        return { 
-          success: false, 
-          error: 'Cannot connect to database. Your Supabase project may be paused or deleted. Please visit your Supabase dashboard to check project status.' 
-        };
-      }
-      
-      return { 
-        success: false, 
-        error: 'Failed to generate slug' 
-      };
-    }
-  }
-
-  // Create a new workspace
   async createWorkspace(workspaceData) {
-    try {
-      const { data: user } = await supabase.auth.getUser();
-      
-      if (!user?.user?.id) {
-        return { success: false, error: 'User not authenticated' };
-      }
-
-      const { data, error } = await supabase
-        .from('workspaces')
-        .insert([{
-          name: workspaceData.name,
-          slug: workspaceData.slug,
-          description: workspaceData.description,
-          industry: workspaceData.industry,
-          team_size: workspaceData.teamSize,
-          primary_goal: workspaceData.primaryGoal,
-          owner_id: user.user.id,
-          wizard_step: 1,
-          wizard_data: workspaceData.wizardData || {}
-        }])
-        .select()
-        .single();
-
-      if (error) {
-        return { success: false, error: error.message };
-      }
-
-      return { success: true, data };
-    } catch (error) {
-      if (error?.message?.includes('Failed to fetch') || 
-          error?.message?.includes('NetworkError')) {
-        return { 
-          success: false, 
-          error: 'Cannot connect to database. Your Supabase project may be paused or deleted. Please visit your Supabase dashboard to check project status.' 
-        };
-      }
-      
-      return { 
-        success: false, 
-        error: 'Failed to create workspace' 
-      };
-    }
+    return await laravelWorkspaceService.createWorkspace(workspaceData);
   }
 
-  // Update workspace wizard progress
+  async getWorkspace(workspaceId) {
+    return await laravelWorkspaceService.getWorkspace(workspaceId);
+  }
+
+  async updateWorkspace(workspaceId, updates) {
+    return await laravelWorkspaceService.updateWorkspace(workspaceId, updates);
+  }
+
+  async deleteWorkspace(workspaceId) {
+    return await laravelWorkspaceService.deleteWorkspace(workspaceId);
+  }
+
+  // Mock methods for wizard functionality (can be implemented later)
+  async getIndustries() {
+    return { 
+      success: true, 
+      data: [
+        { id: 1, name: 'Technology', slug: 'technology' },
+        { id: 2, name: 'Healthcare', slug: 'healthcare' },
+        { id: 3, name: 'Education', slug: 'education' },
+        { id: 4, name: 'Finance', slug: 'finance' },
+        { id: 5, name: 'Retail', slug: 'retail' },
+        { id: 6, name: 'Manufacturing', slug: 'manufacturing' },
+        { id: 7, name: 'Other', slug: 'other' }
+      ]
+    };
+  }
+
+  async getGoals() {
+    return { 
+      success: true, 
+      data: [
+        { id: 1, name: 'Social Media Management', slug: 'social-media' },
+        { id: 2, name: 'E-commerce', slug: 'ecommerce' },
+        { id: 3, name: 'Customer Management', slug: 'crm' },
+        { id: 4, name: 'Course Creation', slug: 'courses' },
+        { id: 5, name: 'Analytics & Reporting', slug: 'analytics' }
+      ]
+    };
+  }
+
+  async checkSlugAvailability(slug) {
+    // For now, assume all slugs are available
+    return { success: true, data: true };
+  }
+
+  async generateSlug(workspaceName) {
+    // Simple slug generation
+    const slug = workspaceName.toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '');
+    return { success: true, data: slug };
+  }
+
   async updateWizardProgress(workspaceId, stepData) {
-    try {
-      const { data, error } = await supabase
-        .from('workspaces')
-        .update({
-          wizard_step: stepData.currentStep,
-          wizard_data: stepData.formData,
-          wizard_completed: stepData.currentStep === 6 && stepData.isCompleted
-        })
-        .eq('id', workspaceId)
-        .select()
-        .single();
-
-      if (error) {
-        return { success: false, error: error.message };
-      }
-
-      return { success: true, data };
-    } catch (error) {
-      if (error?.message?.includes('Failed to fetch') || 
-          error?.message?.includes('NetworkError')) {
-        return { 
-          success: false, 
-          error: 'Cannot connect to database. Your Supabase project may be paused or deleted. Please visit your Supabase dashboard to check project status.' 
-        };
-      }
-      
-      return { 
-        success: false, 
-        error: 'Failed to update wizard progress' 
-      };
-    }
+    // Mock implementation - just return success
+    return { success: true, data: { id: workspaceId } };
   }
 
-  // Save workspace goal priorities
   async saveGoalPriorities(workspaceId, goalPriorities) {
-    try {
-      // First, delete existing priorities for this workspace
-      await supabase
-        .from('workspace_goal_priorities')
-        .delete()
-        .eq('workspace_id', workspaceId);
-
-      // Insert new priorities
-      const prioritiesToInsert = goalPriorities.map(goal => ({
-        workspace_id: workspaceId,
-        goal_id: goal.goalId,
-        priority_level: goal.priority,
-        setup_now: goal.setupNow
-      }));
-
-      const { data, error } = await supabase
-        .from('workspace_goal_priorities')
-        .insert(prioritiesToInsert)
-        .select();
-
-      if (error) {
-        return { success: false, error: error.message };
-      }
-
-      return { success: true, data };
-    } catch (error) {
-      if (error?.message?.includes('Failed to fetch') || 
-          error?.message?.includes('NetworkError')) {
-        return { 
-          success: false, 
-          error: 'Cannot connect to database. Your Supabase project may be paused or deleted. Please visit your Supabase dashboard to check project status.' 
-        };
-      }
-      
-      return { 
-        success: false, 
-        error: 'Failed to save goal priorities' 
-      };
-    }
+    // Mock implementation - just return success
+    return { success: true, data: goalPriorities };
   }
 
-  // Get workspace by slug
   async getWorkspaceBySlug(slug) {
-    try {
-      const { data, error } = await supabase
-        .from('workspaces')
-        .select(`
-          *,
-          owner:user_profiles(*)
-        `)
-        .eq('slug', slug)
-        .single();
-
-      if (error) {
-        return { success: false, error: error.message };
-      }
-
-      return { success: true, data };
-    } catch (error) {
-      if (error?.message?.includes('Failed to fetch') || 
-          error?.message?.includes('NetworkError')) {
-        return { 
-          success: false, 
-          error: 'Cannot connect to database. Your Supabase project may be paused or deleted. Please visit your Supabase dashboard to check project status.' 
-        };
-      }
-      
-      return { 
-        success: false, 
-        error: 'Failed to load workspace' 
-      };
-    }
+    // Mock implementation - would need to be implemented in Laravel
+    return { success: false, error: 'Not implemented yet' };
   }
 
-  // Get user's workspaces
   async getUserWorkspaces(userId) {
-    try {
-      const { data, error } = await supabase
-        .from('workspaces')
-        .select(`
-          *,
-          workspace_members(role, is_active)
-        `)
-        .or(`owner_id.eq.${userId},workspace_members.user_id.eq.${userId}`)
-        .eq('is_active', true)
-        .order('created_at', { ascending: false });
-
-      if (error) {
-        return { success: false, error: error.message };
-      }
-
-      return { success: true, data: data || [] };
-    } catch (error) {
-      if (error?.message?.includes('Failed to fetch') || 
-          error?.message?.includes('NetworkError')) {
-        return { 
-          success: false, 
-          error: 'Cannot connect to database. Your Supabase project may be paused or deleted. Please visit your Supabase dashboard to check project status.' 
-        };
-      }
-      
-      return { 
-        success: false, 
-        error: 'Failed to load workspaces' 
-      };
-    }
+    // Use the main getWorkspaces method
+    return await this.getWorkspaces();
   }
 
-  // Get features by goal
   async getFeaturesByGoal(goalId) {
-    try {
-      const { data, error } = await supabase
-        .from('features')
-        .select('*')
-        .eq('goal_id', goalId)
-        .eq('is_active', true)
-        .order('sort_order', { ascending: true });
-
-      if (error) {
-        return { success: false, error: error.message };
-      }
-
-      return { success: true, data: data || [] };
-    } catch (error) {
-      if (error?.message?.includes('Failed to fetch') || 
-          error?.message?.includes('NetworkError')) {
-        return { 
-          success: false, 
-          error: 'Cannot connect to database. Your Supabase project may be paused or deleted. Please visit your Supabase dashboard to check project status.' 
-        };
-      }
-      
-      return { 
-        success: false, 
-        error: 'Failed to load features' 
-      };
-    }
+    // Mock implementation
+    return { success: true, data: [] };
   }
 
-  // Get all features
   async getAllFeatures() {
-    try {
-      const { data, error } = await supabase
-        .from('features')
-        .select(`
-          *,
-          goal:goals(id, name, slug, icon_name, icon_color, category)
-        `)
-        .eq('is_active', true)
-        .order('sort_order', { ascending: true });
-
-      if (error) {
-        return { success: false, error: error.message };
-      }
-
-      return { success: true, data: data || [] };
-    } catch (error) {
-      if (error?.message?.includes('Failed to fetch') || 
-          error?.message?.includes('NetworkError')) {
-        return { 
-          success: false, 
-          error: 'Cannot connect to database. Your Supabase project may be paused or deleted. Please visit your Supabase dashboard to check project status.' 
-        };
-      }
-      
-      return { 
-        success: false, 
-        error: 'Failed to load features' 
-      };
-    }
+    // Mock implementation
+    return { success: true, data: [] };
   }
 
-  // Save workspace feature selections
   async saveFeatureSelections(workspaceId, featureSelections) {
-    try {
-      // First, delete existing feature selections for this workspace
-      await supabase
-        .from('workspace_features')
-        .delete()
-        .eq('workspace_id', workspaceId);
-
-      // Insert new feature selections
-      const selectionsToInsert = featureSelections
-        .filter(selection => selection.isEnabled)
-        .map(selection => ({
-          workspace_id: workspaceId,
-          feature_id: selection.featureId,
-          is_enabled: selection.isEnabled,
-          configuration: {
-            priority: selection.priority || 'medium'
-          }
-        }));
-
-      if (selectionsToInsert.length > 0) {
-        const { data, error } = await supabase
-          .from('workspace_features')
-          .insert(selectionsToInsert)
-          .select();
-
-        if (error) {
-          return { success: false, error: error.message };
-        }
-
-        return { success: true, data };
-      }
-
-      return { success: true, data: [] };
-    } catch (error) {
-      if (error?.message?.includes('Failed to fetch') || 
-          error?.message?.includes('NetworkError')) {
-        return { 
-          success: false, 
-          error: 'Cannot connect to database. Your Supabase project may be paused or deleted. Please visit your Supabase dashboard to check project status.' 
-        };
-      }
-      
-      return { 
-        success: false, 
-        error: 'Failed to save feature selections' 
-      };
-    }
+    // Mock implementation
+    return { success: true, data: featureSelections };
   }
 
-  // Get workspace feature selections
   async getWorkspaceFeatures(workspaceId) {
-    try {
-      const { data, error } = await supabase
-        .from('workspace_features')
-        .select(`
-          *,
-          feature:features(*)
-        `)
-        .eq('workspace_id', workspaceId)
-        .eq('is_enabled', true);
-
-      if (error) {
-        return { success: false, error: error.message };
-      }
-
-      return { success: true, data: data || [] };
-    } catch (error) {
-      if (error?.message?.includes('Failed to fetch') || 
-          error?.message?.includes('NetworkError')) {
-        return { 
-          success: false, 
-          error: 'Cannot connect to database. Your Supabase project may be paused or deleted. Please visit your Supabase dashboard to check project status.' 
-        };
-      }
-      
-      return { 
-        success: false, 
-        error: 'Failed to load workspace features' 
-      };
-    }
+    // Mock implementation
+    return { success: true, data: [] };
   }
 }
 
