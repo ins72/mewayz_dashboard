@@ -263,6 +263,36 @@ const laravelAuthService = {
       error: 'Apple OAuth integration coming soon' 
     };
   },
+
+  // Mock auth state change listener (Laravel doesn't have real-time auth changes)
+  onAuthStateChange: (callback) => {
+    // This is a mock implementation since Laravel doesn't have real-time auth changes
+    // In a real app, you might use WebSockets or polling
+    
+    // Check for auth changes periodically
+    const interval = setInterval(async () => {
+      const session = await laravelAuthService.getSession();
+      if (session.success) {
+        const currentUser = session.data.session?.user;
+        const storedUser = JSON.parse(localStorage.getItem('user') || 'null');
+        
+        // Compare current user with stored user
+        if (currentUser && !storedUser) {
+          callback('SIGNED_IN', { user: currentUser });
+        } else if (!currentUser && storedUser) {
+          callback('SIGNED_OUT', null);
+        }
+      }
+    }, 30000); // Check every 30 seconds
+
+    return {
+      data: {
+        subscription: {
+          unsubscribe: () => clearInterval(interval)
+        }
+      }
+    };
+  }
 };
 
 export default laravelAuthService;
