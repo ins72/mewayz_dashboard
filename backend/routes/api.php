@@ -58,6 +58,10 @@ Route::middleware('auth:sanctum')->group(function () {
     
     // Course routes
     Route::apiResource('courses', CourseController::class);
+    Route::post('courses/{course}/modules', [CourseController::class, 'createModule']);
+    Route::post('courses/{course}/lessons', [CourseController::class, 'createLesson']);
+    Route::get('courses/{course}/analytics', [CourseController::class, 'analytics']);
+    Route::post('courses/{course}/duplicate', [CourseController::class, 'duplicate']);
     
     // Product/Store routes
     Route::apiResource('products', ProductController::class);
