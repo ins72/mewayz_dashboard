@@ -152,33 +152,39 @@ class MewayzBackendTester:
             self.log_test("Get Authenticated User", "FAIL", f"HTTP {response.status_code}", response.text)
             return False
     
-    def test_workspace_endpoints(self):
-        """Test workspace CRUD endpoints"""
+    def test_workspace_setup(self):
+        """Create a workspace for testing social media features"""
         if not self.token:
-            self.log_test("Workspace Endpoints", "SKIP", "No authentication token")
+            self.log_test("Workspace Setup", "SKIP", "No authentication token")
             return False
         
-        # Test GET /workspaces (index)
-        response, error = self.make_request("GET", "/workspaces")
-        if error:
-            self.log_test("Workspace Index", "FAIL", f"Request failed: {error}")
-        elif response.status_code == 200:
-            self.log_test("Workspace Index", "PASS", "Endpoint accessible")
-        else:
-            self.log_test("Workspace Index", "WARN", f"HTTP {response.status_code} - Method likely not implemented", response.text[:100])
-        
-        # Test POST /workspaces (store)
         workspace_data = {
-            "name": "My Creative Workspace",
-            "description": "A workspace for creative projects"
+            "name": "Creative Studio Workspace",
+            "description": "A workspace for testing social media and link in bio features"
         }
+        
         response, error = self.make_request("POST", "/workspaces", workspace_data)
+        
         if error:
-            self.log_test("Workspace Create", "FAIL", f"Request failed: {error}")
-        elif response.status_code in [200, 201]:
-            self.log_test("Workspace Create", "PASS", "Endpoint accessible")
+            self.log_test("Workspace Setup", "FAIL", f"Request failed: {error}")
+            return False
+        
+        if response.status_code in [200, 201]:
+            try:
+                data = response.json()
+                if data.get("success") and data.get("workspace"):
+                    self.workspace_id = data["workspace"]["id"]
+                    self.log_test("Workspace Setup", "PASS", "Workspace created successfully")
+                    return True
+                else:
+                    self.log_test("Workspace Setup", "FAIL", "Invalid response format", data)
+                    return False
+            except json.JSONDecodeError:
+                self.log_test("Workspace Setup", "FAIL", "Invalid JSON response")
+                return False
         else:
-            self.log_test("Workspace Create", "WARN", f"HTTP {response.status_code} - Method likely not implemented", response.text[:100])
+            self.log_test("Workspace Setup", "FAIL", f"HTTP {response.status_code}", response.text)
+            return False
     
     def test_social_media_account_endpoints(self):
         """Test social media account CRUD endpoints"""
