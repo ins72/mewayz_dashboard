@@ -32,6 +32,9 @@ const Routes = () => {
           {/* Public landing page */}
           <Route path="/" element={<LandingPage />} />
           
+          {/* Public invitation route */}
+          <Route path="/accept-invitation/:token" element={<InvitationAcceptancePage />} />
+          
           {/* Public routes - redirect to dashboard if authenticated */}
           <Route path="/login-screen" element={
             <ProtectedRoute requireAuth={false}>
