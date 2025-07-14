@@ -18,6 +18,9 @@ class MewayzBackendTester:
         self.social_account_id = None
         self.social_post_id = None
         self.link_page_id = None
+        self.crm_contact_id = None
+        self.course_id = None
+        self.product_id = None
         self.test_results = []
         
     def log_test(self, test_name, status, message="", details=None):
