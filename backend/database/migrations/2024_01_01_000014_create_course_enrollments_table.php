@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('course_enrollments', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->uuid('course_id');
-            $table->uuid('student_id');
+            $table->unsignedBigInteger('student_id');
             $table->enum('status', ['active', 'completed', 'dropped', 'suspended'])->default('active');
             $table->decimal('progress_percentage', 5, 2)->default(0);
             $table->timestamp('enrolled_at')->nullable();

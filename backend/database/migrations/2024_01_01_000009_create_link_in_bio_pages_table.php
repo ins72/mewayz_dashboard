@@ -25,7 +25,7 @@ return new class extends Migration
             $table->string('custom_domain')->nullable();
             $table->integer('total_views')->default(0);
             $table->integer('total_clicks')->default(0);
-            $table->uuid('created_by');
+            $table->unsignedBigInteger('created_by');
             $table->timestamps();
             
             $table->foreign('workspace_id')->references('id')->on('workspaces')->onDelete('cascade');
