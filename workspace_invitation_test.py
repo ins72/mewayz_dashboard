@@ -443,9 +443,9 @@ class WorkspaceInvitationTester:
             self.log_test("Accept Invitation Auth Required", "SKIP", "No invitation token available")
             return False
         
-        # Create a new invitation for acceptance test
+        # Create a new invitation for acceptance test with a different email
         invitation_data = {
-            "email": "test@mewayz.com",  # Use the test user's email
+            "email": "acceptance.test@example.com",  # Use a different email
             "role": "contributor",
             "department": "Test",
             "position": "Test Contributor"
