@@ -122,8 +122,17 @@ const QuickActionsHub = () => {
       description: 'Send email marketing campaign',
       icon: MessageCircle,
       color: 'from-cyan-500 to-blue-500',
-      action: () => console.log('Send Campaign'),
+      action: () => navigate('/dashboard/email-campaigns'),
       category: 'email_marketing'
+    },
+    {
+      id: 'manage_payments',
+      title: 'Manage Payments',
+      description: 'View payments and subscriptions',
+      icon: CreditCard,
+      color: 'from-green-500 to-emerald-500',
+      action: () => navigate('/dashboard/payments'),
+      category: 'payments'
     }
   ];
 
