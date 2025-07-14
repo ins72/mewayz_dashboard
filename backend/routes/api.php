@@ -49,6 +49,12 @@ Route::middleware('auth:sanctum')->group(function () {
     
     // CRM routes
     Route::apiResource('crm-contacts', CrmContactController::class);
+    Route::post('crm-contacts/{crmContact}/mark-contacted', [CrmContactController::class, 'markAsContacted']);
+    Route::post('crm-contacts/{crmContact}/update-lead-score', [CrmContactController::class, 'updateLeadScore']);
+    Route::post('crm-contacts/{crmContact}/add-tags', [CrmContactController::class, 'addTags']);
+    Route::post('crm-contacts/{crmContact}/remove-tags', [CrmContactController::class, 'removeTags']);
+    Route::get('crm-contacts-follow-up', [CrmContactController::class, 'followUpNeeded']);
+    Route::get('crm-analytics', [CrmContactController::class, 'analytics']);
     
     // Course routes
     Route::apiResource('courses', CourseController::class);
