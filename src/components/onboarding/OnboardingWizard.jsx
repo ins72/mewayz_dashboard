@@ -5,6 +5,9 @@ import { OnboardingProvider, useOnboarding } from '../../contexts/OnboardingCont
 import GoalSelectionStep from './GoalSelectionStep';
 import FeatureSelectionStep from './FeatureSelectionStep';
 import TeamSetupStep from './TeamSetupStep';
+import SubscriptionSelectionStep from './SubscriptionSelectionStep';
+import BrandingSetupStep from './BrandingSetupStep';
+import DashboardCustomizationStep from './DashboardCustomizationStep';
 import { Loader2 } from 'lucide-react';
 
 const OnboardingContent = () => {
@@ -53,17 +56,23 @@ const OnboardingContent = () => {
       case ONBOARDING_STEPS.TEAM_SETUP:
         return <TeamSetupStep />;
       case ONBOARDING_STEPS.SUBSCRIPTION_SELECTION:
-        return <div>Subscription Selection - Coming Soon</div>;
+        return <SubscriptionSelectionStep />;
       case ONBOARDING_STEPS.BRANDING_CONFIGURATION:
-        return <div>Branding Configuration - Coming Soon</div>;
+        return <BrandingSetupStep />;
       case ONBOARDING_STEPS.DASHBOARD_CUSTOMIZATION:
-        return <div>Dashboard Customization - Coming Soon</div>;
+        return <DashboardCustomizationStep />;
       default:
         return <GoalSelectionStep />;
     }
   };
 
-  return renderStep();
+  return (
+    <div className="min-h-screen bg-gray-900 py-8">
+      <div className="container mx-auto px-4">
+        {renderStep()}
+      </div>
+    </div>
+  );
 };
 
 const OnboardingWizard = () => {
