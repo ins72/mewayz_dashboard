@@ -50,13 +50,13 @@ return new class extends Migration
         // Add performance indexes for workspaces
         Schema::table('workspaces', function (Blueprint $table) {
             // Index for user's workspaces
-            $table->index(['created_by', 'created_at'], 'idx_workspaces_created_by');
+            $table->index(['owner_id', 'created_at'], 'idx_workspaces_owner_created');
             
             // Index for workspace search
             $table->index(['name'], 'idx_workspaces_name');
             
             // Index for active workspaces
-            $table->index(['created_at', 'updated_at'], 'idx_workspaces_timestamps');
+            $table->index(['status', 'created_at'], 'idx_workspaces_status_created');
         });
         
         // Add performance indexes for workspace_members
