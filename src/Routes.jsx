@@ -81,6 +81,16 @@ const Routes = () => {
               <LinkInBioBuilder />
             </ProtectedRoute>
           } />
+          <Route path="/dashboard/payments" element={
+            <ProtectedRoute>
+              <PaymentDashboard />
+            </ProtectedRoute>
+          } />
+          <Route path="/dashboard/email-campaigns" element={
+            <ProtectedRoute>
+              <EmailCampaignBuilder />
+            </ProtectedRoute>
+          } />
           <Route path="/dashboard-screen" element={
             <ProtectedRoute>
               <DashboardScreen />
