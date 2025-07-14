@@ -38,6 +38,16 @@ Route::get('/auth/google/callback', [AuthController::class, 'handleGoogleCallbac
 Route::middleware('auth:sanctum')->group(function () {
     // Workspace routes
     Route::apiResource('workspaces', WorkspaceController::class);
+    
+    // Workspace invitation routes
+    Route::get('workspaces/{workspace}/invitations', [WorkspaceInvitationController::class, 'index']);
+    Route::post('workspaces/{workspace}/invitations', [WorkspaceInvitationController::class, 'store']);
+    Route::post('workspaces/{workspace}/invitations/bulk', [WorkspaceInvitationController::class, 'bulkStore']);
+    Route::get('workspaces/{workspace}/invitations/analytics', [WorkspaceInvitationController::class, 'analytics']);
+    Route::post('invitations/{invitation}/resend', [WorkspaceInvitationController::class, 'resend']);
+    Route::delete('invitations/{invitation}', [WorkspaceInvitationController::class, 'cancel']);
+    Route::post('invitations/{token}/accept', [WorkspaceInvitationController::class, 'accept']);
+    Route::post('invitations/{token}/decline', [WorkspaceInvitationController::class, 'decline']);
 
     // Social Media routes
     Route::apiResource('social-media-accounts', SocialMediaAccountController::class);
