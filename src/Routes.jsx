@@ -53,6 +53,11 @@ const Routes = () => {
           } />
           
           {/* Protected routes - require authentication */}
+          <Route path="/onboarding/:step" element={
+            <ProtectedRoute>
+              <OnboardingWizard />
+            </ProtectedRoute>
+          } />
           <Route path="/dashboard-screen" element={
             <ProtectedRoute>
               <DashboardScreen />
