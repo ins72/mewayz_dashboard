@@ -137,17 +137,14 @@ const RegistrationScreen = () => {
             )}
 
             {/* Registration Form */}
-            <RegistrationForm 
-              onSubmit={handleRegistration}
-              isLoading={isLoading}
-            />
+            <RegistrationForm />
 
             {/* Social Registration */}
             <div className="mt-6">
               <SocialRegistrationButtons
                 onGoogleSignup={handleGoogleSignup}
                 onAppleSignup={handleAppleSignup}
-                isLoading={isLoading}
+                isLoading={false}
               />
             </div>
           </div>
