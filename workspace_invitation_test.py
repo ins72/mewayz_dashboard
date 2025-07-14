@@ -364,14 +364,8 @@ class WorkspaceInvitationTester:
             "reason": "Not interested in this role at the moment"
         }
         
-        # Test without authentication (public route)
-        original_token = self.token
-        self.token = None
-        
+        # Test with authentication (protected route)
         response, error = self.make_request("POST", f"/invitations/{self.invitation_token}/decline", decline_data)
-        
-        # Restore token
-        self.token = original_token
         
         if error:
             self.log_test("Decline Invitation", "FAIL", f"Request failed: {error}")
