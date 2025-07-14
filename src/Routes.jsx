@@ -7,7 +7,7 @@ import { WizardProvider } from "contexts/WizardContext";
 // Add your imports here
 import LandingPage from "pages/LandingPage";
 import InvitationAcceptancePage from "pages/InvitationAcceptancePage";
-// import OnboardingWizard from "pages/OnboardingWizard";
+import OnboardingWizard from "components/onboarding/OnboardingWizard";
 import LoginScreen from "pages/login-screen";
 import DashboardScreen from "pages/dashboard-screen";
 import EnhancedDashboardScreen from "pages/enhanced-dashboard-screen";
