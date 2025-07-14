@@ -323,33 +323,157 @@ class MewayzBackendTester:
             self.log_test("Social Media Account Refresh Tokens", "FAIL", f"HTTP {response.status_code}", response.text[:200])
     
     def test_social_media_post_endpoints(self):
-        """Test social media post CRUD endpoints"""
-        if not self.token:
-            self.log_test("Social Media Post Endpoints", "SKIP", "No authentication token")
+        """Test social media post CRUD endpoints with comprehensive data"""
+        if not self.token or not self.workspace_id or not self.social_account_id:
+            self.log_test("Social Media Post Endpoints", "SKIP", "Missing required data (token, workspace, or account)")
             return False
         
-        # Test GET /social-media-posts
-        response, error = self.make_request("GET", "/social-media-posts")
+        # Test GET /social-media-posts (index)
+        response, error = self.make_request("GET", f"/social-media-posts?workspace_id={self.workspace_id}")
         if error:
             self.log_test("Social Media Posts Index", "FAIL", f"Request failed: {error}")
         elif response.status_code == 200:
-            self.log_test("Social Media Posts Index", "PASS", "Endpoint accessible")
+            try:
+                data = response.json()
+                if data.get("success") and "posts" in data:
+                    self.log_test("Social Media Posts Index", "PASS", f"Retrieved posts successfully")
+                else:
+                    self.log_test("Social Media Posts Index", "FAIL", "Invalid response format", data)
+            except json.JSONDecodeError:
+                self.log_test("Social Media Posts Index", "FAIL", "Invalid JSON response")
         else:
-            self.log_test("Social Media Posts Index", "WARN", f"HTTP {response.status_code} - Method likely not implemented", response.text[:100])
+            self.log_test("Social Media Posts Index", "FAIL", f"HTTP {response.status_code}", response.text[:200])
         
-        # Test POST /social-media-posts
+        # Test POST /social-media-posts (store)
+        future_date = (datetime.now() + timedelta(hours=2)).isoformat()
         post_data = {
-            "content": "Check out our latest creative project! 🎨 #creativity #design",
-            "platform": "instagram",
-            "scheduled_at": "2025-01-15T10:00:00Z"
+            "workspace_id": self.workspace_id,
+            "social_media_account_id": self.social_account_id,
+            "title": "New Year Creative Campaign",
+            "content": "🎨 Starting 2025 with amazing creative projects! Join us on this journey of innovation and design. #creativity #design #2025goals #innovation",
+            "media_urls": [
+                "https://example.com/image1.jpg",
+                "https://example.com/image2.jpg"
+            ],
+            "hashtags": ["creativity", "design", "2025goals", "innovation"],
+            "status": "scheduled",
+            "scheduled_at": future_date
         }
+        
         response, error = self.make_request("POST", "/social-media-posts", post_data)
         if error:
             self.log_test("Social Media Post Create", "FAIL", f"Request failed: {error}")
         elif response.status_code in [200, 201]:
-            self.log_test("Social Media Post Create", "PASS", "Endpoint accessible")
+            try:
+                data = response.json()
+                if data.get("success") and data.get("post"):
+                    self.social_post_id = data["post"]["id"]
+                    self.log_test("Social Media Post Create", "PASS", "Post created successfully")
+                    
+                    # Test GET /social-media-posts/{id} (show)
+                    self.test_social_media_post_show()
+                    
+                    # Test PUT /social-media-posts/{id} (update)
+                    self.test_social_media_post_update()
+                    
+                    # Test POST /social-media-posts/{id}/publish
+                    self.test_social_media_post_publish()
+                    
+                    # Test POST /social-media-posts/{id}/duplicate
+                    self.test_social_media_post_duplicate()
+                    
+                else:
+                    self.log_test("Social Media Post Create", "FAIL", "Invalid response format", data)
+            except json.JSONDecodeError:
+                self.log_test("Social Media Post Create", "FAIL", "Invalid JSON response")
         else:
-            self.log_test("Social Media Post Create", "WARN", f"HTTP {response.status_code} - Method likely not implemented", response.text[:100])
+            self.log_test("Social Media Post Create", "FAIL", f"HTTP {response.status_code}", response.text[:200])
+    
+    def test_social_media_post_show(self):
+        """Test getting specific social media post"""
+        if not self.social_post_id:
+            return
+            
+        response, error = self.make_request("GET", f"/social-media-posts/{self.social_post_id}")
+        if error:
+            self.log_test("Social Media Post Show", "FAIL", f"Request failed: {error}")
+        elif response.status_code == 200:
+            try:
+                data = response.json()
+                if data.get("success") and data.get("post"):
+                    self.log_test("Social Media Post Show", "PASS", "Post retrieved successfully")
+                else:
+                    self.log_test("Social Media Post Show", "FAIL", "Invalid response format", data)
+            except json.JSONDecodeError:
+                self.log_test("Social Media Post Show", "FAIL", "Invalid JSON response")
+        else:
+            self.log_test("Social Media Post Show", "FAIL", f"HTTP {response.status_code}", response.text[:200])
+    
+    def test_social_media_post_update(self):
+        """Test updating social media post"""
+        if not self.social_post_id:
+            return
+            
+        update_data = {
+            "title": "New Year Creative Campaign - Updated",
+            "content": "🎨 Starting 2025 with amazing creative projects! Join us on this journey of innovation and design. Updated with new insights! #creativity #design #2025goals #innovation #updated",
+            "hashtags": ["creativity", "design", "2025goals", "innovation", "updated"]
+        }
+        
+        response, error = self.make_request("PUT", f"/social-media-posts/{self.social_post_id}", update_data)
+        if error:
+            self.log_test("Social Media Post Update", "FAIL", f"Request failed: {error}")
+        elif response.status_code == 200:
+            try:
+                data = response.json()
+                if data.get("success") and data.get("post"):
+                    self.log_test("Social Media Post Update", "PASS", "Post updated successfully")
+                else:
+                    self.log_test("Social Media Post Update", "FAIL", "Invalid response format", data)
+            except json.JSONDecodeError:
+                self.log_test("Social Media Post Update", "FAIL", "Invalid JSON response")
+        else:
+            self.log_test("Social Media Post Update", "FAIL", f"HTTP {response.status_code}", response.text[:200])
+    
+    def test_social_media_post_publish(self):
+        """Test publishing social media post"""
+        if not self.social_post_id:
+            return
+            
+        response, error = self.make_request("POST", f"/social-media-posts/{self.social_post_id}/publish")
+        if error:
+            self.log_test("Social Media Post Publish", "FAIL", f"Request failed: {error}")
+        elif response.status_code == 200:
+            try:
+                data = response.json()
+                if data.get("success") and data.get("post"):
+                    self.log_test("Social Media Post Publish", "PASS", "Post published successfully")
+                else:
+                    self.log_test("Social Media Post Publish", "FAIL", "Invalid response format", data)
+            except json.JSONDecodeError:
+                self.log_test("Social Media Post Publish", "FAIL", "Invalid JSON response")
+        else:
+            self.log_test("Social Media Post Publish", "FAIL", f"HTTP {response.status_code}", response.text[:200])
+    
+    def test_social_media_post_duplicate(self):
+        """Test duplicating social media post"""
+        if not self.social_post_id:
+            return
+            
+        response, error = self.make_request("POST", f"/social-media-posts/{self.social_post_id}/duplicate")
+        if error:
+            self.log_test("Social Media Post Duplicate", "FAIL", f"Request failed: {error}")
+        elif response.status_code == 200:
+            try:
+                data = response.json()
+                if data.get("success") and data.get("post"):
+                    self.log_test("Social Media Post Duplicate", "PASS", "Post duplicated successfully")
+                else:
+                    self.log_test("Social Media Post Duplicate", "FAIL", "Invalid response format", data)
+            except json.JSONDecodeError:
+                self.log_test("Social Media Post Duplicate", "FAIL", "Invalid JSON response")
+        else:
+            self.log_test("Social Media Post Duplicate", "FAIL", f"HTTP {response.status_code}", response.text[:200])
     
     def test_link_in_bio_endpoints(self):
         """Test link in bio page CRUD endpoints"""
