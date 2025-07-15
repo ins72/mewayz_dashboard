@@ -12,8 +12,26 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('team_activities', function (Blueprint $table) {
-            $table->id();
+            $table->uuid('id')->primary();
+            $table->uuid('workspace_id');
+            $table->uuid('user_id');
+            $table->string('activity_type');
+            $table->string('module');
+            $table->string('action');
+            $table->string('entity_type')->nullable();
+            $table->uuid('entity_id')->nullable();
+            $table->text('description')->nullable();
+            $table->json('metadata')->nullable();
+            $table->enum('visibility', ['public', 'private', 'team'])->default('public');
             $table->timestamps();
+
+            $table->foreign('workspace_id')->references('id')->on('workspaces')->onDelete('cascade');
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+            
+            $table->index(['workspace_id', 'created_at']);
+            $table->index(['user_id', 'created_at']);
+            $table->index(['workspace_id', 'module', 'created_at']);
+            $table->index(['visibility']);
         });
     }
 
