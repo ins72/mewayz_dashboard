@@ -207,6 +207,39 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('creator/collections', [TemplateCreatorController::class, 'createCollection']);
     Route::get('creator/templates/{id}/analytics', [TemplateCreatorController::class, 'getTemplateAnalytics']);
     Route::get('creator/dashboard', [TemplateCreatorController::class, 'getCreatorDashboard']);
+    
+    // Analytics routes
+    Route::get('analytics/dashboard', [AnalyticsController::class, 'getDashboard']);
+    Route::get('analytics/modules/{module}', [AnalyticsController::class, 'getModuleAnalytics']);
+    Route::post('analytics/track', [AnalyticsController::class, 'trackEvent']);
+    Route::get('analytics/export', [AnalyticsController::class, 'exportAnalytics']);
+    Route::get('analytics/real-time', [AnalyticsController::class, 'getRealTimeAnalytics']);
+    Route::post('analytics/custom-report', [AnalyticsController::class, 'getCustomReport']);
+    
+    // Gamification routes
+    Route::get('gamification/dashboard', [GamificationController::class, 'getDashboard']);
+    Route::get('gamification/achievements', [GamificationController::class, 'getAchievements']);
+    Route::get('gamification/leaderboard', [GamificationController::class, 'getLeaderboard']);
+    Route::get('gamification/progress', [GamificationController::class, 'getUserProgress']);
+    Route::post('gamification/progress', [GamificationController::class, 'updateProgress']);
+    Route::post('gamification/check-achievements', [GamificationController::class, 'checkAchievements']);
+    Route::get('gamification/stats', [GamificationController::class, 'getAchievementStats']);
+    Route::post('gamification/initialize-achievements', [GamificationController::class, 'initializeAchievements']);
+    
+    // Team Management routes
+    Route::get('team/dashboard', [TeamManagementController::class, 'getDashboard']);
+    Route::get('team/members', [TeamManagementController::class, 'getTeamMembers']);
+    Route::post('team/invite', [TeamManagementController::class, 'inviteTeamMember']);
+    Route::put('team/members/{id}/role', [TeamManagementController::class, 'updateMemberRole']);
+    Route::delete('team/members/{id}', [TeamManagementController::class, 'removeMember']);
+    Route::get('team/roles', [TeamManagementController::class, 'getTeamRoles']);
+    Route::post('team/roles', [TeamManagementController::class, 'createTeamRole']);
+    Route::put('team/roles/{id}', [TeamManagementController::class, 'updateTeamRole']);
+    Route::delete('team/roles/{id}', [TeamManagementController::class, 'deleteTeamRole']);
+    Route::get('team/activities', [TeamManagementController::class, 'getTeamActivities']);
+    Route::get('team/notifications', [TeamManagementController::class, 'getTeamNotifications']);
+    Route::put('team/notifications/{id}/read', [TeamManagementController::class, 'markNotificationAsRead']);
+    Route::post('team/initialize-roles', [TeamManagementController::class, 'initializeDefaultRoles']);
 });
 
 // Public Link in Bio page view
