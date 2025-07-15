@@ -507,7 +507,7 @@ backend:
     implemented: true
     working: false
     file: "/app/backend/app/Http/Controllers/CrmDealController.php"
-    stuck_count: 1
+    stuck_count: 2
     priority: "high"
     needs_retesting: true
     status_history:
@@ -520,6 +520,9 @@ backend:
       - working: false
         agent: "testing"
         comment: "❌ FAIL: CRM Deals Management has permission issues. Deal stage update fails with 'Insufficient permissions to update deal' error. Core CRUD operations may work but stage management has authorization problems."
+      - working: false
+        agent: "testing"
+        comment: "❌ FAIL: CRM Deals Management continues to have permission issues. Comprehensive gap-filling validation confirms deal stage update fails with 'Insufficient permissions to update deal' error. Core CRUD operations work but stage management has persistent authorization problems."
 
   - task: "CRM Tasks Management"
     implemented: true
