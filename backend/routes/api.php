@@ -88,7 +88,14 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('products', ProductController::class);
     Route::post('products/{product}/update-stock', [ProductController::class, 'updateStock']);
     Route::post('products/{product}/duplicate', [ProductController::class, 'duplicate']);
+    Route::get('products/{product}/analytics', [ProductController::class, 'productAnalytics']);
     Route::get('products-analytics', [ProductController::class, 'analytics']);
+    
+    // E-commerce routes
+    Route::apiResource('orders', OrderController::class);
+    Route::put('orders/{order}/status', [OrderController::class, 'updateStatus']);
+    Route::get('inventory/alerts', [ProductController::class, 'inventoryAlerts']);
+    Route::get('product-categories', [ProductController::class, 'categories']);
 
     // Payment routes
     Route::get('payments/packages', [PaymentController::class, 'getPackages']);
