@@ -1129,6 +1129,388 @@ class BackendTester:
             self.log_test("CRM Automation Rules", False, f"Automation rule creation failed with HTTP {response.status_code}: {response.text[:200]}")
             return False
 
+    def test_marketing_analytics(self):
+        """Test Marketing Hub analytics endpoint"""
+        if not self.token or not self.workspace_id:
+            self.log_test("Marketing Analytics", False, "Missing authentication token or workspace ID")
+            return False
+        
+        # Test different time ranges
+        time_ranges = ['7d', '30d', '90d', '1y']
+        
+        for time_range in time_ranges:
+            response, error = self.make_request('GET', f'/marketing/analytics?workspace_id={self.workspace_id}&time_range={time_range}')
+            
+            if error:
+                self.log_test("Marketing Analytics", False, f"Marketing analytics request failed for {time_range}: {error}")
+                return False
+            
+            if response.status_code == 200:
+                try:
+                    result = response.json()
+                    if result.get('success') and result.get('data'):
+                        data = result['data']
+                        # Verify required fields
+                        if 'overview' in data and 'channels' in data and 'timeline' in data:
+                            continue
+                        else:
+                            self.log_test("Marketing Analytics", False, f"Missing required fields in analytics data for {time_range}")
+                            return False
+                    else:
+                        self.log_test("Marketing Analytics", False, f"Marketing analytics returned unexpected format for {time_range}: {result}")
+                        return False
+                except json.JSONDecodeError:
+                    self.log_test("Marketing Analytics", False, f"Invalid JSON response from marketing analytics for {time_range}")
+                    return False
+            else:
+                self.log_test("Marketing Analytics", False, f"Marketing analytics failed with HTTP {response.status_code} for {time_range}: {response.text[:200]}")
+                return False
+        
+        self.log_test("Marketing Analytics", True, "Marketing analytics working correctly for all time ranges")
+        return True
+
+    def test_marketing_automation(self):
+        """Test Marketing Hub automation endpoints"""
+        if not self.token or not self.workspace_id:
+            self.log_test("Marketing Automation", False, "Missing authentication token or workspace ID")
+            return False
+        
+        # Test getting automation workflows
+        response, error = self.make_request('GET', f'/marketing/automation?workspace_id={self.workspace_id}')
+        
+        if error:
+            self.log_test("Marketing Automation", False, f"Marketing automation list request failed: {error}")
+            return False
+        
+        if response.status_code == 200:
+            try:
+                result = response.json()
+                if result.get('success') and result.get('data'):
+                    # Test creating automation workflow
+                    automation_data = {
+                        "workspace_id": self.workspace_id,
+                        "name": "Welcome Email Series",
+                        "description": "Automated welcome email sequence for new subscribers",
+                        "trigger": "contact_created",
+                        "trigger_conditions": {
+                            "lead_score": {"min": 50}
+                        },
+                        "steps": [
+                            {
+                                "type": "email",
+                                "delay": 0,
+                                "template": "welcome_email",
+                                "data": {
+                                    "subject": "Welcome to our community!",
+                                    "content": "Thank you for joining us."
+                                }
+                            },
+                            {
+                                "type": "wait",
+                                "delay": 86400
+                            },
+                            {
+                                "type": "email",
+                                "delay": 0,
+                                "template": "follow_up_email",
+                                "data": {
+                                    "subject": "Getting started guide",
+                                    "content": "Here's how to get the most out of our platform."
+                                }
+                            }
+                        ],
+                        "status": "active"
+                    }
+                    
+                    create_response, create_error = self.make_request('POST', '/marketing/automation', automation_data)
+                    
+                    if create_error:
+                        self.log_test("Marketing Automation", False, f"Automation workflow creation failed: {create_error}")
+                        return False
+                    
+                    if create_response.status_code in [200, 201]:
+                        try:
+                            create_result = create_response.json()
+                            if create_result.get('success') and create_result.get('data'):
+                                self.log_test("Marketing Automation", True, "Marketing automation workflows working correctly")
+                                return True
+                            else:
+                                self.log_test("Marketing Automation", False, f"Automation workflow creation failed: {create_result.get('message', 'Unknown error')}")
+                                return False
+                        except json.JSONDecodeError:
+                            self.log_test("Marketing Automation", False, "Invalid JSON response from automation workflow creation")
+                            return False
+                    else:
+                        self.log_test("Marketing Automation", False, f"Automation workflow creation failed with HTTP {create_response.status_code}: {create_response.text[:200]}")
+                        return False
+                else:
+                    self.log_test("Marketing Automation", False, f"Marketing automation list returned unexpected format: {result}")
+                    return False
+            except json.JSONDecodeError:
+                self.log_test("Marketing Automation", False, "Invalid JSON response from marketing automation list")
+                return False
+        else:
+            self.log_test("Marketing Automation", False, f"Marketing automation list failed with HTTP {response.status_code}: {response.text[:200]}")
+            return False
+
+    def test_marketing_content_management(self):
+        """Test Marketing Hub content management endpoints"""
+        if not self.token or not self.workspace_id:
+            self.log_test("Marketing Content Management", False, "Missing authentication token or workspace ID")
+            return False
+        
+        # Test getting content library
+        response, error = self.make_request('GET', f'/marketing/content?workspace_id={self.workspace_id}')
+        
+        if error:
+            self.log_test("Marketing Content Management", False, f"Content library request failed: {error}")
+            return False
+        
+        if response.status_code == 200:
+            try:
+                result = response.json()
+                if result.get('success') and result.get('data'):
+                    # Test creating content
+                    content_data = {
+                        "workspace_id": self.workspace_id,
+                        "title": "Ultimate Marketing Guide 2025",
+                        "description": "Comprehensive guide to modern marketing strategies",
+                        "content_type": "ebook",
+                        "format": "pdf",
+                        "content_url": "https://example.com/marketing-guide.pdf",
+                        "content_data": {
+                            "pages": 50,
+                            "chapters": 8
+                        },
+                        "seo_keywords": ["marketing", "digital marketing", "strategy"],
+                        "meta_description": "Learn the latest marketing strategies and tactics for 2025",
+                        "status": "published"
+                    }
+                    
+                    create_response, create_error = self.make_request('POST', '/marketing/content', content_data)
+                    
+                    if create_error:
+                        self.log_test("Marketing Content Management", False, f"Content creation failed: {create_error}")
+                        return False
+                    
+                    if create_response.status_code in [200, 201]:
+                        try:
+                            create_result = create_response.json()
+                            if create_result.get('success') and create_result.get('data'):
+                                # Test filtering by type
+                                filter_response, filter_error = self.make_request('GET', f'/marketing/content?workspace_id={self.workspace_id}&type=ebook')
+                                
+                                if filter_error or filter_response.status_code != 200:
+                                    self.log_test("Marketing Content Management", False, f"Content filtering failed: {filter_error or filter_response.text[:200]}")
+                                    return False
+                                
+                                # Test search functionality
+                                search_response, search_error = self.make_request('GET', f'/marketing/content?workspace_id={self.workspace_id}&search=Marketing')
+                                
+                                if search_error or search_response.status_code != 200:
+                                    self.log_test("Marketing Content Management", False, f"Content search failed: {search_error or search_response.text[:200]}")
+                                    return False
+                                
+                                self.log_test("Marketing Content Management", True, "Content management CRUD operations working correctly")
+                                return True
+                            else:
+                                self.log_test("Marketing Content Management", False, f"Content creation failed: {create_result.get('message', 'Unknown error')}")
+                                return False
+                        except json.JSONDecodeError:
+                            self.log_test("Marketing Content Management", False, "Invalid JSON response from content creation")
+                            return False
+                    else:
+                        self.log_test("Marketing Content Management", False, f"Content creation failed with HTTP {create_response.status_code}: {create_response.text[:200]}")
+                        return False
+                else:
+                    self.log_test("Marketing Content Management", False, f"Content library returned unexpected format: {result}")
+                    return False
+            except json.JSONDecodeError:
+                self.log_test("Marketing Content Management", False, "Invalid JSON response from content library")
+                return False
+        else:
+            self.log_test("Marketing Content Management", False, f"Content library failed with HTTP {response.status_code}: {response.text[:200]}")
+            return False
+
+    def test_marketing_lead_magnets(self):
+        """Test Marketing Hub lead magnets endpoints"""
+        if not self.token or not self.workspace_id:
+            self.log_test("Marketing Lead Magnets", False, "Missing authentication token or workspace ID")
+            return False
+        
+        # Test getting lead magnets
+        response, error = self.make_request('GET', f'/marketing/lead-magnets?workspace_id={self.workspace_id}')
+        
+        if error:
+            self.log_test("Marketing Lead Magnets", False, f"Lead magnets list request failed: {error}")
+            return False
+        
+        if response.status_code == 200:
+            try:
+                result = response.json()
+                if result.get('success') and result.get('data'):
+                    # Test creating lead magnet
+                    magnet_data = {
+                        "workspace_id": self.workspace_id,
+                        "title": "Free Marketing Checklist",
+                        "description": "Essential checklist for launching successful marketing campaigns",
+                        "type": "checklist",
+                        "file_url": "https://example.com/marketing-checklist.pdf",
+                        "landing_page_url": "https://example.com/checklist-landing",
+                        "thank_you_page_url": "https://example.com/thank-you",
+                        "auto_tag": ["lead_magnet", "marketing_checklist"],
+                        "lead_score_boost": 15,
+                        "traffic_source": "website",
+                        "status": "active"
+                    }
+                    
+                    create_response, create_error = self.make_request('POST', '/marketing/lead-magnets', magnet_data)
+                    
+                    if create_error:
+                        self.log_test("Marketing Lead Magnets", False, f"Lead magnet creation failed: {create_error}")
+                        return False
+                    
+                    if create_response.status_code in [200, 201]:
+                        try:
+                            create_result = create_response.json()
+                            if create_result.get('success') and create_result.get('data'):
+                                # Test filtering by type
+                                filter_response, filter_error = self.make_request('GET', f'/marketing/lead-magnets?workspace_id={self.workspace_id}&type=checklist')
+                                
+                                if filter_error or filter_response.status_code != 200:
+                                    self.log_test("Marketing Lead Magnets", False, f"Lead magnet filtering failed: {filter_error or filter_response.text[:200]}")
+                                    return False
+                                
+                                self.log_test("Marketing Lead Magnets", True, "Lead magnet CRUD operations working correctly")
+                                return True
+                            else:
+                                self.log_test("Marketing Lead Magnets", False, f"Lead magnet creation failed: {create_result.get('message', 'Unknown error')}")
+                                return False
+                        except json.JSONDecodeError:
+                            self.log_test("Marketing Lead Magnets", False, "Invalid JSON response from lead magnet creation")
+                            return False
+                    else:
+                        self.log_test("Marketing Lead Magnets", False, f"Lead magnet creation failed with HTTP {create_response.status_code}: {create_response.text[:200]}")
+                        return False
+                else:
+                    self.log_test("Marketing Lead Magnets", False, f"Lead magnets list returned unexpected format: {result}")
+                    return False
+            except json.JSONDecodeError:
+                self.log_test("Marketing Lead Magnets", False, "Invalid JSON response from lead magnets list")
+                return False
+        else:
+            self.log_test("Marketing Lead Magnets", False, f"Lead magnets list failed with HTTP {response.status_code}: {response.text[:200]}")
+            return False
+
+    def test_marketing_social_media_management(self):
+        """Test Marketing Hub social media management endpoints"""
+        if not self.token or not self.workspace_id:
+            self.log_test("Marketing Social Media Management", False, "Missing authentication token or workspace ID")
+            return False
+        
+        # Test getting social media calendar
+        response, error = self.make_request('GET', f'/marketing/social-calendar?workspace_id={self.workspace_id}&month=1&year=2025')
+        
+        if error:
+            self.log_test("Marketing Social Media Management", False, f"Social calendar request failed: {error}")
+            return False
+        
+        if response.status_code == 200:
+            try:
+                result = response.json()
+                if result.get('success') and result.get('data'):
+                    # Test scheduling content
+                    schedule_data = {
+                        "workspace_id": self.workspace_id,
+                        "post_content": "Exciting news! Our new marketing features are now live. Check them out and let us know what you think! #marketing #automation",
+                        "platforms": ["facebook", "twitter", "linkedin"],
+                        "scheduled_at": "2025-01-25T10:00:00Z",
+                        "media_urls": ["https://example.com/image.jpg"],
+                        "hashtags": ["marketing", "automation", "socialmedia"],
+                        "mentions": ["@mewayz"]
+                    }
+                    
+                    schedule_response, schedule_error = self.make_request('POST', '/marketing/schedule-content', schedule_data)
+                    
+                    if schedule_error:
+                        self.log_test("Marketing Social Media Management", False, f"Content scheduling failed: {schedule_error}")
+                        return False
+                    
+                    if schedule_response.status_code in [200, 201]:
+                        try:
+                            schedule_result = schedule_response.json()
+                            if schedule_result.get('success') and schedule_result.get('data'):
+                                self.log_test("Marketing Social Media Management", True, "Social media management working correctly")
+                                return True
+                            else:
+                                self.log_test("Marketing Social Media Management", False, f"Content scheduling failed: {schedule_result.get('message', 'Unknown error')}")
+                                return False
+                        except json.JSONDecodeError:
+                            self.log_test("Marketing Social Media Management", False, "Invalid JSON response from content scheduling")
+                            return False
+                    else:
+                        self.log_test("Marketing Social Media Management", False, f"Content scheduling failed with HTTP {schedule_response.status_code}: {schedule_response.text[:200]}")
+                        return False
+                else:
+                    self.log_test("Marketing Social Media Management", False, f"Social calendar returned unexpected format: {result}")
+                    return False
+            except json.JSONDecodeError:
+                self.log_test("Marketing Social Media Management", False, "Invalid JSON response from social calendar")
+                return False
+        else:
+            self.log_test("Marketing Social Media Management", False, f"Social calendar failed with HTTP {response.status_code}: {response.text[:200]}")
+            return False
+
+    def test_marketing_conversion_funnels(self):
+        """Test Marketing Hub conversion funnel analytics"""
+        if not self.token or not self.workspace_id:
+            self.log_test("Marketing Conversion Funnels", False, "Missing authentication token or workspace ID")
+            return False
+        
+        response, error = self.make_request('GET', f'/marketing/conversion-funnels?workspace_id={self.workspace_id}')
+        
+        if error:
+            self.log_test("Marketing Conversion Funnels", False, f"Conversion funnels request failed: {error}")
+            return False
+        
+        if response.status_code == 200:
+            try:
+                result = response.json()
+                if result.get('success') and result.get('data'):
+                    funnels = result['data']
+                    if isinstance(funnels, list) and len(funnels) > 0:
+                        funnel = funnels[0]
+                        # Verify funnel structure
+                        if 'stages' in funnel and 'overall_conversion' in funnel:
+                            stages = funnel['stages']
+                            if isinstance(stages, list) and len(stages) > 0:
+                                # Verify stage structure
+                                stage = stages[0]
+                                if 'name' in stage and 'count' in stage and 'conversion_rate' in stage:
+                                    self.log_test("Marketing Conversion Funnels", True, "Conversion funnel analytics working correctly")
+                                    return True
+                                else:
+                                    self.log_test("Marketing Conversion Funnels", False, "Funnel stage missing required fields")
+                                    return False
+                            else:
+                                self.log_test("Marketing Conversion Funnels", False, "Funnel stages data invalid")
+                                return False
+                        else:
+                            self.log_test("Marketing Conversion Funnels", False, "Funnel missing required fields")
+                            return False
+                    else:
+                        self.log_test("Marketing Conversion Funnels", False, "No funnel data returned")
+                        return False
+                else:
+                    self.log_test("Marketing Conversion Funnels", False, f"Conversion funnels returned unexpected format: {result}")
+                    return False
+            except json.JSONDecodeError:
+                self.log_test("Marketing Conversion Funnels", False, "Invalid JSON response from conversion funnels")
+                return False
+        else:
+            self.log_test("Marketing Conversion Funnels", False, f"Conversion funnels failed with HTTP {response.status_code}: {response.text[:200]}")
+            return False
+
     def run_all_tests(self):
         """Run all backend tests"""
         print("=" * 60)
