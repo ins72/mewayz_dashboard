@@ -605,68 +605,9 @@ class LinkInBioService {
         sources: [
           { name: 'Instagram', visits: 7871, percentage: 50.0, change: 5.2 },
           { name: 'Direct', visits: 3149, percentage: 20.0, change: -2.1 },
-          { name: 'Twitter', visits: 2361, percentage: 15.0, change: 8.3 },
-          { name: 'Facebook', visits: 1574, percentage: 10.0, change: -5.7 },
-          { name: 'LinkedIn', visits: 628, percentage: 4.0, change: 12.4 },
-          { name: 'Other', visits: 160, percentage: 1.0, change: 0.0 }
-        ],
-        devices: [
-          { name: 'Mobile', visits: 11020, percentage: 70.0, change: 3.2 },
-          { name: 'Desktop', visits: 3774, percentage: 24.0, change: -1.8 },
-          { name: 'Tablet', visits: 949, percentage: 6.0, change: 1.1 }
-        ],
-        browsers: [
-          { name: 'Chrome', visits: 9446, percentage: 60.0 },
-          { name: 'Safari', visits: 3149, percentage: 20.0 },
-          { name: 'Firefox', visits: 1574, percentage: 10.0 },
-          { name: 'Edge', visits: 1102, percentage: 7.0 },
-          { name: 'Other', visits: 472, percentage: 3.0 }
+          { name: 'Twitter', visits: 2361, percentage: 15.0, change: 8.3 }
         ]
-      },
-      engagement: {
-        topPerformingComponents: [
-          { type: 'link-advanced', title: 'Shop Now', clicks: 1247, ctr: 32.0, conversionRate: 15.2 },
-          { type: 'link-advanced', title: 'Learn More', clicks: 892, ctr: 23.0, conversionRate: 8.9 },
-          { type: 'contact-pro', title: 'Contact Form', submissions: 154, ctr: 17.0, conversionRate: 5.1 },
-          { type: 'social-enhanced', title: 'Follow Us', clicks: 456, ctr: 12.0, conversionRate: 2.3 }
-        ],
-        heatmapData: {
-          clicks: [
-            { x: 50, y: 20, intensity: 0.8 },
-            { x: 50, y: 35, intensity: 0.6 },
-            { x: 50, y: 50, intensity: 0.9 },
-            { x: 50, y: 65, intensity: 0.4 },
-            { x: 50, y: 80, intensity: 0.7 }
-          ],
-          scrollDepth: {
-            '25%': 95,
-            '50%': 78,
-            '75%': 54,
-            '100%': 31
-          }
-        }
-      },
-      abTesting: {
-        activeTests: 2,
-        completedTests: 5,
-        totalTestViews: 8934,
-        significantResults: 3
-      },
-      geography: [
-        { country: 'United States', visits: 4723, percentage: 30.0, change: 2.1 },
-        { country: 'United Kingdom', visits: 3149, percentage: 20.0, change: -1.5 },
-        { country: 'Canada', visits: 2361, percentage: 15.0, change: 4.8 },
-        { country: 'Australia', visits: 1574, percentage: 10.0, change: -0.9 },
-        { country: 'Germany', visits: 1259, percentage: 8.0, change: 6.2 },
-        { country: 'France', visits: 1102, percentage: 7.0, change: 1.3 }
-      ],
-      timeline: Array.from({ length: 30 }, (_, i) => ({
-        date: new Date(Date.now() - (29 - i) * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-        views: Math.floor(Math.random() * 600) + 300,
-        clicks: Math.floor(Math.random() * 180) + 80,
-        conversions: Math.floor(Math.random() * 30) + 10,
-        bounceRate: Math.floor(Math.random() * 20) + 15
-      }))
+      }
     };
   }
 
