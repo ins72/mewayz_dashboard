@@ -28,7 +28,7 @@ class TeamManagementController extends Controller
         }
         
         // Get team members
-        $teamMembers = WorkspaceUser::where('workspace_id', $workspaceId)
+        $teamMembers = WorkspaceMember::where('workspace_id', $workspaceId)
             ->with(['user', 'role'])
             ->get();
         
