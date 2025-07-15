@@ -11,25 +11,36 @@ import {
   Download, Filter, Calendar, RefreshCw, Eye, Share2, MousePointer
 } from 'lucide-react';
 import analyticsService from '../../services/analyticsService';
+import { useRealTimeAnalytics } from '../../hooks/useRealTime';
 
 const AdvancedAnalyticsDashboard = ({ workspaceId }) => {
   const [analyticsData, setAnalyticsData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [selectedPeriod, setSelectedPeriod] = useState('30d');
   const [selectedModules, setSelectedModules] = useState([]);
-  const [realTimeData, setRealTimeData] = useState(null);
   const [activeTab, setActiveTab] = useState('overview');
+  
+  // Use real-time WebSocket connection for analytics
+  const { analyticsData: realTimeAnalyticsData, isConnected } = useRealTimeAnalytics(workspaceId);
 
   useEffect(() => {
     if (workspaceId) {
       loadAnalytics();
-      loadRealTimeData();
-      
-      // Set up real-time data refresh
-      const interval = setInterval(loadRealTimeData, 30000); // Update every 30 seconds
-      return () => clearInterval(interval);
     }
   }, [workspaceId, selectedPeriod, selectedModules]);
+
+  // Handle real-time analytics updates
+  useEffect(() => {
+    if (realTimeAnalyticsData) {
+      console.log('Real-time analytics update received:', realTimeAnalyticsData);
+      // Merge real-time data with existing analytics data
+      setAnalyticsData(prev => ({
+        ...prev,
+        realTimeMetrics: realTimeAnalyticsData.lastUpdate,
+        lastUpdated: realTimeAnalyticsData.timestamp
+      }));
+    }
+  }, [realTimeAnalyticsData]);
 
   const loadAnalytics = async () => {
     setLoading(true);
