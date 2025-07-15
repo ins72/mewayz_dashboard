@@ -25,7 +25,6 @@ class WorkspaceMember extends Model
         'id',
         'workspace_id',
         'user_id',
-        'role',
         'role_id',
         'status',
         'permissions',
