@@ -56,51 +56,30 @@ A comprehensive business platform providing social media management, email marke
 - **Migrations**: 25+ Laravel migrations
 - **Architecture**: Multi-tenant with workspace isolation
 
-## 🚀 **Quick Start**
+## 🛠️ Quick Start
 
-### **Prerequisites**
-- PHP 8.2 or higher
-- Node.js 18 or higher
+### Prerequisites
+- PHP 8.2+
+- Node.js 18+
 - Composer
-- Yarn (not NPM)
+- Yarn
 
-### **Installation**
-
-1. **Clone the repository**
-```bash
-git clone <repository-url>
-cd mewayz
-```
-
-2. **Backend Setup**
+### Backend Setup
 ```bash
 cd backend
 composer install
 cp .env.example .env
 php artisan key:generate
-php artisan migrate --seed
-```
-
-3. **Frontend Setup**
-```bash
-cd ..
-yarn install
-```
-
-4. **Start Development Servers**
-```bash
-# Start backend (Laravel)
-cd backend
+php artisan migrate
 php artisan serve --host=0.0.0.0 --port=8001
+```
 
-# Start frontend (React)
-cd ..
+### Frontend Setup
+```bash
+cd frontend
+yarn install
 yarn start
 ```
-
-5. **Access the Application**
-- Frontend: http://localhost:4028
-- Backend API: http://localhost:8001/api
 
 ## 📚 **Documentation**
 
