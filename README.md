@@ -4,31 +4,33 @@
 
 A comprehensive business platform providing social media management, email marketing, payment processing, CRM, course creation, and workspace management tools.
 
-## 🎯 **Key Features**
+## 🚀 Project Structure (Restructured)
 
-### ✅ **Core Business Features**
-- **Social Media Management** - Multi-platform posting, scheduling, and analytics
-- **CRM System** - Customer relationship management with lead scoring
-- **Payment Processing** - Stripe integration with subscription management
-- **Email Marketing** - Campaign creation with ElasticMail integration
-- **Link-in-Bio Builder** - Custom bio pages with analytics
-- **Course Management** - Educational content creation and delivery
-- **Product Management** - E-commerce product catalog and inventory
-- **Workspace Management** - Multi-tenant organization system
+```
+/app/
+├── backend/                    # Laravel Backend (PHP)
+├── frontend/                   # React Frontend (JavaScript)
+├── docs/                      # Comprehensive Documentation
+├── tests/                     # Testing Scripts
+├── PROJECT_STRUCTURE.md       # Detailed structure guide
+└── README.md                  # This file
+```
 
-### 🔐 **Security & Authentication**
-- **JWT Authentication** - Laravel Sanctum implementation
-- **Role-Based Access Control** - Workspace-level permissions
-- **Google OAuth Integration** - Social login capabilities
-- **API Protection** - All endpoints secured with middleware
-- **UUID Primary Keys** - Non-sequential identifiers
+## 🏗️ Architecture
 
-### 📊 **Analytics & Insights**
-- **Dashboard Analytics** - Real-time business metrics
-- **Social Media Analytics** - Engagement tracking and performance
-- **Email Analytics** - Campaign performance and open rates
-- **Payment Analytics** - Revenue tracking and transaction history
-- **Link Analytics** - Click-through rates and visitor tracking
+### Backend (Laravel)
+- **Framework**: Laravel 10 with PHP 8.2
+- **Authentication**: Laravel Sanctum with JWT tokens
+- **Database**: SQLite with UUID support
+- **API**: RESTful endpoints with `/api` prefix
+- **Port**: 8001 (internal)
+
+### Frontend (React)
+- **Framework**: React 18 with Vite
+- **State Management**: React Context API
+- **Styling**: Tailwind CSS with custom design system
+- **Routing**: React Router DOM
+- **Port**: 4028 (development)
 
 ## 🏗️ **Technology Stack**
 
