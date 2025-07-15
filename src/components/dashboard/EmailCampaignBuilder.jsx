@@ -19,16 +19,22 @@ import {
   Image,
   Type,
   Palette,
-  Layout
+  Layout,
+  AlertCircle
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
+import { useWorkspace } from '../../contexts/WorkspaceContext';
+import emailService from '../../services/emailService';
 import Button from '../ui/Button';
 import Input from '../ui/Input';
 import { Card } from '../ui/Card';
 
 const EmailCampaignBuilder = () => {
   const { user } = useAuth();
+  const { currentWorkspace } = useWorkspace();
   const [activeTab, setActiveTab] = useState('campaigns');
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [showCreateCampaign, setShowCreateCampaign] = useState(false);
   const [newCampaign, setNewCampaign] = useState({
     subject: '',
@@ -49,126 +55,106 @@ const EmailCampaignBuilder = () => {
     clickRate: 0
   });
 
-  // Mock data - in production, this would come from ElasticMail API
+  // Load email data from API
   useEffect(() => {
-    setEmailStats({
-      totalSent: 12845,
-      totalDelivered: 12678,
-      totalOpened: 8234,
-      totalClicked: 1456,
-      openRate: 64.9,
-      clickRate: 11.5
-    });
+    if (currentWorkspace?.id) {
+      loadEmailData();
+    }
+  }, [currentWorkspace]);
 
-    setCampaigns([
-      {
-        id: 1,
-        subject: 'Welcome to Mewayz! 🎉',
-        sender: 'hello@mewayz.com',
-        status: 'sent',
-        sent: 1247,
-        delivered: 1232,
-        opened: 823,
-        clicked: 145,
-        created: '2024-01-15T10:30:00Z'
-      },
-      {
-        id: 2,
-        subject: 'New Features Release - January 2024',
-        sender: 'updates@mewayz.com',
-        status: 'sent',
-        sent: 2156,
-        delivered: 2089,
-        opened: 1367,
-        clicked: 234,
-        created: '2024-01-10T14:20:00Z'
-      },
-      {
-        id: 3,
-        subject: 'Monthly Newsletter - Digital Marketing Tips',
-        sender: 'newsletter@mewayz.com',
-        status: 'draft',
-        sent: 0,
-        delivered: 0,
-        opened: 0,
-        clicked: 0,
-        created: '2024-01-16T09:00:00Z'
+  const loadEmailData = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      // Load email statistics
+      const statsResponse = await emailService.getEmailStats(currentWorkspace.id);
+      if (statsResponse.success) {
+        setEmailStats(statsResponse.stats);
       }
-    ]);
 
-    setTemplates([
-      {
-        id: 1,
-        name: 'Newsletter',
-        description: 'Monthly newsletter template',
-        thumbnail: '/api/placeholder/200/150',
-        category: 'newsletter'
-      },
-      {
-        id: 2,
-        name: 'Welcome Series',
-        description: 'Welcome new subscribers',
-        thumbnail: '/api/placeholder/200/150',
-        category: 'welcome'
-      },
-      {
-        id: 3,
-        name: 'Product Launch',
-        description: 'Announce new products',
-        thumbnail: '/api/placeholder/200/150',
-        category: 'announcement'
-      },
-      {
-        id: 4,
-        name: 'Promotional',
-        description: 'Sales and promotions',
-        thumbnail: '/api/placeholder/200/150',
-        category: 'promotion'
+      // Load campaigns
+      const campaignsResponse = await emailService.getCampaigns(currentWorkspace.id, 1, 10);
+      if (campaignsResponse.success) {
+        setCampaigns(campaignsResponse.campaigns.data || []);
       }
-    ]);
 
-    setAudiences([
-      {
-        id: 1,
-        name: 'All Subscribers',
-        count: 15678,
-        description: 'All active subscribers'
-      },
-      {
-        id: 2,
-        name: 'Pro Users',
-        count: 3456,
-        description: 'Users with Pro subscription'
-      },
-      {
-        id: 3,
-        name: 'New Signups',
-        count: 892,
-        description: 'Users who signed up in last 30 days'
-      },
-      {
-        id: 4,
-        name: 'Inactive Users',
-        count: 1234,
-        description: 'Users who haven\'t logged in for 30+ days'
+      // Load templates
+      const templatesResponse = await emailService.getTemplates(currentWorkspace.id);
+      if (templatesResponse.success) {
+        setTemplates(templatesResponse.templates || []);
       }
-    ]);
-  }, []);
 
-  const handleCreateCampaign = () => {
-    console.log('Creating campaign:', newCampaign);
-    setShowCreateCampaign(false);
-    setNewCampaign({
-      subject: '',
-      sender: '',
-      template: 'newsletter',
-      audience: 'all'
-    });
+      // Load audiences
+      const audiencesResponse = await emailService.getAudiences(currentWorkspace.id);
+      if (audiencesResponse.success) {
+        setAudiences(audiencesResponse.audiences || []);
+      }
+
+    } catch (error) {
+      setError('Failed to load email data');
+      console.error('Error loading email data:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleDeleteCampaign = (campaignId) => {
-    setCampaigns(campaigns.filter(c => c.id !== campaignId));
+  const handleCreateCampaign = async () => {
+    try {
+      const campaignData = {
+        ...newCampaign,
+        workspace_id: currentWorkspace.id
+      };
+
+      const response = await emailService.createCampaign(currentWorkspace.id, campaignData);
+      if (response.success) {
+        setCampaigns([response.campaign, ...campaigns]);
+        setShowCreateCampaign(false);
+        setNewCampaign({
+          subject: '',
+          sender: '',
+          template: 'newsletter',
+          audience: 'all'
+        });
+      }
+    } catch (error) {
+      console.error('Error creating campaign:', error);
+    }
   };
+
+  const handleDeleteCampaign = async (campaignId) => {
+    try {
+      const response = await emailService.deleteCampaign(campaignId);
+      if (response.success) {
+        setCampaigns(campaigns.filter(c => c.id !== campaignId));
+      }
+    } catch (error) {
+      console.error('Error deleting campaign:', error);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="max-w-7xl mx-auto p-6">
+        <div className="flex items-center justify-center h-64">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="max-w-7xl mx-auto p-6">
+        <Card className="p-6 text-center">
+          <AlertCircle className="h-12 w-12 text-red-400 mx-auto mb-4" />
+          <h3 className="text-lg font-semibold text-white mb-2">Error Loading Email Data</h3>
+          <p className="text-gray-400 mb-4">{error}</p>
+          <Button onClick={loadEmailData}>Try Again</Button>
+        </Card>
+      </div>
+    );
+  }
 
   const getStatusColor = (status) => {
     switch (status) {
