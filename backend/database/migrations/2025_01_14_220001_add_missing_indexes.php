@@ -111,9 +111,13 @@ return new class extends Migration
      */
     private function createDatabaseViews(): void
     {
+        // Drop views first if they exist (SQLite compatible)
+        DB::statement("DROP VIEW IF EXISTS workspace_invitation_stats");
+        DB::statement("DROP VIEW IF EXISTS user_workspace_permissions");
+        
         // View for workspace invitation statistics
         DB::statement("
-            CREATE OR REPLACE VIEW workspace_invitation_stats AS
+            CREATE VIEW workspace_invitation_stats AS
             SELECT 
                 workspace_id,
                 COUNT(*) as total_invitations,
@@ -132,7 +136,7 @@ return new class extends Migration
         
         // View for user workspace permissions
         DB::statement("
-            CREATE OR REPLACE VIEW user_workspace_permissions AS
+            CREATE VIEW user_workspace_permissions AS
             SELECT 
                 wm.user_id,
                 wm.workspace_id,
