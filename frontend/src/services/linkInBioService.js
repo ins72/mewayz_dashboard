@@ -570,7 +570,7 @@ class LinkInBioService {
         thumbnail: '/api/placeholder/300/400',
         isPremium: false,
         isNew: true,
-        components: ['header-enhanced', 'link-advanced', 'social-enhanced', 'contact-pro', 'testimonial-carousel'],
+        components: ['header-enhanced', 'link-advanced', 'social-enhanced', 'contact-pro'],
         themeColors: {
           primary: '#2563eb',
           secondary: '#64748b',
@@ -579,96 +579,6 @@ class LinkInBioService {
           text: '#1e293b'
         },
         features: ['Drag & Drop', 'A/B Testing', 'Analytics', 'Mobile Optimized']
-      },
-      {
-        id: 'creator-hub-v2',
-        name: 'Creator Hub V2',
-        description: 'Enhanced template for content creators',
-        category: 'creator',
-        thumbnail: '/api/placeholder/300/400',
-        isPremium: false,
-        isNew: true,
-        components: ['header-enhanced', 'link-advanced', 'gallery-pro', 'video-enhanced', 'social-enhanced'],
-        themeColors: {
-          primary: '#8b5cf6',
-          secondary: '#a78bfa',
-          accent: '#f472b6',
-          background: '#fafafa',
-          text: '#374151'
-        },
-        features: ['Video Integration', 'Gallery', 'Social Media', 'Mobile Optimized']
-      },
-      {
-        id: 'ecommerce-store-v2',
-        name: 'E-commerce Store V2',
-        description: 'Advanced product showcase with cart functionality',
-        category: 'ecommerce',
-        thumbnail: '/api/placeholder/300/400',
-        isPremium: true,
-        isNew: true,
-        components: ['header-enhanced', 'products-enhanced', 'countdown-timer', 'testimonial-carousel', 'contact-pro'],
-        themeColors: {
-          primary: '#059669',
-          secondary: '#10b981',
-          accent: '#f59e0b',
-          background: '#ffffff',
-          text: '#111827'
-        },
-        features: ['Product Catalog', 'Cart Integration', 'Countdown Timers', 'Testimonials']
-      },
-      {
-        id: 'course-platform-v2',
-        name: 'Course Platform V2',
-        description: 'Advanced educational content layout',
-        category: 'education',
-        thumbnail: '/api/placeholder/300/400',
-        isPremium: true,
-        isNew: true,
-        components: ['header-enhanced', 'link-advanced', 'video-enhanced', 'text-rich', 'contact-pro'],
-        themeColors: {
-          primary: '#3b82f6',
-          secondary: '#6366f1',
-          accent: '#f59e0b',
-          background: '#f8fafc',
-          text: '#1e293b'
-        },
-        features: ['Course Modules', 'Video Lessons', 'Rich Content', 'Student Contact']
-      },
-      {
-        id: 'event-promo',
-        name: 'Event Promotion',
-        description: 'Perfect for promoting events and webinars',
-        category: 'events',
-        thumbnail: '/api/placeholder/300/400',
-        isPremium: true,
-        isNew: true,
-        components: ['header-enhanced', 'countdown-timer', 'link-advanced', 'gallery-pro', 'contact-pro'],
-        themeColors: {
-          primary: '#dc2626',
-          secondary: '#ef4444',
-          accent: '#f59e0b',
-          background: '#ffffff',
-          text: '#111827'
-        },
-        features: ['Event Countdown', 'Registration Links', 'Photo Gallery', 'Contact Form']
-      },
-      {
-        id: 'portfolio-showcase',
-        name: 'Portfolio Showcase',
-        description: 'Showcase your work with style',
-        category: 'portfolio',
-        thumbnail: '/api/placeholder/300/400',
-        isPremium: false,
-        isNew: true,
-        components: ['header-enhanced', 'gallery-pro', 'text-rich', 'link-advanced', 'contact-pro'],
-        themeColors: {
-          primary: '#1f2937',
-          secondary: '#374151',
-          accent: '#f59e0b',
-          background: '#f9fafb',
-          text: '#111827'
-        },
-        features: ['Portfolio Gallery', 'Rich Text', 'Professional Links', 'Contact Form']
       }
     ];
   }
