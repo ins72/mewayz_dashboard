@@ -139,7 +139,7 @@ class TeamManagementController extends Controller
             return [
                 'id' => $member->id,
                 'user' => $member->user->only(['id', 'name', 'email']),
-                'role' => $member->role->only(['id', 'name', 'description', 'permissions']),
+                'role' => $member->role && is_object($member->role) ? $member->role->only(['id', 'name', 'description', 'permissions']) : ['id' => null, 'name' => $member->role ?? 'viewer', 'description' => null, 'permissions' => null],
                 'status' => $member->status,
                 'joined_at' => $member->created_at,
                 'last_activity' => $member->last_activity_at,
