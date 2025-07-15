@@ -3946,7 +3946,33 @@ class BackendTester:
             self.test_creator_collections,
             self.test_collection_creation,
             self.test_template_analytics,
-            self.test_creator_dashboard
+            self.test_creator_dashboard,
+            # Phase 8: Advanced Analytics & Gamification + Team Management tests
+            # Analytics System tests
+            self.test_analytics_dashboard,
+            self.test_analytics_module_specific,
+            self.test_analytics_track_event,
+            self.test_analytics_export,
+            self.test_analytics_real_time,
+            self.test_analytics_custom_report,
+            # Gamification System tests
+            self.test_gamification_dashboard,
+            self.test_gamification_achievements,
+            self.test_gamification_leaderboard,
+            self.test_gamification_progress,
+            self.test_gamification_update_progress,
+            self.test_gamification_check_achievements,
+            self.test_gamification_stats,
+            self.test_gamification_initialize_achievements,
+            # Team Management System tests
+            self.test_team_dashboard,
+            self.test_team_members,
+            self.test_team_invite,
+            self.test_team_roles,
+            self.test_team_role_creation,
+            self.test_team_activities,
+            self.test_team_notifications,
+            self.test_team_initialize_roles
         ]
         
         passed = 0
