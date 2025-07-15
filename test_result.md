@@ -108,7 +108,7 @@ backend:
     implemented: true
     working: false
     file: "/app/backend/routes/api.php"
-    stuck_count: 1
+    stuck_count: 2
     priority: "high"
     needs_retesting: true
     status_history:
@@ -118,6 +118,9 @@ backend:
       - working: false
         agent: "testing"
         comment: "❌ FAIL: Subscription Checkout endpoint returns invalid JSON response. Endpoint exists but may have issues with Stripe integration, response formatting, or checkout session creation process."
+      - working: false
+        agent: "testing"
+        comment: "❌ FAIL: Stripe Checkout Session Creation returns HTTP 403 'Insufficient permissions'. Endpoint requires user to be workspace owner/admin but test user is not properly assigned this role. Stripe integration code is implemented correctly with proper API key configuration, but permission validation is blocking access."
 
   - task: "Subscription Usage Stats Endpoint"
     implemented: true
