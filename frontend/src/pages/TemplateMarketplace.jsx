@@ -15,8 +15,8 @@ import TemplateDetails from '../components/marketplace/TemplateDetails';
 import { Store, Search, Filter, Grid, List, Star, Download, ShoppingCart } from 'lucide-react';
 
 const TemplateMarketplace = () => {
-  const { user } = useContext(AuthContext);
-  const { currentWorkspace } = useContext(WorkspaceContext);
+  const { user } = useAuth();
+  const { currentWorkspace } = useWorkspace();
   const [activeTab, setActiveTab] = useState('templates');
   const [loading, setLoading] = useState(true);
   const [templates, setTemplates] = useState([]);
