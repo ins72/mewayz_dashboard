@@ -493,6 +493,15 @@ class WorkspaceController extends Controller
 
         $workspace->update(['settings' => $currentSettings]);
 
+        // Broadcast real-time event
+        broadcast(new WorkspaceSetupProgressUpdated(
+            $workspace->id,
+            auth()->id(),
+            $request->step,
+            ($request->step / 6) * 100, // Progress percentage
+            $request->data
+        ));
+
         return response()->json([
             'success' => true,
             'message' => 'Setup progress saved'
