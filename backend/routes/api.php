@@ -184,6 +184,29 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('instagram/competitor-analysis', [InstagramManagementController::class, 'getCompetitorAnalysis']);
     Route::post('instagram/competitors', [InstagramManagementController::class, 'addCompetitor']);
     Route::get('instagram/optimal-posting-times', [InstagramManagementController::class, 'getOptimalPostingTimes']);
+    
+    // Template Marketplace routes
+    Route::get('marketplace/templates', [TemplateMarketplaceController::class, 'getMarketplaceTemplates']);
+    Route::get('marketplace/categories', [TemplateMarketplaceController::class, 'getTemplateCategories']);
+    Route::get('marketplace/collections', [TemplateMarketplaceController::class, 'getTemplateCollections']);
+    Route::get('marketplace/templates/{id}', [TemplateMarketplaceController::class, 'getTemplateDetails']);
+    Route::get('marketplace/collections/{id}', [TemplateMarketplaceController::class, 'getCollectionDetails']);
+    Route::post('marketplace/purchase-template', [TemplateMarketplaceController::class, 'purchaseTemplate']);
+    Route::post('marketplace/purchase-collection', [TemplateMarketplaceController::class, 'purchaseCollection']);
+    Route::get('marketplace/user-purchases', [TemplateMarketplaceController::class, 'getUserPurchases']);
+    Route::get('marketplace/templates/{id}/reviews', [TemplateMarketplaceController::class, 'getTemplateReviews']);
+    Route::post('marketplace/templates/reviews', [TemplateMarketplaceController::class, 'submitTemplateReview']);
+    
+    // Template Creator routes
+    Route::get('creator/templates', [TemplateCreatorController::class, 'getCreatorTemplates']);
+    Route::post('creator/templates', [TemplateCreatorController::class, 'createTemplate']);
+    Route::put('creator/templates/{id}', [TemplateCreatorController::class, 'updateTemplate']);
+    Route::delete('creator/templates/{id}', [TemplateCreatorController::class, 'deleteTemplate']);
+    Route::post('creator/templates/{id}/publish', [TemplateCreatorController::class, 'publishTemplate']);
+    Route::get('creator/collections', [TemplateCreatorController::class, 'getCreatorCollections']);
+    Route::post('creator/collections', [TemplateCreatorController::class, 'createCollection']);
+    Route::get('creator/templates/{id}/analytics', [TemplateCreatorController::class, 'getTemplateAnalytics']);
+    Route::get('creator/dashboard', [TemplateCreatorController::class, 'getCreatorDashboard']);
 });
 
 // Public Link in Bio page view
