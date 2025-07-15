@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useWorkspace } from '../contexts/WorkspaceContext';
 import productService from '../services/productService';
 
-const ProductManagement = ({ workspaceId }) => {
+const ProductManagement = () => {
+  const { currentWorkspace } = useWorkspace();
+  const workspaceId = currentWorkspace?.id;
   const [products, setProducts] = useState([]);
   const [orders, setOrders] = useState([]);
   const [categories, setCategories] = useState([]);
