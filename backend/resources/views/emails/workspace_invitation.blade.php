@@ -163,7 +163,7 @@
             This invitation was sent to {{ $invitation->email }} by {{ $invitation->inviter->name }}.
         </p>
         <p>
-            © {{ date('Y') }} Mewayz. All rights reserved.
+            © {{ date('Y') }} Mewayz Technologies Inc. All rights reserved.
         </p>
     </div>
 </body>
