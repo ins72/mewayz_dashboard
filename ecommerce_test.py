@@ -119,12 +119,33 @@ class EcommerceBackendTester:
             self.log_test("Product Management - GET with filters", False, f"HTTP {response.status_code}: {response.text[:200]}")
             return False
         
+        # First create a workspace for the product
+        workspace_data = {
+            "name": "E-commerce Test Workspace",
+            "description": "Workspace for e-commerce testing"
+        }
+        
+        workspace_response, error = self.make_request('POST', '/workspaces', workspace_data)
+        if workspace_response and workspace_response.status_code in [200, 201]:
+            try:
+                workspace_result = workspace_response.json()
+                if workspace_result.get('success') and workspace_result.get('workspace'):
+                    self.workspace_id = workspace_result['workspace']['id']
+            except json.JSONDecodeError:
+                pass
+        
+        if not self.workspace_id:
+            self.log_test("Product Management - CREATE", False, "Failed to create workspace for product testing")
+            return False
+        
         # Test POST /api/products (create product)
         product_data = {
+            "workspace_id": self.workspace_id,
             "name": "Test E-commerce Product",
+            "slug": f"test-ecommerce-product-{datetime.now().strftime('%Y%m%d%H%M%S')}",
             "description": "A test product for e-commerce testing",
             "price": 29.99,
-            "category": "electronics",
+            "categories": ["electronics"],
             "stock_quantity": 100,
             "sku": f"TEST-{datetime.now().strftime('%Y%m%d%H%M%S')}"
         }
