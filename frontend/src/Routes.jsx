@@ -181,6 +181,16 @@ const Routes = () => {
               <InstagramManagement />
             </ProtectedRoute>
           } />
+          <Route path="/template-marketplace" element={
+            <ProtectedRoute>
+              <TemplateMarketplace />
+            </ProtectedRoute>
+          } />
+          <Route path="/template-creator" element={
+            <ProtectedRoute>
+              <TemplateCreator />
+            </ProtectedRoute>
+          } />
           
           {/* 404 route */}
           <Route path="*" element={<NotFound />} />
