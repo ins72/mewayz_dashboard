@@ -84,6 +84,30 @@ class CrmContact extends Model
     }
 
     /**
+     * Get deals associated with this contact.
+     */
+    public function deals(): HasMany
+    {
+        return $this->hasMany(CrmDeal::class, 'contact_id');
+    }
+
+    /**
+     * Get tasks associated with this contact.
+     */
+    public function tasks(): HasMany
+    {
+        return $this->hasMany(CrmTask::class, 'contact_id');
+    }
+
+    /**
+     * Get communications associated with this contact.
+     */
+    public function communications(): HasMany
+    {
+        return $this->hasMany(CrmCommunication::class, 'contact_id');
+    }
+
+    /**
      * Get the contact's full name.
      */
     public function getFullNameAttribute(): string
