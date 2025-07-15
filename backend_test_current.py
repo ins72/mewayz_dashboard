@@ -110,7 +110,8 @@ class MewayzBackendTester:
             response = self.make_request("GET", "/auth/user")
             if response and response.status_code == 200:
                 data = response.json()
-                if data.get("id") == self.user_id:
+                user_data = data.get("user", data)  # Handle both formats
+                if user_data.get("id") == self.user_id:
                     self.log_test("Get Authenticated User", "PASS", "User data retrieved successfully")
                 else:
                     self.log_test("Get Authenticated User", "FAIL", "User data mismatch")
