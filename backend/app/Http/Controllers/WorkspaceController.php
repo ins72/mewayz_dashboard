@@ -452,6 +452,33 @@ class WorkspaceController extends Controller
             ]
         ]);
 
+        // Broadcast completion event
+        broadcast(new WorkspaceSetupProgressUpdated(
+            $workspace->id,
+            auth()->id(),
+            6, // Final step
+            100, // Complete
+            [
+                'setup_completed' => true,
+                'subscription_plan' => $request->input('step4.selectedPlan'),
+                'feature_count' => count($request->input('step3.selectedFeatures'))
+            ]
+        ));
+
+        // Broadcast team activity
+        broadcast(new TeamActivityUpdated(
+            $workspace->id,
+            auth()->id(),
+            [
+                'type' => 'workspace_setup_completed',
+                'description' => 'Workspace setup has been completed',
+                'metadata' => [
+                    'subscription_plan' => $request->input('step4.selectedPlan'),
+                    'feature_count' => count($request->input('step3.selectedFeatures'))
+                ]
+            ]
+        ));
+
         return response()->json([
             'success' => true,
             'workspace' => $workspace->load('members.user'),
