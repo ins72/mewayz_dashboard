@@ -1,6 +1,6 @@
 /**
- * Enhanced Link in Bio Service
- * Handles link in bio page creation, management, and analytics
+ * Enhanced Link in Bio Service with Advanced Features
+ * Handles link in bio page creation, management, analytics, drag-and-drop, and A/B testing
  */
 
 import apiClient from '../utils/apiClient';
