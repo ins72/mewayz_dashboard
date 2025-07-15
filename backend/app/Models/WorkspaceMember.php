@@ -26,10 +26,13 @@ class WorkspaceMember extends Model
         'workspace_id',
         'user_id',
         'role',
+        'role_id',
         'status',
         'permissions',
+        'invited_by',
         'invited_at',
         'joined_at',
+        'last_activity_at',
     ];
 
     /**
@@ -41,9 +44,12 @@ class WorkspaceMember extends Model
             'id' => 'string',
             'workspace_id' => 'string',
             'user_id' => 'string',
+            'role_id' => 'string',
+            'invited_by' => 'string',
             'permissions' => 'array',
             'invited_at' => 'datetime',
             'joined_at' => 'datetime',
+            'last_activity_at' => 'datetime',
         ];
     }
 
