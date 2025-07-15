@@ -385,7 +385,7 @@ const LandingPage = () => {
           
           <div className="border-t border-border mt-8 pt-8 text-center">
             <p className="text-muted-foreground">
-              © 2025 Mewayz. All rights reserved.
+              © 2025 Mewayz Technologies Inc. All rights reserved.
             </p>
           </div>
         </div>
