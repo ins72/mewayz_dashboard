@@ -1538,13 +1538,20 @@ class BackendTester:
             self.test_ecommerce_inventory_alerts,
             self.test_ecommerce_product_categories,
             self.test_ecommerce_product_analytics,
-            # New CRM Phase 4 tests
+            # CRM Phase 4 tests
             self.test_crm_pipeline_management,
             self.test_crm_deals_management,
             self.test_crm_tasks_management,
             self.test_crm_communications_management,
             self.test_crm_contact_analytics,
-            self.test_crm_automation_rules
+            self.test_crm_automation_rules,
+            # Marketing Hub Phase 5 tests
+            self.test_marketing_analytics,
+            self.test_marketing_automation,
+            self.test_marketing_content_management,
+            self.test_marketing_lead_magnets,
+            self.test_marketing_social_media_management,
+            self.test_marketing_conversion_funnels
         ]
         
         passed = 0
