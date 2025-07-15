@@ -1,11 +1,8 @@
-# 🚀 Mewayz - All-in-One Business Management Platform
+# Mewayz - All-in-One Business Platform
 
-![Mewayz](https://img.shields.io/badge/Status-Production%20Ready-brightgreen)
-![Laravel](https://img.shields.io/badge/Laravel-12-red)
-![React](https://img.shields.io/badge/React-18-blue)
-![Success Rate](https://img.shields.io/badge/Success%20Rate-93.2%25-brightgreen)
+![Mewayz Logo](https://via.placeholder.com/150x50/2563eb/ffffff?text=Mewayz)
 
-**Mewayz** is a comprehensive, enterprise-level business management platform that provides businesses with integrated tools for social media management, CRM, e-commerce, payments, email marketing, course creation, and more.
+A comprehensive business platform providing social media management, email marketing, payment processing, CRM, course creation, and workspace management tools.
 
 ## 🎯 **Key Features**
 
