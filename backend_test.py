@@ -443,6 +443,7 @@ class BackendTester:
         # First create a product to test stock management
         product_data = {
             "name": "Test Product for Stock",
+            "slug": f"test-product-stock-{datetime.now().strftime('%Y%m%d_%H%M%S')}",
             "description": "A test product for stock management testing",
             "price": 29.99,
             "stock_quantity": 100,
