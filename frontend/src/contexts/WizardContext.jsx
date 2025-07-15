@@ -77,79 +77,95 @@ const initialState = {
   setupProgress: {}
 };
 
-// Wizard reducer
-function wizardReducer(state, action) {
+// Reducer for wizard state management
+const wizardReducer = (state, action) => {
   switch (action.type) {
-    case 'SET_LOADING':
-      return {
-        ...state,
-        isLoading: action.payload
-      };
-
     case 'SET_CURRENT_STEP':
       return {
         ...state,
-        currentStep: action.payload
+        currentStep: action.payload,
+        errors: {}
       };
-
+    
+    case 'NEXT_STEP':
+      const nextStep = Math.min(state.currentStep + 1, 6);
+      return {
+        ...state,
+        currentStep: nextStep,
+        completedSteps: new Set([...state.completedSteps, state.currentStep]),
+        errors: {}
+      };
+    
+    case 'PREVIOUS_STEP':
+      return {
+        ...state,
+        currentStep: Math.max(state.currentStep - 1, 1),
+        errors: {}
+      };
+    
     case 'UPDATE_FORM_DATA':
       return {
         ...state,
         formData: {
           ...state.formData,
-          [action.step]: {
-            ...state.formData[action.step],
-            ...action.payload
+          [action.payload.step]: {
+            ...state.formData[action.payload.step],
+            ...action.payload.data
           }
         }
       };
-
-    case 'COMPLETE_STEP':
-      const newCompletedSteps = [...state.completedSteps];
-      if (!newCompletedSteps.includes(action.payload)) {
-        newCompletedSteps.push(action.payload);
-      }
+    
+    case 'SET_LOADING':
       return {
         ...state,
-        completedSteps: newCompletedSteps
+        isLoading: action.payload
       };
-
+    
     case 'SET_ERROR':
       return {
         ...state,
         errors: {
           ...state.errors,
-          [action.field]: action.payload
+          [action.payload.field]: action.payload.message
         }
       };
-
+    
     case 'CLEAR_ERROR':
       const newErrors = { ...state.errors };
-      delete newErrors[action.field];
+      delete newErrors[action.payload];
       return {
         ...state,
         errors: newErrors
       };
-
+    
     case 'CLEAR_ALL_ERRORS':
       return {
         ...state,
         errors: {}
       };
-
-    case 'LOAD_SAVED_STATE':
+    
+    case 'SET_WORKSPACE_ID':
       return {
         ...state,
-        ...action.payload
+        workspaceId: action.payload
       };
-
+    
+    case 'SET_SETUP_PROGRESS':
+      return {
+        ...state,
+        setupProgress: action.payload
+      };
+    
     case 'RESET_WIZARD':
-      return initialState;
-
+      return {
+        ...initialState,
+        workspaceId: state.workspaceId
+      };
+    
     default:
       return state;
   }
-}
+};
 
 export function WizardProvider({ children }) {
   const [state, dispatch] = useReducer(wizardReducer, initialState);
