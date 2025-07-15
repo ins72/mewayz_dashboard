@@ -12,6 +12,8 @@ class DioClient {
   final StorageService _storageService;
   final NetworkInfo _networkInfo;
   
+  Dio get dio => _dio;
+  
   DioClient({
     required String baseUrl,
     required Duration connectTimeout,
