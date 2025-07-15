@@ -77,6 +77,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('subscription/{subscription}', [SubscriptionController::class, 'updateSubscription']);
     Route::delete('subscription/{subscription}', [SubscriptionController::class, 'cancelSubscription']);
     Route::get('subscription/usage', [SubscriptionController::class, 'getSubscriptionUsage']);
+    Route::post('subscription/free', [SubscriptionController::class, 'createFreeSubscription']);
     
     // Workspace invitation routes
     Route::get('workspaces/{workspace}/invitations', [WorkspaceInvitationController::class, 'index']);
