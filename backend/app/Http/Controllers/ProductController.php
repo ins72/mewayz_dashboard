@@ -456,4 +456,177 @@ class ProductController extends Controller
             ]
         ]);
     }
+
+    /**
+     * Get individual product analytics.
+     */
+    public function productAnalytics(Request $request, Product $product)
+    {
+        // Check if user has access to this product's workspace
+        if (!$product->workspace->members()->where('user_id', auth()->id())->exists()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized access to product'
+            ], 403);
+        }
+
+        // Mock analytics data for now
+        return response()->json([
+            'success' => true,
+            'analytics' => [
+                'product_id' => $product->id,
+                'period' => $request->input('period', '30d'),
+                'sales' => [
+                    'total_sales' => rand(10, 100),
+                    'total_revenue' => rand(1000, 10000),
+                    'units_sold' => rand(5, 50),
+                    'average_order_value' => rand(50, 500),
+                    'conversion_rate' => rand(1, 10)
+                ],
+                'traffic' => [
+                    'page_views' => rand(100, 1000),
+                    'unique_visitors' => rand(50, 500),
+                    'bounce_rate' => rand(10, 50),
+                    'average_time_on_page' => rand(30, 300)
+                ],
+                'performance' => [
+                    'add_to_cart_rate' => rand(5, 20),
+                    'checkout_rate' => rand(20, 60),
+                    'return_rate' => rand(1, 10),
+                    'customer_satisfaction' => rand(3, 5)
+                ]
+            ]
+        ]);
+    }
+
+    /**
+     * Get inventory alerts.
+     */
+    public function inventoryAlerts(Request $request)
+    {
+        $workspaceId = $request->input('workspace_id');
+        
+        // Validate workspace access
+        if ($workspaceId) {
+            $workspace = Workspace::find($workspaceId);
+            if (!$workspace || !$workspace->members()->where('user_id', auth()->id())->exists()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Unauthorized access to workspace'
+                ], 403);
+            }
+        }
+
+        $query = Product::query();
+        
+        if ($workspaceId) {
+            $query->where('workspace_id', $workspaceId);
+        } else {
+            // Get products from all workspaces user has access to
+            $userWorkspaceIds = auth()->user()->workspaces()->pluck('workspaces.id');
+            $query->whereIn('workspace_id', $userWorkspaceIds);
+        }
+
+        $alerts = [];
+
+        // Low stock alerts
+        $lowStockProducts = $query->where('track_inventory', true)
+                                  ->where('stock_quantity', '>', 0)
+                                  ->where('stock_quantity', '<=', 10)
+                                  ->get();
+
+        foreach ($lowStockProducts as $product) {
+            $alerts[] = [
+                'id' => 'alert-low-' . $product->id,
+                'product_id' => $product->id,
+                'product_name' => $product->name,
+                'type' => 'low_stock',
+                'current_stock' => $product->stock_quantity,
+                'threshold' => 10,
+                'severity' => 'warning',
+                'created_at' => now()->toISOString()
+            ];
+        }
+
+        // Out of stock alerts
+        $outOfStockProducts = $query->where('track_inventory', true)
+                                   ->where('stock_quantity', '<=', 0)
+                                   ->get();
+
+        foreach ($outOfStockProducts as $product) {
+            $alerts[] = [
+                'id' => 'alert-out-' . $product->id,
+                'product_id' => $product->id,
+                'product_name' => $product->name,
+                'type' => 'out_of_stock',
+                'current_stock' => $product->stock_quantity,
+                'threshold' => 0,
+                'severity' => 'critical',
+                'created_at' => now()->toISOString()
+            ];
+        }
+
+        return response()->json([
+            'success' => true,
+            'alerts' => $alerts
+        ]);
+    }
+
+    /**
+     * Get product categories.
+     */
+    public function categories(Request $request)
+    {
+        $workspaceId = $request->input('workspace_id');
+        
+        // Validate workspace access
+        if ($workspaceId) {
+            $workspace = Workspace::find($workspaceId);
+            if (!$workspace || !$workspace->members()->where('user_id', auth()->id())->exists()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Unauthorized access to workspace'
+                ], 403);
+            }
+        }
+
+        $query = Product::query();
+        
+        if ($workspaceId) {
+            $query->where('workspace_id', $workspaceId);
+        } else {
+            // Get products from all workspaces user has access to
+            $userWorkspaceIds = auth()->user()->workspaces()->pluck('workspaces.id');
+            $query->whereIn('workspace_id', $userWorkspaceIds);
+        }
+
+        // Get all categories from products
+        $products = $query->get();
+        $categoryStats = [];
+
+        foreach ($products as $product) {
+            if ($product->categories) {
+                foreach ($product->categories as $category) {
+                    if (!isset($categoryStats[$category])) {
+                        $categoryStats[$category] = [
+                            'id' => 'cat-' . strtolower(str_replace(' ', '-', $category)),
+                            'name' => $category,
+                            'description' => 'Products in ' . $category . ' category',
+                            'product_count' => 0,
+                            'total_sales' => 0,
+                            'total_revenue' => 0
+                        ];
+                    }
+                    $categoryStats[$category]['product_count']++;
+                    $categoryStats[$category]['total_sales'] += rand(10, 100);
+                    $categoryStats[$category]['total_revenue'] += rand(1000, 10000);
+                }
+            }
+        }
+
+        return response()->json([
+            'success' => true,
+            'categories' => array_values($categoryStats)
+        ]);
+    }
 }
