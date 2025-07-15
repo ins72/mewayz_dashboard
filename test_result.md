@@ -401,7 +401,11 @@ metadata:
 
 test_plan:
   current_focus:
-    []
+    - "CRM Management Page Integration"
+    - "Sales Pipeline Component Integration"
+    - "Communication History Component Integration"
+    - "CRM Service Layer Integration"
+    - "CRM Route Configuration"
   stuck_tasks:
     []
   test_all: false
