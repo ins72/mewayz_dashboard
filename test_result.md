@@ -66,7 +66,7 @@ backend:
     implemented: true
     working: false
     file: "/app/backend/routes/api.php"
-    stuck_count: 2
+    stuck_count: 3
     priority: "high"
     needs_retesting: true
     status_history:
@@ -79,6 +79,9 @@ backend:
       - working: false
         agent: "testing"
         comment: "❌ FAIL: Workspace Complete Setup endpoint returns HTTP 500 Internal Server Error. Database error in subscription creation - model expects fields (user_id, package_id, metadata) but table has different structure (plan, features). Mismatch between Subscription model and actual database schema causing SQL constraint violations."
+      - working: false
+        agent: "testing"
+        comment: "❌ FAIL: Workspace Complete Setup endpoint still returns invalid JSON response after Stripe integration fixes. Endpoint may have implementation issues with response formatting or data processing that prevent proper workspace setup completion."
 
   - task: "Current Subscription Endpoint"
     implemented: true
