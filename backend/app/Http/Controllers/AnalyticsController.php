@@ -5,10 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Analytics;
 use App\Models\Workspace;
 use App\Models\User;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
-use Carbon\Carbon;
+use App\Events\AnalyticsUpdated;
 
 class AnalyticsController extends Controller
 {
