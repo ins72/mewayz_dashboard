@@ -671,8 +671,12 @@ class TeamManagementController extends Controller
         $user = Auth::user();
         
         // Check permissions
-        $userRole = $user->workspaces()->where('workspaces.id', $workspaceId)->first()?->pivot->role;
-        if (!$userRole || !$userRole->hasPermission('workspace', 'manage_users')) {
+        $userMembership = WorkspaceMember::where('workspace_id', $workspaceId)
+            ->where('user_id', $user->id)
+            ->with('role')
+            ->first();
+        
+        if (!$userMembership || !$userMembership->role || !$userMembership->role->hasPermission('workspace', 'manage_users')) {
             return response()->json(['error' => 'Insufficient permissions'], 403);
         }
         
