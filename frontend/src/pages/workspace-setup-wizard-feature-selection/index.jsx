@@ -10,7 +10,7 @@ import FeatureGroup from './components/FeatureGroup';
 
 import SmartRecommendations from './components/SmartRecommendations';
 import FeatureSearch from './components/FeatureSearch';
-import workspaceService from '../../utils/workspaceService';
+import workspaceService from '../../services/workspaceService';
 
 const WorkspaceSetupWizardFeatureSelection = () => {
   const navigate = useNavigate();
