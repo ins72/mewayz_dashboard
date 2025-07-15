@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/Card'
 import { Button } from '../components/ui/Button';
 import { Badge } from '../components/ui/badge';
 import { useAuth } from '../contexts/AuthContext';
-import { WorkspaceContext } from '../contexts/WorkspaceContext';
+import { useWorkspace } from '../contexts/WorkspaceContext';
 import InstagramService from '../services/instagramService';
 import ContentCalendar from '../components/instagram/ContentCalendar';
 import StoryManager from '../components/instagram/StoryManager';
