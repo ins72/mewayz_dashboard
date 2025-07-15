@@ -21,31 +21,39 @@ Mewayz is a comprehensive **enterprise business suite** that consolidates essent
 - **Team Collaboration**: Multi-user workspaces with role-based permissions
 - **Payment Processing**: Stripe integration with subscription management
 
-## 🏗️ Architecture Overview
+---
 
-**Frontend:** React 18 + Vite + Tailwind CSS  
-**Backend:** Laravel 12 + PHP 8.2  
-**Database:** MariaDB with UUID support  
-**Authentication:** Laravel Sanctum + JWT  
-**Payments:** Stripe integration  
-**Email:** ElasticMail service  
-**OAuth:** Google OAuth 2.0  
+## 🏗️ **Technical Architecture**
 
-## 🚀 Quick Start
+### **Technology Stack**
+```
+Frontend:    React 18 + Vite + Tailwind CSS
+Backend:     Laravel 12 + PHP 8.2
+Database:    MariaDB/MySQL + SQLite (development)
+Auth:        Laravel Sanctum + JWT
+UI:          Tailwind CSS + Radix UI + Lucide Icons
+Payments:    Stripe Integration
+Email:       ElasticMail Service
+OAuth:       Google OAuth 2.0
+```
 
-### Prerequisites
-- Node.js (v18 or higher)
-- PHP 8.2 or higher
-- MariaDB/MySQL
-- Composer
-- Yarn
+### **System Requirements**
+- **Node.js**: 18.x or higher
+- **PHP**: 8.2 or higher
+- **Database**: MariaDB 10.x or MySQL 8.x
+- **Web Server**: Nginx or Apache
+- **SSL Certificate**: Required for production
 
-### Installation
+---
 
-1. **Clone the repository**
+## 🚀 **Quick Start Guide**
+
+### **Development Setup**
+
+1. **Clone Repository**
    ```bash
-   git clone [repository-url]
-   cd mewayz
+   git clone https://github.com/mewayz/mewayz-platform.git
+   cd mewayz-platform
    ```
 
 2. **Backend Setup**
@@ -60,20 +68,14 @@ Mewayz is a comprehensive **enterprise business suite** that consolidates essent
 
 3. **Frontend Setup**
    ```bash
-   cd ../
+   cd /
    yarn install
-   echo "REACT_APP_BACKEND_URL=http://localhost:8001/api" > .env
-   yarn start
+   yarn dev
    ```
 
-4. **Database Setup**
-   ```bash
-   mysql -u root -p
-   CREATE DATABASE mewayz_local;
-   CREATE USER 'mewayz'@'localhost' IDENTIFIED BY 'password';
-   GRANT ALL PRIVILEGES ON mewayz_local.* TO 'mewayz'@'localhost';
-   FLUSH PRIVILEGES;
-   ```
+4. **Access Application**
+   - Frontend: http://localhost:4028
+   - Backend API: http://localhost:8001/api
 
 ## 🌟 Key Features
 
