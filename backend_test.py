@@ -4475,6 +4475,8 @@ class BackendTester:
             self.test_subscription_plans,
             self.test_subscription_checkout,
             self.test_subscription_usage,
+            # STRIPE INTEGRATION FIXES VALIDATION - Priority Testing
+            self.test_stripe_integration_fixes,
             # CRITICAL BUG FIXES VALIDATION - Priority Testing
             self.test_critical_bug_fixes_team_management,
             self.test_critical_bug_fixes_gamification,
