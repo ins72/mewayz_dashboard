@@ -106,6 +106,18 @@ Route::middleware('auth:sanctum')->group(function () {
     // CRM Automation routes
     Route::apiResource('crm-automation-rules', CrmAutomationController::class);
     Route::post('crm-automation-rules/{crmAutomationRule}/toggle', [CrmAutomationController::class, 'toggleStatus']);
+    
+    // Marketing Hub routes
+    Route::get('marketing/analytics', [MarketingHubController::class, 'getAnalytics']);
+    Route::get('marketing/automation', [MarketingHubController::class, 'getAutomation']);
+    Route::post('marketing/automation', [MarketingHubController::class, 'createAutomation']);
+    Route::get('marketing/content', [MarketingHubController::class, 'getContent']);
+    Route::post('marketing/content', [MarketingHubController::class, 'createContent']);
+    Route::get('marketing/lead-magnets', [MarketingHubController::class, 'getLeadMagnets']);
+    Route::post('marketing/lead-magnets', [MarketingHubController::class, 'createLeadMagnet']);
+    Route::get('marketing/social-calendar', [MarketingHubController::class, 'getSocialCalendar']);
+    Route::post('marketing/schedule-content', [MarketingHubController::class, 'scheduleContent']);
+    Route::get('marketing/conversion-funnels', [MarketingHubController::class, 'getConversionFunnels']);
 
     // Course routes
     Route::apiResource('courses', CourseController::class);
