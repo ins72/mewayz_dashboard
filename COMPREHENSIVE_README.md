@@ -455,6 +455,6 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ---
 
-**Built with ❤️ by the Mewayz Team**
+**Built with ❤️ by Mewayz Technologies Inc.**
 
 *Last updated: January 2025*
