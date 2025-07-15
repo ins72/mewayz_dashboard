@@ -30,6 +30,7 @@ import CRMManagement from "pages/CRMManagement";
 import ProductManagement from "pages/ProductManagement";
 import CourseManagement from "pages/CourseManagement";
 import LinkInBioManagement from "pages/LinkInBioManagement";
+import InstagramManagement from "pages/InstagramManagement";
 import MarketingHub from "pages/MarketingHub";
 import NotFound from "pages/NotFound";
 
