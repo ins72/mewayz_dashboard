@@ -154,6 +154,9 @@ backend:
       - working: true
         agent: "testing"
         comment: "✅ PASS: Overall product analytics working via GET /api/products-analytics. Returns comprehensive analytics including total products, stock status, inventory value. Individual product analytics (GET /api/products/{id}/analytics) not implemented (404)."
+      - working: true
+        agent: "testing"
+        comment: "✅ PASS: Individual product analytics endpoint (GET /api/products/{id}/analytics) now working correctly. Can successfully create test products and retrieve individual product analytics data. Both overall and individual product analytics are fully functional."
 
   - task: "E-commerce Order Management"
     implemented: false
