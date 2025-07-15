@@ -24,6 +24,9 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\InstagramManagementController;
 use App\Http\Controllers\TemplateMarketplaceController;
 use App\Http\Controllers\TemplateCreatorController;
+use App\Http\Controllers\AnalyticsController;
+use App\Http\Controllers\GamificationController;
+use App\Http\Controllers\TeamManagementController;
 
 /*
 |--------------------------------------------------------------------------
