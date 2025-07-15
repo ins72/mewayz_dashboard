@@ -128,4 +128,5 @@ export const useWorkspace = () => {
 };
 
 export { WorkspaceContext };
+export { WorkspaceContext };
 export default WorkspaceContext;
