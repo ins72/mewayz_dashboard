@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { 
   Instagram, 
@@ -14,69 +14,115 @@ import {
   Heart,
   Share2,
   Eye,
-  Play
+  Play,
+  AlertCircle
 } from 'lucide-react';
+import { useAuth } from '../../contexts/AuthContext';
+import { useWorkspace } from '../../contexts/WorkspaceContext';
+import socialMediaService from '../../services/socialMediaService';
 import Button from '../ui/Button';
 import Input from '../ui/Input';
 import { Card } from '../ui/Card';
 
 const InstagramManagement = () => {
+  const { user } = useAuth();
+  const { currentWorkspace } = useWorkspace();
   const [activeTab, setActiveTab] = useState('create');
   const [postType, setPostType] = useState('image');
   const [caption, setCaption] = useState('');
   const [scheduledTime, setScheduledTime] = useState('');
   const [hashtags, setHashtags] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const recentPosts = [
-    {
-      id: 1,
-      type: 'image',
-      caption: 'Just launched our new product line! 🚀',
-      likes: 245,
-      comments: 12,
-      shares: 8,
-      posted: '2 hours ago',
-      image: '/api/placeholder/300/300'
-    },
-    {
-      id: 2,
-      type: 'video',
-      caption: 'Behind the scenes of our latest campaign',
-      likes: 189,
-      comments: 23,
-      shares: 15,
-      posted: '5 hours ago',
-      image: '/api/placeholder/300/300'
-    },
-    {
-      id: 3,
-      type: 'carousel',
-      caption: 'Summer collection preview ☀️',
-      likes: 332,
-      comments: 45,
-      shares: 22,
-      posted: '1 day ago',
-      image: '/api/placeholder/300/300'
+  const [recentPosts, setRecentPosts] = useState([]);
+  const [analytics, setAnalytics] = useState({
+    totalFollowers: 0,
+    totalPosts: 0,
+    averageLikes: 0,
+    engagementRate: 0,
+    reachThisWeek: 0,
+    profileVisits: 0
+  });
+
+  // Load Instagram data from API
+  useEffect(() => {
+    if (currentWorkspace?.id) {
+      loadInstagramData();
     }
-  ];
+  }, [currentWorkspace]);
 
-  const analytics = {
-    totalFollowers: 12845,
-    totalPosts: 156,
-    averageLikes: 234,
-    engagementRate: 4.2,
-    reachThisWeek: 8934,
-    profileVisits: 1234
+  const loadInstagramData = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      // Load recent posts
+      const postsResponse = await socialMediaService.getPosts(currentWorkspace.id, null, 1, 10);
+      if (postsResponse.success) {
+        setRecentPosts(postsResponse.posts.data || []);
+      }
+
+      // Load analytics
+      const analyticsResponse = await socialMediaService.getAnalytics(currentWorkspace.id);
+      if (analyticsResponse.success) {
+        setAnalytics(analyticsResponse.analytics);
+      }
+
+    } catch (error) {
+      setError('Failed to load Instagram data');
+      console.error('Error loading Instagram data:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handlePostSubmit = () => {
-    console.log('Creating post:', {
-      type: postType,
-      caption,
-      scheduledTime,
-      hashtags
-    });
+  const handlePostSubmit = async () => {
+    try {
+      const postData = {
+        social_media_account_id: null, // This would come from selected account
+        title: caption.substring(0, 100),
+        content: caption,
+        hashtags: hashtags.split(' ').filter(tag => tag.startsWith('#')),
+        status: scheduledTime ? 'scheduled' : 'draft',
+        scheduled_at: scheduledTime || null,
+        media_urls: [] // This would come from uploaded media
+      };
+
+      const response = await socialMediaService.createPost(currentWorkspace.id, postData);
+      if (response.success) {
+        setRecentPosts([response.post, ...recentPosts]);
+        setCaption('');
+        setScheduledTime('');
+        setHashtags('');
+      }
+    } catch (error) {
+      console.error('Error creating post:', error);
+    }
   };
+
+  if (loading) {
+    return (
+      <div className="max-w-7xl mx-auto p-6">
+        <div className="flex items-center justify-center h-64">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="max-w-7xl mx-auto p-6">
+        <Card className="p-6 text-center">
+          <AlertCircle className="h-12 w-12 text-red-400 mx-auto mb-4" />
+          <h3 className="text-lg font-semibold text-white mb-2">Error Loading Instagram Data</h3>
+          <p className="text-gray-400 mb-4">{error}</p>
+          <Button onClick={loadInstagramData}>Try Again</Button>
+        </Card>
+      </div>
+    );
+  }
 
   const tabs = [
     { id: 'create', label: 'Create Post', icon: Instagram },
