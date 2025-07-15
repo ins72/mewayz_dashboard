@@ -122,4 +122,12 @@ class Workspace extends Model
     {
         return $this->hasMany(Product::class);
     }
+
+    /**
+     * Get subscriptions for this workspace.
+     */
+    public function subscriptions(): HasMany
+    {
+        return $this->hasMany(Subscription::class);
+    }
 }
