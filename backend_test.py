@@ -1419,12 +1419,15 @@ class BackendTester:
             try:
                 result = response.json()
                 if result.get('success') and result.get('data'):
-                    # Test scheduling content
+                    # Test scheduling content with future date
+                    from datetime import datetime, timedelta
+                    future_date = (datetime.now() + timedelta(days=1)).strftime('%Y-%m-%dT%H:%M:%SZ')
+                    
                     schedule_data = {
                         "workspace_id": self.workspace_id,
                         "post_content": "Exciting news! Our new marketing features are now live. Check them out and let us know what you think! #marketing #automation",
                         "platforms": ["facebook", "twitter", "linkedin"],
-                        "scheduled_at": "2025-01-25T10:00:00Z",
+                        "scheduled_at": future_date,
                         "media_urls": ["https://example.com/image.jpg"],
                         "hashtags": ["marketing", "automation", "socialmedia"],
                         "mentions": ["@mewayz"]
