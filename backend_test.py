@@ -4636,6 +4636,429 @@ class BackendTester:
             self.log_test("Subscription Usage Stats (Fixed)", False, f"HTTP {response.status_code}: {response.text[:200]}")
             return False
 
+    def test_goals_endpoint(self):
+        """Test workspace setup wizard goals endpoint (baseline working)"""
+        if not self.token:
+            self.log_test("Goals Endpoint", False, "No authentication token available")
+            return False
+        
+        response, error = self.make_request('GET', '/goals')
+        
+        if error:
+            self.log_test("Goals Endpoint", False, f"Goals request failed: {error}")
+            return False
+        
+        if response.status_code == 200:
+            try:
+                result = response.json()
+                if result.get('success') and ('data' in result or 'goals' in result):
+                    goals = result.get('data', result.get('goals', []))
+                    self.log_test("Goals Endpoint", True, f"Retrieved {len(goals)} workspace setup goals")
+                    return True
+                else:
+                    self.log_test("Goals Endpoint", False, f"Goals endpoint returned unexpected format: {result}")
+                    return False
+            except json.JSONDecodeError:
+                self.log_test("Goals Endpoint", False, "Invalid JSON response from goals endpoint")
+                return False
+        else:
+            self.log_test("Goals Endpoint", False, f"Goals endpoint failed with HTTP {response.status_code}: {response.text[:200]}")
+            return False
+
+    def test_current_subscription_endpoint(self):
+        """Test current subscription endpoint (baseline working)"""
+        if not self.token:
+            self.log_test("Current Subscription Endpoint", False, "No authentication token available")
+            return False
+        
+        response, error = self.make_request('GET', '/subscription/current')
+        
+        if error:
+            self.log_test("Current Subscription Endpoint", False, f"Current subscription request failed: {error}")
+            return False
+        
+        if response.status_code == 200:
+            try:
+                result = response.json()
+                if result.get('success') is not None:  # Can be true or false
+                    self.log_test("Current Subscription Endpoint", True, "Current subscription endpoint working correctly")
+                    return True
+                else:
+                    self.log_test("Current Subscription Endpoint", False, f"Current subscription returned unexpected format: {result}")
+                    return False
+            except json.JSONDecodeError:
+                self.log_test("Current Subscription Endpoint", False, "Invalid JSON response from current subscription")
+                return False
+        else:
+            self.log_test("Current Subscription Endpoint", False, f"Current subscription failed with HTTP {response.status_code}: {response.text[:200]}")
+            return False
+
+    def test_subscription_plans_endpoint(self):
+        """Test subscription plans endpoint (baseline working)"""
+        if not self.token:
+            self.log_test("Subscription Plans Endpoint", False, "No authentication token available")
+            return False
+        
+        response, error = self.make_request('GET', '/subscription/plans')
+        
+        if error:
+            self.log_test("Subscription Plans Endpoint", False, f"Subscription plans request failed: {error}")
+            return False
+        
+        if response.status_code == 200:
+            try:
+                result = response.json()
+                if result.get('success') and ('data' in result or 'plans' in result):
+                    plans = result.get('data', result.get('plans', []))
+                    self.log_test("Subscription Plans Endpoint", True, f"Retrieved {len(plans)} subscription plans")
+                    return True
+                else:
+                    self.log_test("Subscription Plans Endpoint", False, f"Subscription plans returned unexpected format: {result}")
+                    return False
+            except json.JSONDecodeError:
+                self.log_test("Subscription Plans Endpoint", False, "Invalid JSON response from subscription plans")
+                return False
+        else:
+            self.log_test("Subscription Plans Endpoint", False, f"Subscription plans failed with HTTP {response.status_code}: {response.text[:200]}")
+            return False
+
+    def test_workspace_setup_progress(self):
+        """Test workspace setup progress endpoints (critical failing)"""
+        if not self.token or not self.workspace_id:
+            self.log_test("Workspace Setup Progress", False, "Missing authentication token or workspace ID")
+            return False
+        
+        # Test POST - Save progress
+        progress_data = {
+            "step": "goals_selection",
+            "data": {
+                "selected_goals": ["productivity", "marketing"],
+                "completed": False
+            }
+        }
+        
+        response, error = self.make_request('POST', f'/workspaces/{self.workspace_id}/setup-progress', progress_data)
+        
+        if error:
+            self.log_test("Workspace Setup Progress", False, f"Setup progress save failed: {error}")
+            return False
+        
+        # Check if response is HTML (routing misconfiguration)
+        if response.headers.get('content-type', '').startswith('text/html'):
+            self.log_test("Workspace Setup Progress", False, f"❌ CRITICAL: Returns HTML instead of JSON - routing misconfiguration. HTTP {response.status_code}")
+            return False
+        
+        if response.status_code == 200:
+            try:
+                result = response.json()
+                if result.get('success'):
+                    # Test GET - Retrieve progress
+                    get_response, get_error = self.make_request('GET', f'/workspaces/{self.workspace_id}/setup-progress')
+                    
+                    if get_error:
+                        self.log_test("Workspace Setup Progress", False, f"Setup progress retrieval failed: {get_error}")
+                        return False
+                    
+                    # Check if GET response is HTML (routing misconfiguration)
+                    if get_response.headers.get('content-type', '').startswith('text/html'):
+                        self.log_test("Workspace Setup Progress", False, f"❌ CRITICAL: GET returns HTML instead of JSON - routing misconfiguration. HTTP {get_response.status_code}")
+                        return False
+                    
+                    if get_response.status_code == 200:
+                        try:
+                            get_result = get_response.json()
+                            if get_result.get('success'):
+                                self.log_test("Workspace Setup Progress", True, "Setup progress endpoints working correctly")
+                                return True
+                            else:
+                                self.log_test("Workspace Setup Progress", False, f"Setup progress retrieval failed: {get_result.get('message', 'Unknown error')}")
+                                return False
+                        except json.JSONDecodeError:
+                            self.log_test("Workspace Setup Progress", False, "Invalid JSON response from setup progress retrieval")
+                            return False
+                    else:
+                        self.log_test("Workspace Setup Progress", False, f"Setup progress retrieval failed with HTTP {get_response.status_code}: {get_response.text[:200]}")
+                        return False
+                else:
+                    self.log_test("Workspace Setup Progress", False, f"Setup progress save failed: {result.get('message', 'Unknown error')}")
+                    return False
+            except json.JSONDecodeError:
+                self.log_test("Workspace Setup Progress", False, "Invalid JSON response from setup progress save")
+                return False
+        else:
+            self.log_test("Workspace Setup Progress", False, f"Setup progress save failed with HTTP {response.status_code}: {response.text[:200]}")
+            return False
+
+    def test_workspace_complete_setup(self):
+        """Test workspace complete setup endpoint (critical failing)"""
+        if not self.token or not self.workspace_id:
+            self.log_test("Workspace Complete Setup", False, "Missing authentication token or workspace ID")
+            return False
+        
+        setup_data = {
+            "selected_goals": ["productivity", "marketing"],
+            "selected_features": ["crm", "email_marketing"],
+            "subscription_plan": "free",
+            "setup_completed": True
+        }
+        
+        response, error = self.make_request('POST', f'/workspaces/{self.workspace_id}/complete-setup', setup_data)
+        
+        if error:
+            self.log_test("Workspace Complete Setup", False, f"Complete setup request failed: {error}")
+            return False
+        
+        # Check if response is HTML (routing misconfiguration)
+        if response.headers.get('content-type', '').startswith('text/html'):
+            self.log_test("Workspace Complete Setup", False, f"❌ CRITICAL: Returns HTML instead of JSON - routing misconfiguration. HTTP {response.status_code}")
+            return False
+        
+        if response.status_code == 200:
+            try:
+                result = response.json()
+                if result.get('success'):
+                    self.log_test("Workspace Complete Setup", True, "Workspace complete setup endpoint working correctly")
+                    return True
+                else:
+                    self.log_test("Workspace Complete Setup", False, f"Complete setup failed: {result.get('message', 'Unknown error')}")
+                    return False
+            except json.JSONDecodeError:
+                self.log_test("Workspace Complete Setup", False, "Invalid JSON response from complete setup")
+                return False
+        else:
+            self.log_test("Workspace Complete Setup", False, f"Complete setup failed with HTTP {response.status_code}: {response.text[:200]}")
+            return False
+
+    def test_team_dashboard(self):
+        """Test team dashboard endpoint (critical failing)"""
+        if not self.token or not self.workspace_id:
+            self.log_test("Team Dashboard", False, "Missing authentication token or workspace ID")
+            return False
+        
+        response, error = self.make_request('GET', f'/team/dashboard?workspace_id={self.workspace_id}')
+        
+        if error:
+            self.log_test("Team Dashboard", False, f"Team dashboard request failed: {error}")
+            return False
+        
+        # Check if response is HTML (server error)
+        if response.headers.get('content-type', '').startswith('text/html'):
+            self.log_test("Team Dashboard", False, f"❌ CRITICAL: Returns HTML error page instead of JSON - HTTP 500 server error. Status: {response.status_code}")
+            return False
+        
+        if response.status_code == 200:
+            try:
+                result = response.json()
+                if result.get('success'):
+                    self.log_test("Team Dashboard", True, "Team dashboard endpoint working correctly")
+                    return True
+                else:
+                    self.log_test("Team Dashboard", False, f"Team dashboard failed: {result.get('message', 'Unknown error')}")
+                    return False
+            except json.JSONDecodeError:
+                self.log_test("Team Dashboard", False, "Invalid JSON response from team dashboard")
+                return False
+        else:
+            self.log_test("Team Dashboard", False, f"Team dashboard failed with HTTP {response.status_code}: {response.text[:200]}")
+            return False
+
+    def test_team_members(self):
+        """Test team members endpoint (critical failing)"""
+        if not self.token or not self.workspace_id:
+            self.log_test("Team Members", False, "Missing authentication token or workspace ID")
+            return False
+        
+        response, error = self.make_request('GET', f'/team/members?workspace_id={self.workspace_id}')
+        
+        if error:
+            self.log_test("Team Members", False, f"Team members request failed: {error}")
+            return False
+        
+        # Check if response is HTML (server error)
+        if response.headers.get('content-type', '').startswith('text/html'):
+            self.log_test("Team Members", False, f"❌ CRITICAL: Returns HTML error page instead of JSON - HTTP 500 server error. Status: {response.status_code}")
+            return False
+        
+        if response.status_code == 200:
+            try:
+                result = response.json()
+                if result.get('success') or 'members' in result or 'data' in result:
+                    self.log_test("Team Members", True, "Team members endpoint working correctly")
+                    return True
+                else:
+                    self.log_test("Team Members", False, f"Team members returned unexpected format: {result}")
+                    return False
+            except json.JSONDecodeError:
+                self.log_test("Team Members", False, "Invalid JSON response from team members")
+                return False
+        else:
+            self.log_test("Team Members", False, f"Team members failed with HTTP {response.status_code}: {response.text[:200]}")
+            return False
+
+    def test_stripe_checkout_session(self):
+        """Test Stripe checkout session creation (critical failing)"""
+        if not self.token or not self.workspace_id:
+            self.log_test("Stripe Checkout Session", False, "Missing authentication token or workspace ID")
+            return False
+        
+        checkout_data = {
+            "plan_id": "professional",
+            "workspace_id": self.workspace_id,
+            "success_url": "https://example.com/success",
+            "cancel_url": "https://example.com/cancel"
+        }
+        
+        response, error = self.make_request('POST', '/subscription/checkout', checkout_data)
+        
+        if error:
+            self.log_test("Stripe Checkout Session", False, f"Stripe checkout request failed: {error}")
+            return False
+        
+        # Check if response is HTML (routing misconfiguration)
+        if response.headers.get('content-type', '').startswith('text/html'):
+            self.log_test("Stripe Checkout Session", False, f"❌ CRITICAL: Returns HTML instead of JSON - routing misconfiguration. HTTP {response.status_code}")
+            return False
+        
+        if response.status_code == 200:
+            try:
+                result = response.json()
+                if result.get('success') and result.get('checkout_url'):
+                    self.log_test("Stripe Checkout Session", True, "Stripe checkout session creation working correctly")
+                    return True
+                else:
+                    self.log_test("Stripe Checkout Session", False, f"Stripe checkout failed: {result.get('message', 'Unknown error')}")
+                    return False
+            except json.JSONDecodeError:
+                self.log_test("Stripe Checkout Session", False, "Invalid JSON response from Stripe checkout")
+                return False
+        else:
+            self.log_test("Stripe Checkout Session", False, f"Stripe checkout failed with HTTP {response.status_code}: {response.text[:200]}")
+            return False
+
+    def run_comprehensive_tests(self):
+        """Run focused tests on critical endpoints as per review request"""
+        print("=" * 80)
+        print("CRITICAL BACKEND ENDPOINT TESTING FOR MEWAYZ LARAVEL APPLICATION")
+        print("Testing endpoints after routing misconfiguration fixes")
+        print("=" * 80)
+        print()
+        
+        # 1. Infrastructure Status
+        print("1. INFRASTRUCTURE STATUS")
+        print("-" * 40)
+        if not self.test_backend_service_status():
+            print("❌ Backend service not running. Stopping tests.")
+            return False
+        
+        # 2. Authentication System
+        print("\n2. AUTHENTICATION SYSTEM")
+        print("-" * 40)
+        if not self.test_user_registration():
+            print("❌ User registration failed. Stopping tests.")
+            return False
+            
+        if not self.test_user_login():
+            print("⚠️ User login failed, but continuing with registration token...")
+        
+        if not self.test_authenticated_user_data():
+            print("❌ User authentication failed. Stopping tests.")
+            return False
+        
+        # 3. Workspace Management
+        print("\n3. WORKSPACE MANAGEMENT")
+        print("-" * 40)
+        self.test_workspace_creation()
+        self.test_workspace_listing()
+        
+        # 4. Fixed Critical Endpoints (Previously Failing)
+        print("\n4. FIXED CRITICAL ENDPOINTS (Previously Failing)")
+        print("-" * 40)
+        self.test_workspace_setup_progress()
+        self.test_workspace_complete_setup()
+        self.test_team_dashboard()
+        self.test_team_members()
+        self.test_stripe_checkout_session()
+        
+        # 5. Baseline Working Endpoints (Verification)
+        print("\n5. BASELINE WORKING ENDPOINTS (Verification)")
+        print("-" * 40)
+        self.test_goals_endpoint()
+        self.test_current_subscription_endpoint()
+        self.test_subscription_plans_endpoint()
+        
+        # 6. Endpoints Needing Retesting
+        print("\n6. ENDPOINTS NEEDING RETESTING")
+        print("-" * 40)
+        self.test_ecommerce_stock_management()
+        self.test_crm_deals_management()
+        self.test_crm_tasks_management()
+        self.test_crm_automation_rules()
+        
+        # Print summary
+        self.print_test_summary()
+        
+        return True
+
+    def print_test_summary(self):
+        """Print comprehensive test summary"""
+        print("\n" + "=" * 80)
+        print("COMPREHENSIVE TEST SUMMARY")
+        print("=" * 80)
+        
+        passed = sum(1 for result in self.test_results if result['success'])
+        total = len(self.test_results)
+        success_rate = (passed / total) * 100 if total > 0 else 0
+        
+        print(f"Tests Passed: {passed}/{total} ({success_rate:.1f}%)")
+        print()
+        
+        # Categorize results
+        critical_failures = []
+        working_endpoints = []
+        retesting_results = []
+        
+        for result in self.test_results:
+            test_name = result['test']
+            if not result['success']:
+                if any(keyword in test_name for keyword in ['Workspace Setup Progress', 'Workspace Complete Setup', 'Team Dashboard', 'Team Members', 'Stripe Checkout']):
+                    critical_failures.append(result)
+                elif any(keyword in test_name for keyword in ['Stock Management', 'Deals Management', 'Tasks Management', 'Automation Rules']):
+                    retesting_results.append(result)
+            else:
+                if any(keyword in test_name for keyword in ['Goals', 'Current Subscription', 'Subscription Plans']):
+                    working_endpoints.append(result)
+        
+        if critical_failures:
+            print("❌ CRITICAL FAILURES (Previously Failing Endpoints):")
+            for result in critical_failures:
+                print(f"   • {result['test']}: {result['message']}")
+            print()
+        
+        if working_endpoints:
+            print("✅ BASELINE WORKING ENDPOINTS (Verified):")
+            for result in working_endpoints:
+                print(f"   • {result['test']}: {result['message']}")
+            print()
+        
+        if retesting_results:
+            print("⚠️ RETESTING RESULTS:")
+            for result in retesting_results:
+                status = "✅" if result['success'] else "❌"
+                print(f"   {status} {result['test']}: {result['message']}")
+            print()
+        
+        # Overall assessment
+        if success_rate >= 90:
+            print("🎉 EXCELLENT: All critical endpoints are working correctly!")
+        elif success_rate >= 80:
+            print("✅ GOOD: Most endpoints working, minor issues remain")
+        elif success_rate >= 70:
+            print("⚠️ ACCEPTABLE: Core functionality works but needs attention")
+        else:
+            print("❌ CRITICAL: Significant routing/implementation issues remain")
+        
+        return success_rate >= 80
+
     def run_all_tests(self):
         """Run focused tests on critical endpoints as per review request"""
         return self.run_comprehensive_tests()
