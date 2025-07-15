@@ -82,6 +82,29 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('crm-contacts/{crmContact}/remove-tags', [CrmContactController::class, 'removeTags']);
     Route::get('crm-contacts-follow-up', [CrmContactController::class, 'followUpNeeded']);
     Route::get('crm-analytics', [CrmContactController::class, 'analytics']);
+    Route::get('crm-contacts/{crmContact}/analytics', [CrmContactController::class, 'contactAnalytics']);
+    Route::get('crm-contacts/{crmContact}/communications', [CrmCommunicationController::class, 'getContactCommunications']);
+    Route::post('crm-contacts/{crmContact}/communications', [CrmCommunicationController::class, 'addContactCommunication']);
+    Route::post('crm-contacts/import/ecommerce', [CrmContactController::class, 'importFromEcommerce']);
+    
+    // CRM Deals routes
+    Route::apiResource('crm-deals', CrmDealController::class);
+    Route::put('crm-deals/{crmDeal}/stage', [CrmDealController::class, 'updateStage']);
+    
+    // CRM Pipeline routes
+    Route::get('crm-pipeline', [CrmPipelineController::class, 'index']);
+    Route::post('crm-pipeline/default-stages', [CrmPipelineController::class, 'createDefaultStages']);
+    
+    // CRM Tasks routes
+    Route::apiResource('crm-tasks', CrmTaskController::class);
+    Route::put('crm-tasks/{crmTask}/status', [CrmTaskController::class, 'updateStatus']);
+    
+    // CRM Communications routes
+    Route::apiResource('crm-communications', CrmCommunicationController::class);
+    
+    // CRM Automation routes
+    Route::apiResource('crm-automation-rules', CrmAutomationController::class);
+    Route::post('crm-automation-rules/{crmAutomationRule}/toggle', [CrmAutomationController::class, 'toggleStatus']);
 
     // Course routes
     Route::apiResource('courses', CourseController::class);
