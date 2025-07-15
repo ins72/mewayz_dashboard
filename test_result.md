@@ -48,9 +48,9 @@ backend:
     implemented: true
     working: false
     file: "/app/backend/routes/api.php"
-    stuck_count: 1
+    stuck_count: 2
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
@@ -64,6 +64,9 @@ backend:
       - working: false
         agent: "testing"
         comment: "❌ FAIL: Workspace Setup Progress endpoints continue to return invalid JSON responses. Comprehensive gap-filling validation shows persistent issues with data persistence or response formatting. Both POST and GET operations have implementation problems."
+      - working: false
+        agent: "testing"
+        comment: "❌ CRITICAL ISSUE: Workspace Setup Progress endpoints returning HTML instead of JSON. POST /api/workspaces/{id}/setup-progress returns HTTP 200 with HTML content (React dev server response), indicating routing misconfiguration. The API endpoints are not properly configured in Laravel routes or are being intercepted by frontend routing. This is a critical routing/configuration issue, not a data processing problem."
 
   - task: "Workspace Complete Setup Endpoint"
     implemented: true
