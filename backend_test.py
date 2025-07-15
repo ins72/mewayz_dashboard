@@ -11,7 +11,7 @@ from datetime import datetime
 
 class BackendTester:
     def __init__(self):
-        self.base_url = "http://localhost:8001/api"
+        self.base_url = "http://localhost:8001/api"  # Using the backend URL from frontend .env
         self.token = None
         self.user_id = None
         self.workspace_id = None
