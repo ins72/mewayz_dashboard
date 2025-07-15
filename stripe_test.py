@@ -434,7 +434,7 @@ class StripeIntegrationTester:
                         return False
                     
                     get_result = get_response.json()
-                    if get_result.get('success') and get_result.get('progress'):
+                    if get_result.get('success') and get_result.get('data'):
                         self.log_test("Workspace Setup Progress", True, 
                                     "Setup progress save and retrieve working correctly")
                         return True
