@@ -226,4 +226,20 @@ class Subscription extends Model
         return $query->whereNotNull('trial_ends_at')
                     ->where('trial_ends_at', '>', now());
     }
+
+    /**
+     * Get billing information
+     */
+    public function getBillingInfo()
+    {
+        return [
+            'plan' => $this->package_id,
+            'amount' => $this->amount,
+            'currency' => $this->currency,
+            'billing_cycle' => $this->metadata['billing_cycle'] ?? 'monthly',
+            'feature_count' => $this->quantity,
+            'next_billing_date' => $this->current_period_end,
+            'is_active' => $this->isActive()
+        ];
+    }
 }
