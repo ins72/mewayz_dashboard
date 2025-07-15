@@ -127,4 +127,5 @@ export const useWorkspace = () => {
   return context;
 };
 
+export { WorkspaceContext };
 export default WorkspaceContext;
