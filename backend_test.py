@@ -706,7 +706,13 @@ class BackendTester:
             self.test_course_endpoints,
             self.test_product_endpoints,
             self.test_authentication_protection,
-            self.test_database_connectivity
+            self.test_database_connectivity,
+            # New e-commerce tests
+            self.test_ecommerce_stock_management,
+            self.test_ecommerce_order_management,
+            self.test_ecommerce_inventory_alerts,
+            self.test_ecommerce_product_categories,
+            self.test_ecommerce_product_analytics
         ]
         
         passed = 0
