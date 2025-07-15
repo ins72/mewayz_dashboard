@@ -53,12 +53,6 @@ const AdvancedAnalyticsDashboard = ({ workspaceId }) => {
       setLoading(false);
     }
   };
-
-  const loadRealTimeData = async () => {
-    try {
-      const data = await analyticsService.getRealTimeAnalytics(workspaceId);
-      setRealTimeData(data);
-    } catch (error) {
       console.error('Error loading real-time data:', error);
     }
   };
