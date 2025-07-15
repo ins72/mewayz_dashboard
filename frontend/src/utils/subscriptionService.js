@@ -12,16 +12,11 @@ class SubscriptionService {
    */
   async getSubscriptionPlans() {
     try {
-      const response = await apiClient.get('/subscription-plans');
+      const response = await apiClient.get('/subscription/plans');
       return response.data;
     } catch (error) {
       console.error('Error fetching subscription plans:', error);
-      
-      // Mock data for development
-      return {
-        success: true,
-        data: this.getMockSubscriptionPlans()
-      };
+      throw error;
     }
   }
 
