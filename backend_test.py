@@ -2013,7 +2013,15 @@ class BackendTester:
             self.test_marketing_content_management,
             self.test_marketing_lead_magnets,
             self.test_marketing_social_media_management,
-            self.test_marketing_conversion_funnels
+            self.test_marketing_conversion_funnels,
+            # Instagram Management Phase 6 tests
+            self.test_instagram_content_calendar,
+            self.test_instagram_stories_management,
+            self.test_instagram_hashtag_research,
+            self.test_instagram_hashtag_analytics,
+            self.test_instagram_analytics_dashboard,
+            self.test_instagram_competitor_analysis,
+            self.test_instagram_optimal_posting_times
         ]
         
         passed = 0
