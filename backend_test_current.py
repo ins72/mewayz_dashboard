@@ -228,7 +228,8 @@ class MewayzBackendTester:
         response = self.make_request("POST", "/courses", course_data)
         if response and response.status_code == 201:
             data = response.json()
-            course_id = data.get("id")
+            course_data = data.get("course", data)  # Handle both formats
+            course_id = course_data.get("id")
             if course_id:
                 self.log_test("Course Creation", "PASS", "Course created successfully")
                 
