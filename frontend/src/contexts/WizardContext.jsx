@@ -17,38 +17,38 @@ const WIZARD_STEPS = {
   BRANDING_CONFIGURATION: 6
 };
 
-export const TOTAL_STEPS = 6;
-
-// Initial wizard state
+// Initial state for the wizard
 const initialState = {
   currentStep: 1,
-  completedSteps: [],
   isLoading: false,
   errors: {},
   formData: {
+    // Step 1: Welcome & Basics
     step1: {
       workspaceName: '',
-      workspaceSlug: '',
-      description: '',
       industry: '',
-      teamSize: 'solo',
-      primaryGoal: ''
+      teamSize: '',
+      businessType: '',
+      businessDescription: '',
+      timezone: '',
+      currency: 'USD'
     },
+    // Step 2: Goal Selection
     step2: {
-      selectedGoals: []
+      selectedGoals: [] // Array of { goalId, priority, setupNow }
     },
+    // Step 3: Feature Selection
     step3: {
-      selectedFeatures: []
+      selectedFeatures: [] // Array of { featureId, isEnabled, priority }
     },
+    // Step 4: Subscription Plan
     step4: {
-      selectedPlan: 'free',
+      selectedPlan: '',
       billingCycle: 'monthly',
-      estimatedCost: {
-        monthly: 0,
-        yearly: 0,
-        savings: 0
-      }
+      selectedFeatureCount: 0,
+      estimatedCost: null
     },
+    // Step 5: Team Setup
     step5: {
       invitations: [],
       teamStructure: {
@@ -56,11 +56,14 @@ const initialState = {
         roles: []
       }
     },
+    // Step 6: Branding Configuration
     step6: {
       branding: {
+        logo: null,
         primaryColor: '#007AFF',
         secondaryColor: '#6C5CE7',
-        fontFamily: 'Inter'
+        fontFamily: 'Inter',
+        customDomain: ''
       },
       whiteLabelSettings: {
         removeWatermark: false,
@@ -68,7 +71,10 @@ const initialState = {
         customEmails: false
       }
     }
-  }
+  },
+  completedSteps: new Set(),
+  workspaceId: null,
+  setupProgress: {}
 };
 
 // Wizard reducer
