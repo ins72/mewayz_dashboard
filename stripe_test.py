@@ -228,9 +228,15 @@ class StripeIntegrationTester:
         """Test POST /api/subscription/checkout - Create Stripe checkout session"""
         print("🔍 Testing Stripe Checkout Session Creation...")
         
+        if not self.workspace_id:
+            self.log_test("Stripe Checkout Session Creation", False, "No workspace ID available")
+            return False
+        
         checkout_data = {
             "plan_id": "professional",
-            "selected_features": ["instagram_management", "crm_system", "analytics"],
+            "billing_cycle": "monthly",
+            "feature_count": 3,
+            "workspace_id": self.workspace_id,
             "success_url": "http://localhost:4028/subscription/success",
             "cancel_url": "http://localhost:4028/subscription/cancel"
         }
