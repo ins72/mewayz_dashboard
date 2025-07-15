@@ -531,104 +531,483 @@ class LinkInBioService {
   }
 
   /**
-   * Get mock components
-   * @returns {Array} Mock components data
+   * Get enhanced mock components for drag-and-drop builder
+   * @returns {Array} Enhanced mock components data
    */
-  getMockComponents() {
+  getEnhancedMockComponents() {
     return [
       {
-        id: 'header',
-        name: 'Header',
-        description: 'Profile header with avatar and bio',
-        icon: 'user',
-        category: 'basic',
+        id: 'header-enhanced',
+        name: 'Enhanced Header',
+        description: 'Professional header with advanced styling',
+        icon: 'user-circle',
+        category: 'layout',
+        isDraggable: true,
         settings: {
-          title: { type: 'text', label: 'Title' },
+          title: { type: 'text', label: 'Title', required: true },
           subtitle: { type: 'text', label: 'Subtitle' },
-          avatar: { type: 'image', label: 'Avatar' }
+          avatar: { type: 'image', label: 'Avatar' },
+          background: { type: 'color', label: 'Background Color' },
+          textColor: { type: 'color', label: 'Text Color' },
+          alignment: { type: 'select', label: 'Alignment', options: ['left', 'center', 'right'] },
+          animation: { type: 'select', label: 'Animation', options: ['none', 'fade', 'slide', 'bounce'] }
         }
       },
       {
-        id: 'link',
-        name: 'Link Button',
-        description: 'Clickable link button',
-        icon: 'link',
-        category: 'basic',
+        id: 'link-advanced',
+        name: 'Advanced Link',
+        description: 'Smart link with analytics and styling',
+        icon: 'external-link',
+        category: 'links',
+        isDraggable: true,
         settings: {
-          title: { type: 'text', label: 'Link Title' },
-          url: { type: 'url', label: 'URL' },
+          title: { type: 'text', label: 'Link Title', required: true },
+          url: { type: 'url', label: 'URL', required: true },
+          description: { type: 'text', label: 'Description' },
           icon: { type: 'icon', label: 'Icon' },
-          style: { type: 'select', label: 'Style', options: ['primary', 'secondary', 'outline', 'gradient'] }
+          style: { type: 'select', label: 'Style', options: ['filled', 'outlined', 'minimal', 'gradient'] },
+          color: { type: 'color', label: 'Color' },
+          trackClicks: { type: 'boolean', label: 'Track Clicks' },
+          targetBlank: { type: 'boolean', label: 'Open in New Tab' },
+          animation: { type: 'select', label: 'Hover Animation', options: ['none', 'scale', 'glow', 'shake'] }
         }
       },
       {
-        id: 'social',
-        name: 'Social Media',
-        description: 'Social media platform links',
+        id: 'social-enhanced',
+        name: 'Enhanced Social Media',
+        description: 'Advanced social media links with icons',
         icon: 'share-2',
         category: 'social',
+        isDraggable: true,
         settings: {
-          platforms: { type: 'multiselect', label: 'Platforms', options: ['instagram', 'twitter', 'facebook', 'linkedin', 'youtube', 'tiktok'] }
+          platforms: { type: 'multiselect', label: 'Platforms', options: ['instagram', 'twitter', 'facebook', 'linkedin', 'youtube', 'tiktok', 'snapchat', 'pinterest'] },
+          style: { type: 'select', label: 'Style', options: ['icons', 'buttons', 'cards'] },
+          size: { type: 'select', label: 'Size', options: ['small', 'medium', 'large'] },
+          color: { type: 'select', label: 'Color Scheme', options: ['brand', 'monochrome', 'custom'] },
+          animation: { type: 'select', label: 'Animation', options: ['none', 'bounce', 'rotate', 'pulse'] }
         }
       },
       {
-        id: 'gallery',
-        name: 'Image Gallery',
-        description: 'Photo gallery grid',
+        id: 'gallery-pro',
+        name: 'Pro Gallery',
+        description: 'Advanced image gallery with lightbox',
         icon: 'image',
         category: 'media',
+        isDraggable: true,
         settings: {
-          images: { type: 'images', label: 'Images' },
-          columns: { type: 'number', label: 'Columns', min: 1, max: 4 }
+          images: { type: 'images', label: 'Images', required: true },
+          columns: { type: 'number', label: 'Columns', min: 1, max: 4 },
+          spacing: { type: 'number', label: 'Spacing', min: 0, max: 20 },
+          borderRadius: { type: 'number', label: 'Border Radius', min: 0, max: 50 },
+          lightbox: { type: 'boolean', label: 'Enable Lightbox' },
+          captions: { type: 'boolean', label: 'Show Captions' },
+          lazy: { type: 'boolean', label: 'Lazy Loading' }
         }
       },
       {
-        id: 'video',
-        name: 'Video Player',
-        description: 'Embedded video player',
-        icon: 'play',
+        id: 'video-enhanced',
+        name: 'Enhanced Video',
+        description: 'Video player with advanced controls',
+        icon: 'play-circle',
         category: 'media',
+        isDraggable: true,
         settings: {
-          url: { type: 'url', label: 'Video URL' },
+          url: { type: 'url', label: 'Video URL', required: true },
           title: { type: 'text', label: 'Title' },
-          autoplay: { type: 'boolean', label: 'Autoplay' }
+          thumbnail: { type: 'image', label: 'Custom Thumbnail' },
+          autoplay: { type: 'boolean', label: 'Autoplay' },
+          controls: { type: 'boolean', label: 'Show Controls' },
+          loop: { type: 'boolean', label: 'Loop' },
+          muted: { type: 'boolean', label: 'Muted' }
         }
       },
       {
-        id: 'contact',
-        name: 'Contact Form',
-        description: 'Contact form with fields',
+        id: 'contact-pro',
+        name: 'Pro Contact Form',
+        description: 'Advanced contact form with validation',
         icon: 'mail',
         category: 'forms',
+        isDraggable: true,
         settings: {
           title: { type: 'text', label: 'Form Title' },
-          email: { type: 'email', label: 'Send To Email' },
-          fields: { type: 'array', label: 'Form Fields' }
+          email: { type: 'email', label: 'Send To Email', required: true },
+          fields: { type: 'array', label: 'Form Fields' },
+          style: { type: 'select', label: 'Style', options: ['modern', 'classic', 'minimal'] },
+          validation: { type: 'boolean', label: 'Enable Validation' },
+          captcha: { type: 'boolean', label: 'Enable Captcha' },
+          successMessage: { type: 'text', label: 'Success Message' }
         }
       },
       {
-        id: 'text',
-        name: 'Text Block',
-        description: 'Rich text content',
+        id: 'text-rich',
+        name: 'Rich Text Block',
+        description: 'Advanced rich text with formatting',
         icon: 'type',
         category: 'content',
+        isDraggable: true,
         settings: {
-          content: { type: 'richtext', label: 'Content' },
-          alignment: { type: 'select', label: 'Alignment', options: ['left', 'center', 'right'] }
+          content: { type: 'richtext', label: 'Content', required: true },
+          alignment: { type: 'select', label: 'Alignment', options: ['left', 'center', 'right', 'justify'] },
+          fontSize: { type: 'number', label: 'Font Size', min: 12, max: 48 },
+          lineHeight: { type: 'number', label: 'Line Height', min: 1, max: 3, step: 0.1 },
+          color: { type: 'color', label: 'Text Color' },
+          background: { type: 'color', label: 'Background Color' },
+          padding: { type: 'number', label: 'Padding', min: 0, max: 50 }
         }
       },
       {
-        id: 'products',
-        name: 'Product Grid',
-        description: 'Product showcase grid',
+        id: 'products-enhanced',
+        name: 'Enhanced Product Grid',
+        description: 'Advanced product showcase with cart',
         icon: 'shopping-cart',
         category: 'ecommerce',
+        isDraggable: true,
         settings: {
-          products: { type: 'products', label: 'Products' },
-          columns: { type: 'number', label: 'Columns', min: 1, max: 3 }
+          products: { type: 'products', label: 'Products', required: true },
+          columns: { type: 'number', label: 'Columns', min: 1, max: 4 },
+          showPrice: { type: 'boolean', label: 'Show Price' },
+          showCart: { type: 'boolean', label: 'Show Add to Cart' },
+          showRating: { type: 'boolean', label: 'Show Rating' },
+          currency: { type: 'select', label: 'Currency', options: ['USD', 'EUR', 'GBP', 'CAD'] },
+          style: { type: 'select', label: 'Style', options: ['cards', 'list', 'grid'] }
+        }
+      },
+      {
+        id: 'countdown-timer',
+        name: 'Countdown Timer',
+        description: 'Create urgency with countdown timers',
+        icon: 'clock',
+        category: 'engagement',
+        isDraggable: true,
+        settings: {
+          endDate: { type: 'datetime', label: 'End Date', required: true },
+          title: { type: 'text', label: 'Title' },
+          message: { type: 'text', label: 'Completion Message' },
+          style: { type: 'select', label: 'Style', options: ['digital', 'analog', 'flip'] },
+          color: { type: 'color', label: 'Color' },
+          showDays: { type: 'boolean', label: 'Show Days' },
+          showHours: { type: 'boolean', label: 'Show Hours' },
+          showMinutes: { type: 'boolean', label: 'Show Minutes' },
+          showSeconds: { type: 'boolean', label: 'Show seconds' }
+        }
+      },
+      {
+        id: 'testimonial-carousel',
+        name: 'Testimonial Carousel',
+        description: 'Rotating testimonials with photos',
+        icon: 'message-square',
+        category: 'social-proof',
+        isDraggable: true,
+        settings: {
+          testimonials: { type: 'array', label: 'Testimonials', required: true },
+          autoplay: { type: 'boolean', label: 'Autoplay' },
+          interval: { type: 'number', label: 'Interval (seconds)', min: 1, max: 10 },
+          showDots: { type: 'boolean', label: 'Show Dots' },
+          showArrows: { type: 'boolean', label: 'Show Arrows' },
+          style: { type: 'select', label: 'Style', options: ['cards', 'quotes', 'minimal'] }
         }
       }
     ];
+  }
+
+  /**
+   * Get enhanced mock templates
+   * @returns {Array} Enhanced mock templates data
+   */
+  getEnhancedMockTemplates() {
+    return [
+      {
+        id: 'business-pro-v2',
+        name: 'Business Pro V2',
+        description: 'Advanced professional template with enhanced features',
+        category: 'business',
+        thumbnail: '/api/placeholder/300/400',
+        isPremium: false,
+        isNew: true,
+        components: ['header-enhanced', 'link-advanced', 'social-enhanced', 'contact-pro', 'testimonial-carousel'],
+        themeColors: {
+          primary: '#2563eb',
+          secondary: '#64748b',
+          accent: '#f59e0b',
+          background: '#ffffff',
+          text: '#1e293b'
+        },
+        features: ['Drag & Drop', 'A/B Testing', 'Analytics', 'Mobile Optimized']
+      },
+      {
+        id: 'creator-hub-v2',
+        name: 'Creator Hub V2',
+        description: 'Enhanced template for content creators',
+        category: 'creator',
+        thumbnail: '/api/placeholder/300/400',
+        isPremium: false,
+        isNew: true,
+        components: ['header-enhanced', 'link-advanced', 'gallery-pro', 'video-enhanced', 'social-enhanced'],
+        themeColors: {
+          primary: '#8b5cf6',
+          secondary: '#a78bfa',
+          accent: '#f472b6',
+          background: '#fafafa',
+          text: '#374151'
+        },
+        features: ['Video Integration', 'Gallery', 'Social Media', 'Mobile Optimized']
+      },
+      {
+        id: 'ecommerce-store-v2',
+        name: 'E-commerce Store V2',
+        description: 'Advanced product showcase with cart functionality',
+        category: 'ecommerce',
+        thumbnail: '/api/placeholder/300/400',
+        isPremium: true,
+        isNew: true,
+        components: ['header-enhanced', 'products-enhanced', 'countdown-timer', 'testimonial-carousel', 'contact-pro'],
+        themeColors: {
+          primary: '#059669',
+          secondary: '#10b981',
+          accent: '#f59e0b',
+          background: '#ffffff',
+          text: '#111827'
+        },
+        features: ['Product Catalog', 'Cart Integration', 'Countdown Timers', 'Testimonials']
+      },
+      {
+        id: 'course-platform-v2',
+        name: 'Course Platform V2',
+        description: 'Advanced educational content layout',
+        category: 'education',
+        thumbnail: '/api/placeholder/300/400',
+        isPremium: true,
+        isNew: true,
+        components: ['header-enhanced', 'link-advanced', 'video-enhanced', 'text-rich', 'contact-pro'],
+        themeColors: {
+          primary: '#3b82f6',
+          secondary: '#6366f1',
+          accent: '#f59e0b',
+          background: '#f8fafc',
+          text: '#1e293b'
+        },
+        features: ['Course Modules', 'Video Lessons', 'Rich Content', 'Student Contact']
+      },
+      {
+        id: 'event-promo',
+        name: 'Event Promotion',
+        description: 'Perfect for promoting events and webinars',
+        category: 'events',
+        thumbnail: '/api/placeholder/300/400',
+        isPremium: true,
+        isNew: true,
+        components: ['header-enhanced', 'countdown-timer', 'link-advanced', 'gallery-pro', 'contact-pro'],
+        themeColors: {
+          primary: '#dc2626',
+          secondary: '#ef4444',
+          accent: '#f59e0b',
+          background: '#ffffff',
+          text: '#111827'
+        },
+        features: ['Event Countdown', 'Registration Links', 'Photo Gallery', 'Contact Form']
+      },
+      {
+        id: 'portfolio-showcase',
+        name: 'Portfolio Showcase',
+        description: 'Showcase your work with style',
+        category: 'portfolio',
+        thumbnail: '/api/placeholder/300/400',
+        isPremium: false,
+        isNew: true,
+        components: ['header-enhanced', 'gallery-pro', 'text-rich', 'link-advanced', 'contact-pro'],
+        themeColors: {
+          primary: '#1f2937',
+          secondary: '#374151',
+          accent: '#f59e0b',
+          background: '#f9fafb',
+          text: '#111827'
+        },
+        features: ['Portfolio Gallery', 'Rich Text', 'Professional Links', 'Contact Form']
+      }
+    ];
+  }
+
+  /**
+   * Get enhanced mock analytics
+   * @param {string} period - Time period
+   * @returns {Object} Enhanced mock analytics data
+   */
+  getEnhancedMockAnalytics(period) {
+    return {
+      period,
+      overview: {
+        totalViews: 15743,
+        totalClicks: 4892,
+        clickThroughRate: 31.1,
+        uniqueVisitors: 11234,
+        averageTimeOnPage: 52,
+        bounceRate: 21.3,
+        conversionRate: 8.7,
+        returningVisitors: 2865
+      },
+      traffic: {
+        sources: [
+          { name: 'Instagram', visits: 7871, percentage: 50.0, change: 5.2 },
+          { name: 'Direct', visits: 3149, percentage: 20.0, change: -2.1 },
+          { name: 'Twitter', visits: 2361, percentage: 15.0, change: 8.3 },
+          { name: 'Facebook', visits: 1574, percentage: 10.0, change: -5.7 },
+          { name: 'LinkedIn', visits: 628, percentage: 4.0, change: 12.4 },
+          { name: 'Other', visits: 160, percentage: 1.0, change: 0.0 }
+        ],
+        devices: [
+          { name: 'Mobile', visits: 11020, percentage: 70.0, change: 3.2 },
+          { name: 'Desktop', visits: 3774, percentage: 24.0, change: -1.8 },
+          { name: 'Tablet', visits: 949, percentage: 6.0, change: 1.1 }
+        ],
+        browsers: [
+          { name: 'Chrome', visits: 9446, percentage: 60.0 },
+          { name: 'Safari', visits: 3149, percentage: 20.0 },
+          { name: 'Firefox', visits: 1574, percentage: 10.0 },
+          { name: 'Edge', visits: 1102, percentage: 7.0 },
+          { name: 'Other', visits: 472, percentage: 3.0 }
+        ]
+      },
+      engagement: {
+        topPerformingComponents: [
+          { type: 'link-advanced', title: 'Shop Now', clicks: 1247, ctr: 32.0, conversionRate: 15.2 },
+          { type: 'link-advanced', title: 'Learn More', clicks: 892, ctr: 23.0, conversionRate: 8.9 },
+          { type: 'contact-pro', title: 'Contact Form', submissions: 154, ctr: 17.0, conversionRate: 5.1 },
+          { type: 'social-enhanced', title: 'Follow Us', clicks: 456, ctr: 12.0, conversionRate: 2.3 }
+        ],
+        heatmapData: {
+          clicks: [
+            { x: 50, y: 20, intensity: 0.8 },
+            { x: 50, y: 35, intensity: 0.6 },
+            { x: 50, y: 50, intensity: 0.9 },
+            { x: 50, y: 65, intensity: 0.4 },
+            { x: 50, y: 80, intensity: 0.7 }
+          ],
+          scrollDepth: {
+            '25%': 95,
+            '50%': 78,
+            '75%': 54,
+            '100%': 31
+          }
+        }
+      },
+      abTesting: {
+        activeTests: 2,
+        completedTests: 5,
+        totalTestViews: 8934,
+        significantResults: 3
+      },
+      geography: [
+        { country: 'United States', visits: 4723, percentage: 30.0, change: 2.1 },
+        { country: 'United Kingdom', visits: 3149, percentage: 20.0, change: -1.5 },
+        { country: 'Canada', visits: 2361, percentage: 15.0, change: 4.8 },
+        { country: 'Australia', visits: 1574, percentage: 10.0, change: -0.9 },
+        { country: 'Germany', visits: 1259, percentage: 8.0, change: 6.2 },
+        { country: 'France', visits: 1102, percentage: 7.0, change: 1.3 }
+      ],
+      timeline: Array.from({ length: 30 }, (_, i) => ({
+        date: new Date(Date.now() - (29 - i) * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+        views: Math.floor(Math.random() * 600) + 300,
+        clicks: Math.floor(Math.random() * 180) + 80,
+        conversions: Math.floor(Math.random() * 30) + 10,
+        bounceRate: Math.floor(Math.random() * 20) + 15
+      }))
+    };
+  }
+
+  /**
+   * Get mock A/B test results
+   * @param {string} pageId - Page ID
+   * @returns {Object} Mock A/B test results
+   */
+  getMockABTestResults(pageId) {
+    return {
+      page_id: pageId,
+      activeTests: [
+        {
+          id: 'test-001',
+          name: 'Header Color Test',
+          status: 'active',
+          startDate: '2024-01-15',
+          variants: [
+            {
+              id: 'variant-a',
+              name: 'Blue Header',
+              visits: 5234,
+              conversions: 456,
+              conversionRate: 8.7,
+              isWinning: true
+            },
+            {
+              id: 'variant-b',
+              name: 'Green Header',
+              visits: 5189,
+              conversions: 398,
+              conversionRate: 7.7,
+              isWinning: false
+            }
+          ],
+          confidence: 87.3,
+          significantDifference: true
+        },
+        {
+          id: 'test-002',
+          name: 'CTA Button Text',
+          status: 'active',
+          startDate: '2024-01-20',
+          variants: [
+            {
+              id: 'variant-a',
+              name: 'Shop Now',
+              visits: 2456,
+              conversions: 234,
+              conversionRate: 9.5,
+              isWinning: true
+            },
+            {
+              id: 'variant-b',
+              name: 'Buy Today',
+              visits: 2398,
+              conversions: 198,
+              conversionRate: 8.3,
+              isWinning: false
+            }
+          ],
+          confidence: 72.1,
+          significantDifference: false
+        }
+      ],
+      completedTests: [
+        {
+          id: 'test-003',
+          name: 'Social Media Layout',
+          status: 'completed',
+          startDate: '2024-01-05',
+          endDate: '2024-01-15',
+          winner: 'variant-a',
+          improvement: 12.3,
+          variants: [
+            {
+              id: 'variant-a',
+              name: 'Horizontal Layout',
+              visits: 8934,
+              conversions: 892,
+              conversionRate: 10.0,
+              isWinning: true
+            },
+            {
+              id: 'variant-b',
+              name: 'Vertical Layout',
+              visits: 8756,
+              conversions: 787,
+              conversionRate: 9.0,
+              isWinning: false
+            }
+          ],
+          confidence: 95.2,
+          significantDifference: true
+        }
+      ]
+    };
   }
 
   /**
