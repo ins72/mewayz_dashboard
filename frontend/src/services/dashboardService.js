@@ -211,6 +211,22 @@ class DashboardService {
           icon: '📧',
           color: 'bg-purple-500',
           href: '/email/campaigns/create'
+        },
+        {
+          id: 'browse_templates',
+          title: 'Browse Templates',
+          description: 'Discover professional templates',
+          icon: '📋',
+          color: 'bg-indigo-500',
+          href: '/template-marketplace'
+        },
+        {
+          id: 'create_template',
+          title: 'Create Template',
+          description: 'Upload and sell your templates',
+          icon: '🎨',
+          color: 'bg-amber-500',
+          href: '/template-creator'
         }
       ]
     };
