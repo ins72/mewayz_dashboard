@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useReducer, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import laravelInvitationService from '../utils/laravelInvitationService';
+import invitationService from '../utils/invitationService';
 
 const OnboardingContext = createContext();
 
