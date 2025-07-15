@@ -463,4 +463,162 @@ class CrmContactController extends Controller
             ]
         ]);
     }
+
+    /**
+     * Get contact analytics.
+     */
+    public function contactAnalytics(Request $request, CrmContact $crmContact)
+    {
+        // Check if user has access to this contact's workspace
+        if (!$crmContact->workspace->members()->where('user_id', auth()->id())->exists()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized access to contact'
+            ], 403);
+        }
+
+        $period = $request->input('period', '30d');
+        $days = match ($period) {
+            '7d' => 7,
+            '30d' => 30,
+            '90d' => 90,
+            '365d' => 365,
+            default => 30,
+        };
+
+        $dateFrom = now()->subDays($days);
+
+        // Get engagement metrics
+        $communications = \App\Models\CrmCommunication::where('contact_id', $crmContact->id)
+            ->where('created_at', '>=', $dateFrom)
+            ->get();
+
+        $emailsSent = $communications->where('type', 'email')->where('direction', 'outbound')->count();
+        $callsMade = $communications->where('type', 'call')->count();
+        $meetingsHeld = $communications->where('type', 'meeting')->count();
+        $lastInteraction = $communications->max('created_at');
+
+        // Get deal metrics
+        $deals = \App\Models\CrmDeal::where('contact_id', $crmContact->id)->get();
+        $totalDeals = $deals->count();
+        $wonDeals = $deals->where('status', 'won')->count();
+        $lostDeals = $deals->where('status', 'lost')->count();
+        $activeDeals = $deals->where('status', 'active')->count();
+        $totalValue = $deals->sum('value');
+        $wonValue = $deals->where('status', 'won')->sum('value');
+
+        // Get timeline
+        $timeline = $communications->sortByDesc('created_at')->take(10)->map(function ($comm) {
+            return [
+                'date' => $comm->created_at,
+                'type' => $comm->type,
+                'description' => $comm->subject,
+                'duration' => $comm->duration ? $comm->duration_formatted : null,
+            ];
+        });
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'contact_id' => $crmContact->id,
+                'period' => $period,
+                'engagement' => [
+                    'total_interactions' => $communications->count(),
+                    'emails_sent' => $emailsSent,
+                    'calls_made' => $callsMade,
+                    'meetings_held' => $meetingsHeld,
+                    'last_interaction' => $lastInteraction,
+                ],
+                'deals' => [
+                    'total_deals' => $totalDeals,
+                    'won_deals' => $wonDeals,
+                    'lost_deals' => $lostDeals,
+                    'active_deals' => $activeDeals,
+                    'total_value' => $totalValue,
+                    'won_value' => $wonValue,
+                ],
+                'timeline' => $timeline,
+            ]
+        ]);
+    }
+
+    /**
+     * Import contacts from e-commerce orders.
+     */
+    public function importFromEcommerce(Request $request)
+    {
+        $workspaceId = $request->input('workspace_id');
+        
+        // Validate workspace access
+        if ($workspaceId) {
+            $workspace = Workspace::find($workspaceId);
+            if (!$workspace || !$workspace->members()->where('user_id', auth()->id())->exists()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Unauthorized access to workspace'
+                ], 403);
+            }
+        }
+
+        // Get orders from e-commerce system
+        $orders = \App\Models\Order::where('workspace_id', $workspaceId)
+            ->whereNotNull('customer_email')
+            ->get();
+
+        $importedCount = 0;
+        $updatedCount = 0;
+
+        foreach ($orders as $order) {
+            // Check if contact already exists
+            $existingContact = CrmContact::where('email', $order->customer_email)
+                ->where('workspace_id', $workspaceId)
+                ->first();
+
+            if ($existingContact) {
+                // Update existing contact
+                $existingContact->update([
+                    'phone' => $existingContact->phone ?: $order->customer_phone,
+                    'notes' => $existingContact->notes . "\n\nImported from order #{$order->order_number}",
+                    'lead_score' => min(100, $existingContact->lead_score + 10), // Increase lead score
+                    'last_contacted_at' => now(),
+                ]);
+                $updatedCount++;
+            } else {
+                // Create new contact
+                $nameParts = explode(' ', $order->customer_name, 2);
+                $firstName = $nameParts[0] ?? '';
+                $lastName = $nameParts[1] ?? '';
+
+                CrmContact::create([
+                    'id' => Str::uuid(),
+                    'workspace_id' => $workspaceId,
+                    'first_name' => $firstName,
+                    'last_name' => $lastName,
+                    'email' => $order->customer_email,
+                    'phone' => $order->customer_phone,
+                    'notes' => "Imported from e-commerce order #{$order->order_number}",
+                    'tags' => ['customer', 'e-commerce'],
+                    'status' => 'active',
+                    'lead_score' => 50,
+                    'custom_fields' => [
+                        'source' => 'e-commerce',
+                        'first_order_date' => $order->created_at,
+                        'total_orders' => 1,
+                    ],
+                    'created_by' => auth()->id(),
+                    'last_contacted_at' => now(),
+                ]);
+                $importedCount++;
+            }
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'imported_count' => $importedCount,
+                'updated_count' => $updatedCount,
+                'message' => 'Contacts imported successfully from e-commerce orders'
+            ]
+        ]);
+    }
 }
