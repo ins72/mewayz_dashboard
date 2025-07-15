@@ -3,7 +3,7 @@
 ## Base URL
 ```
 Development: http://localhost:8001/api
-Production: https://your-domain.com/api
+Production: https://mewayz.com/api
 ```
 
 ## Authentication
