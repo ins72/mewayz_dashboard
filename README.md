@@ -201,7 +201,7 @@ This project is licensed under the MIT License.
 
 ---
 
-**Built with ❤️ by the Mewayz Team**  
+**Built with ❤️ by Mewayz Technologies Inc.**  
 *For complete documentation, see the individual guide files listed above.*
 
 **Last updated: January 2025**
