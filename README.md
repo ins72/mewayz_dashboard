@@ -77,32 +77,57 @@ OAuth:       Google OAuth 2.0
    - Frontend: http://localhost:4028
    - Backend API: http://localhost:8001/api
 
-## 🌟 Key Features
+### **Production Deployment**
 
-### ✅ **Implemented Features**
-- **Authentication System**: Email/password + Google OAuth
-- **6-Step Onboarding Wizard**: Complete user onboarding flow
-- **Quick Action Tiles**: Instagram management, Link-in-Bio builder
-- **Payment Integration**: Stripe subscription management
-- **Email Marketing**: ElasticMail integration
-- **Workspace Management**: Multi-tenant architecture
-- **Social Media Tools**: Post scheduling and analytics
-- **CRM System**: Contact management and lead scoring
-- **Course Creator**: Educational content management
-- **E-commerce**: Product catalog and sales
+1. **Configure Environment Variables**
+   ```env
+   # Backend (.env)
+   APP_NAME=Mewayz
+   APP_ENV=production
+   APP_DEBUG=false
+   APP_URL=https://mewayz.com
+   
+   # Frontend (.env)
+   VITE_API_URL=https://mewayz.com/api
+   VITE_BACKEND_URL=https://mewayz.com
+   ```
 
-### 📊 **Testing Status**
-- **Backend**: 82.1% success rate (23/28 tests passed)
-- **Frontend**: 85% success rate (17/20 tests passed)
-- **Core Systems**: All major features fully operational
+2. **Build for Production**
+   ```bash
+   # Backend
+   composer install --no-dev --optimize-autoloader
+   php artisan config:cache
+   php artisan route:cache
+   php artisan view:cache
+   
+   # Frontend
+   yarn build
+   ```
 
-## 🎯 Getting Started
+3. **Deploy to Production Server**
+   - Configure web server (Nginx/Apache)
+   - Set up SSL certificates
+   - Configure supervisor for queue workers
+   - Set up automated backups
 
-1. **Read the [Comprehensive README](./COMPREHENSIVE_README.md)** for complete project overview
-2. **Check the [API Documentation](./API_DOCUMENTATION.md)** for backend integration
-3. **Review the [Frontend Components Guide](./FRONTEND_COMPONENTS_DOCUMENTATION.md)** for UI development
-4. **Follow the [Deployment Guide](./DEPLOYMENT_SETUP_GUIDE.md)** for production setup
-5. **Use the [Testing Guide](./TESTING_TROUBLESHOOTING_GUIDE.md)** for debugging
+---
+
+## 📚 **Documentation Structure**
+
+### **User Documentation**
+- [User Guide](./USER_GUIDE.md) - Complete user manual
+- [Feature Documentation](./FEATURE_DOCUMENTATION.md) - Detailed feature guides
+- [FAQ](./FAQ.md) - Frequently asked questions
+
+### **Developer Documentation**
+- [API Documentation](./API_DOCUMENTATION.md) - Complete API reference
+- [Developer Guide](./DEVELOPER_GUIDE.md) - Development guidelines
+- [Component Library](./COMPONENT_LIBRARY.md) - UI component reference
+
+### **Admin Documentation**
+- [Deployment Guide](./DEPLOYMENT_GUIDE.md) - Production deployment
+- [Security Guide](./SECURITY_GUIDE.md) - Security best practices
+- [Maintenance Guide](./MAINTENANCE_GUIDE.md) - System maintenance
 
 ## 🔧 Development Workflow
 
