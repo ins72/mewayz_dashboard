@@ -8,7 +8,7 @@ import IndustrySelector from './components/IndustrySelector';
 import TeamSizeSelector from './components/TeamSizeSelector';
 import WizardNavigation from './components/WizardNavigation';
 import Input from '../../components/ui/Input';
-import workspaceService from '../../utils/workspaceService';
+import workspaceService from '../../services/workspaceService';
 
 const WorkspaceSetupWizardWelcomeBasics = () => {
   const navigate = useNavigate();
