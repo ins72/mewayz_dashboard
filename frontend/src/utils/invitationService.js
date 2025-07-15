@@ -1,4 +1,4 @@
-import { supabase } from './supabase';
+import apiClient from './apiClient';
 
 class InvitationService {
   // Create and send single invitation
