@@ -437,6 +437,17 @@ backend:
         comment: "✅ PASS: Conversion funnel analytics working correctly. GET /api/marketing/conversion-funnels returns funnel data with stage tracking (Website Visitor → Lead Magnet Download → Email Subscriber → Trial User → Paying Customer), conversion rates for each stage, and overall conversion metrics. Funnel analytics fully functional."
 
 frontend:
+  - task: "Instagram Management Enhancement - Frontend Implementation"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/pages/InstagramManagement.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Implemented comprehensive Instagram Management frontend with 6 components (ContentCalendar, StoryManager, HashtagResearch, AnalyticsDashboard, CompetitorAnalysis, OptimalPostingTimes), enhanced service layer, and main management page. Features include: visual content calendar, story management with highlights, hashtag research with trending analysis, analytics dashboard with multiple time periods, competitor tracking, and optimal posting times recommendations. All components integrated with tabbed interface and responsive design."
   - task: "CRM Management Page Integration"
     implemented: true
     working: "NA"
