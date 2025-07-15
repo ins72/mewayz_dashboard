@@ -31,6 +31,8 @@ import ProductManagement from "pages/ProductManagement";
 import CourseManagement from "pages/CourseManagement";
 import LinkInBioManagement from "pages/LinkInBioManagement";
 import InstagramManagement from "pages/InstagramManagement";
+import TemplateMarketplace from "pages/TemplateMarketplace";
+import TemplateCreator from "pages/TemplateCreator";
 import MarketingHub from "pages/MarketingHub";
 import NotFound from "pages/NotFound";
 
