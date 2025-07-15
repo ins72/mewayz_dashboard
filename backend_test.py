@@ -434,6 +434,258 @@ class BackendTester:
             self.log_test("Database Connectivity", False, f"Database operation failed with HTTP {response.status_code}")
             return False
     
+    def test_ecommerce_stock_management(self):
+        """Test e-commerce stock management endpoint"""
+        if not self.token or not self.workspace_id:
+            self.log_test("E-commerce Stock Management", False, "Missing authentication token or workspace ID")
+            return False
+        
+        # First create a product to test stock management
+        product_data = {
+            "name": "Test Product for Stock",
+            "description": "A test product for stock management testing",
+            "price": 29.99,
+            "stock_quantity": 100,
+            "workspace_id": self.workspace_id
+        }
+        
+        response, error = self.make_request('POST', '/products', product_data)
+        if error or response.status_code not in [200, 201]:
+            self.log_test("E-commerce Stock Management", False, f"Failed to create test product: {error or response.text[:200]}")
+            return False
+        
+        try:
+            product_result = response.json()
+            if not product_result.get('success') or not product_result.get('product'):
+                self.log_test("E-commerce Stock Management", False, "Failed to create test product for stock testing")
+                return False
+            
+            product_id = product_result['product']['id']
+            
+            # Test stock update endpoint
+            stock_data = {
+                "stock_quantity": 75,
+                "operation": "set"  # or "add", "subtract"
+            }
+            
+            response, error = self.make_request('POST', f'/products/{product_id}/update-stock', stock_data)
+            
+            if error:
+                self.log_test("E-commerce Stock Management", False, f"Stock update request failed: {error}")
+                return False
+            
+            if response.status_code == 200:
+                try:
+                    result = response.json()
+                    if result.get('success'):
+                        self.log_test("E-commerce Stock Management", True, "Stock update endpoint working correctly")
+                        return True
+                    else:
+                        self.log_test("E-commerce Stock Management", False, f"Stock update failed: {result.get('message', 'Unknown error')}")
+                        return False
+                except json.JSONDecodeError:
+                    self.log_test("E-commerce Stock Management", False, "Invalid JSON response from stock update")
+                    return False
+            else:
+                self.log_test("E-commerce Stock Management", False, f"Stock update failed with HTTP {response.status_code}: {response.text[:200]}")
+                return False
+                
+        except json.JSONDecodeError:
+            self.log_test("E-commerce Stock Management", False, "Invalid JSON response from product creation")
+            return False
+    
+    def test_ecommerce_order_management(self):
+        """Test e-commerce order management endpoints"""
+        if not self.token or not self.workspace_id:
+            self.log_test("E-commerce Order Management", False, "Missing authentication token or workspace ID")
+            return False
+        
+        # Test GET /api/orders - List all orders
+        response, error = self.make_request('GET', '/orders')
+        
+        if error:
+            self.log_test("E-commerce Order Management", False, f"Orders list request failed: {error}")
+            return False
+        
+        if response.status_code == 200:
+            try:
+                result = response.json()
+                if 'orders' in result or 'data' in result or result.get('success'):
+                    # Test POST /api/orders - Create new order
+                    order_data = {
+                        "customer_name": "John Doe",
+                        "customer_email": "john.doe@example.com",
+                        "total_amount": 99.99,
+                        "status": "pending",
+                        "workspace_id": self.workspace_id,
+                        "items": [
+                            {
+                                "product_name": "Test Product",
+                                "quantity": 2,
+                                "price": 49.99
+                            }
+                        ]
+                    }
+                    
+                    create_response, create_error = self.make_request('POST', '/orders', order_data)
+                    
+                    if create_error:
+                        self.log_test("E-commerce Order Management", False, f"Order creation failed: {create_error}")
+                        return False
+                    
+                    if create_response.status_code in [200, 201]:
+                        try:
+                            create_result = create_response.json()
+                            if create_result.get('success') and create_result.get('order'):
+                                order_id = create_result['order']['id']
+                                
+                                # Test GET /api/orders/{id} - Get specific order
+                                get_response, get_error = self.make_request('GET', f'/orders/{order_id}')
+                                
+                                if get_error or get_response.status_code != 200:
+                                    self.log_test("E-commerce Order Management", False, f"Order retrieval failed: {get_error or get_response.text[:200]}")
+                                    return False
+                                
+                                # Test PUT /api/orders/{id}/status - Update order status
+                                status_data = {"status": "processing"}
+                                status_response, status_error = self.make_request('PUT', f'/orders/{order_id}/status', status_data)
+                                
+                                if status_error or status_response.status_code != 200:
+                                    self.log_test("E-commerce Order Management", False, f"Order status update failed: {status_error or status_response.text[:200]}")
+                                    return False
+                                
+                                self.log_test("E-commerce Order Management", True, "Order management CRUD operations working correctly")
+                                return True
+                            else:
+                                self.log_test("E-commerce Order Management", False, f"Order creation failed: {create_result.get('message', 'Unknown error')}")
+                                return False
+                        except json.JSONDecodeError:
+                            self.log_test("E-commerce Order Management", False, "Invalid JSON response from order creation")
+                            return False
+                    else:
+                        self.log_test("E-commerce Order Management", False, f"Order creation failed with HTTP {create_response.status_code}")
+                        return False
+                else:
+                    self.log_test("E-commerce Order Management", False, f"Orders list endpoint returned unexpected format: {result}")
+                    return False
+            except json.JSONDecodeError:
+                self.log_test("E-commerce Order Management", False, "Invalid JSON response from orders list")
+                return False
+        else:
+            self.log_test("E-commerce Order Management", False, f"Orders list failed with HTTP {response.status_code}: {response.text[:200]}")
+            return False
+    
+    def test_ecommerce_inventory_alerts(self):
+        """Test e-commerce inventory alerts endpoint"""
+        if not self.token:
+            self.log_test("E-commerce Inventory Alerts", False, "No authentication token available")
+            return False
+        
+        response, error = self.make_request('GET', '/inventory/alerts')
+        
+        if error:
+            self.log_test("E-commerce Inventory Alerts", False, f"Inventory alerts request failed: {error}")
+            return False
+        
+        if response.status_code == 200:
+            try:
+                result = response.json()
+                if 'alerts' in result or 'data' in result or result.get('success'):
+                    self.log_test("E-commerce Inventory Alerts", True, "Inventory alerts endpoint working correctly")
+                    return True
+                else:
+                    self.log_test("E-commerce Inventory Alerts", False, f"Inventory alerts returned unexpected format: {result}")
+                    return False
+            except json.JSONDecodeError:
+                self.log_test("E-commerce Inventory Alerts", False, "Invalid JSON response from inventory alerts")
+                return False
+        else:
+            self.log_test("E-commerce Inventory Alerts", False, f"Inventory alerts failed with HTTP {response.status_code}: {response.text[:200]}")
+            return False
+    
+    def test_ecommerce_product_categories(self):
+        """Test e-commerce product categories endpoint"""
+        if not self.token:
+            self.log_test("E-commerce Product Categories", False, "No authentication token available")
+            return False
+        
+        response, error = self.make_request('GET', '/product-categories')
+        
+        if error:
+            self.log_test("E-commerce Product Categories", False, f"Product categories request failed: {error}")
+            return False
+        
+        if response.status_code == 200:
+            try:
+                result = response.json()
+                if 'categories' in result or 'data' in result or result.get('success'):
+                    self.log_test("E-commerce Product Categories", True, "Product categories endpoint working correctly")
+                    return True
+                else:
+                    self.log_test("E-commerce Product Categories", False, f"Product categories returned unexpected format: {result}")
+                    return False
+            except json.JSONDecodeError:
+                self.log_test("E-commerce Product Categories", False, "Invalid JSON response from product categories")
+                return False
+        else:
+            self.log_test("E-commerce Product Categories", False, f"Product categories failed with HTTP {response.status_code}: {response.text[:200]}")
+            return False
+    
+    def test_ecommerce_product_analytics(self):
+        """Test individual product analytics endpoint"""
+        if not self.token or not self.workspace_id:
+            self.log_test("E-commerce Product Analytics", False, "Missing authentication token or workspace ID")
+            return False
+        
+        # First create a product to test analytics
+        product_data = {
+            "name": "Test Product for Analytics",
+            "description": "A test product for analytics testing",
+            "price": 39.99,
+            "stock_quantity": 50,
+            "workspace_id": self.workspace_id
+        }
+        
+        response, error = self.make_request('POST', '/products', product_data)
+        if error or response.status_code not in [200, 201]:
+            self.log_test("E-commerce Product Analytics", False, f"Failed to create test product: {error or response.text[:200]}")
+            return False
+        
+        try:
+            product_result = response.json()
+            if not product_result.get('success') or not product_result.get('product'):
+                self.log_test("E-commerce Product Analytics", False, "Failed to create test product for analytics testing")
+                return False
+            
+            product_id = product_result['product']['id']
+            
+            # Test individual product analytics endpoint
+            response, error = self.make_request('GET', f'/products/{product_id}/analytics')
+            
+            if error:
+                self.log_test("E-commerce Product Analytics", False, f"Product analytics request failed: {error}")
+                return False
+            
+            if response.status_code == 200:
+                try:
+                    result = response.json()
+                    if 'analytics' in result or 'data' in result or result.get('success'):
+                        self.log_test("E-commerce Product Analytics", True, "Individual product analytics endpoint working correctly")
+                        return True
+                    else:
+                        self.log_test("E-commerce Product Analytics", False, f"Product analytics returned unexpected format: {result}")
+                        return False
+                except json.JSONDecodeError:
+                    self.log_test("E-commerce Product Analytics", False, "Invalid JSON response from product analytics")
+                    return False
+            else:
+                self.log_test("E-commerce Product Analytics", False, f"Product analytics failed with HTTP {response.status_code}: {response.text[:200]}")
+                return False
+                
+        except json.JSONDecodeError:
+            self.log_test("E-commerce Product Analytics", False, "Invalid JSON response from product creation")
+            return False
+    
     def run_all_tests(self):
         """Run all backend tests"""
         print("=" * 60)
