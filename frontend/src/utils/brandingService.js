@@ -38,34 +38,28 @@ class BrandingService {
   // Save branding settings
   async saveBrandingSettings(workspaceId, brandingData) {
     try {
-      const { data, error } = await supabase
-        .from('workspaces')
-        .update({
-          branding: {
-            logo: brandingData.logo,
-            primaryColor: brandingData.primaryColor,
-            secondaryColor: brandingData.secondaryColor,
-            fontFamily: brandingData.fontFamily,
-            customDomain: brandingData.customDomain
-          },
-          white_label_enabled: brandingData.whiteLabelSettings?.removeWatermark || false,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', workspaceId)
-        .select()
-        .single();
+      const response = await apiClient.put(`/workspaces/${workspaceId}/branding`, {
+        branding: {
+          logo: brandingData.logo,
+          primaryColor: brandingData.primaryColor,
+          secondaryColor: brandingData.secondaryColor,
+          fontFamily: brandingData.fontFamily,
+          customDomain: brandingData.customDomain
+        },
+        whiteLabelEnabled: brandingData.whiteLabelSettings?.removeWatermark || false
+      });
 
-      if (error) {
-        return { success: false, error: error.message };
+      if (response.data.success) {
+        return response.data;
+      } else {
+        return { success: false, error: response.data.error };
       }
-
-      return { success: true, data };
     } catch (error) {
       if (error?.message?.includes('Failed to fetch') || 
           error?.message?.includes('NetworkError')) {
         return { 
           success: false, 
-          error: 'Cannot connect to database. Your Supabase project may be paused or deleted. Please visit your Supabase dashboard to check project status.' 
+          error: 'Cannot connect to server. Please check your internet connection and try again.' 
         };
       }
       
