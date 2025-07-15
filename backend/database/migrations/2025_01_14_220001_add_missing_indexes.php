@@ -198,8 +198,9 @@ return new class extends Migration
     private function indexExists(string $table, string $index): bool
     {
         try {
-            $indexes = DB::select("SHOW INDEX FROM {$table}");
-            return collect($indexes)->contains('Key_name', $index);
+            // SQLite uses PRAGMA index_list instead of SHOW INDEX
+            $indexes = DB::select("PRAGMA index_list({$table})");
+            return collect($indexes)->contains('name', $index);
         } catch (\Exception $e) {
             return false;
         }
