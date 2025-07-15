@@ -398,7 +398,7 @@ export const OnboardingProvider = ({ children }) => {
     try {
       setLoading(true);
       
-      const result = await laravelInvitationService.createBulkInvitations(
+      const result = await invitationService.createBulkInvitations(
         workspaceId,
         state.teamInvitations,
         'Onboarding Team Setup'
