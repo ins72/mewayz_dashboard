@@ -275,9 +275,9 @@ class TemplateDataSeeder:
                 for i, template in enumerate(email_templates):
                     cursor.execute('''
                         INSERT OR REPLACE INTO template_collection_items 
-                        (template_collection_id, template_id, sort_order, created_at, updated_at)
-                        VALUES (?, ?, ?, datetime('now'), datetime('now'))
-                    ''', (collection['id'], template['id'], i + 1))
+                        (id, template_collection_id, template_id, sort_order, created_at, updated_at)
+                        VALUES (?, ?, ?, ?, datetime('now'), datetime('now'))
+                    ''', (str(uuid.uuid4()), collection['id'], template['id'], i + 1))
             
             conn.commit()
             conn.close()
