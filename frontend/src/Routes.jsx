@@ -81,7 +81,7 @@ const Routes = () => {
           } />
           <Route path="/dashboard/instagram" element={
             <ProtectedRoute>
-              <InstagramManagement />
+              <DashboardInstagramManagement />
             </ProtectedRoute>
           } />
           <Route path="/dashboard/link-builder" element={
