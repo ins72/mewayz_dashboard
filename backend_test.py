@@ -4079,6 +4079,17 @@ class BackendTester:
             self.test_authenticated_user_data,
             self.test_workspace_creation,
             self.test_workspace_listing,
+            # NEW GAP-FILLING TESTS - WORKSPACE SETUP WIZARD
+            self.test_workspace_setup_wizard_goals,
+            self.test_workspace_setup_wizard_features_by_goal,
+            self.test_workspace_setup_wizard_subscription_plans,
+            self.test_workspace_setup_progress,
+            self.test_workspace_complete_setup,
+            # NEW GAP-FILLING TESTS - SUBSCRIPTION MANAGEMENT
+            self.test_subscription_current,
+            self.test_subscription_plans,
+            self.test_subscription_checkout,
+            self.test_subscription_usage,
             # CRITICAL BUG FIXES VALIDATION - Priority Testing
             self.test_critical_bug_fixes_team_management,
             self.test_critical_bug_fixes_gamification,
