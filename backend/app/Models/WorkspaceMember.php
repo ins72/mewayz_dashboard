@@ -80,4 +80,20 @@ class WorkspaceMember extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    /**
+     * Get the role associated with the member.
+     */
+    public function role(): BelongsTo
+    {
+        return $this->belongsTo(TeamRole::class, 'role_id');
+    }
+
+    /**
+     * Get the user who invited this member.
+     */
+    public function inviter(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'invited_by');
+    }
 }
