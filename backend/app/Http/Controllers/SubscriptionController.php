@@ -137,10 +137,13 @@ class SubscriptionController extends Controller
         
         // Check if user has permission to manage workspace
         $member = $workspace->members()->where('user_id', $user->id)->first();
-        if (!$member || !in_array($member->role, ['owner', 'admin'])) {
+        $isOwner = $workspace->owner_id === $user->id;
+        $isAdmin = $member && in_array($member->role, ['owner', 'admin']);
+        
+        if (!$isOwner && !$isAdmin) {
             return response()->json([
                 'success' => false,
-                'message' => 'Insufficient permissions'
+                'message' => 'Insufficient permissions. Only workspace owners and admins can manage subscriptions.'
             ], 403);
         }
 
