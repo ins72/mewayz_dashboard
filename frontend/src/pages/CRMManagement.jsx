@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useWorkspace } from '../contexts/WorkspaceContext';
 import crmService from '../services/crmService';
 
-const CRMManagement = ({ workspaceId }) => {
+const CRMManagement = () => {
+  const { currentWorkspace } = useWorkspace();
+  const workspaceId = currentWorkspace?.id;
   const [contacts, setContacts] = useState([]);
   const [pipeline, setPipeline] = useState({ stages: [], deals: [] });
   const [tasks, setTasks] = useState([]);
