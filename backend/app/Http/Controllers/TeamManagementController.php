@@ -16,6 +16,43 @@ use Illuminate\Support\Facades\DB;
 class TeamManagementController extends Controller
 {
     /**
+     * Helper method to get user's role in workspace
+     */
+    private function getUserRole($userId, $workspaceId)
+    {
+        $userMembership = WorkspaceMember::where('workspace_id', $workspaceId)
+            ->where('user_id', $userId)
+            ->with('role')
+            ->first();
+        
+        if (!$userMembership) {
+            return null;
+        }
+        
+        // If role_id exists, use the relationship
+        if ($userMembership->role_id && $userMembership->role) {
+            return $userMembership->role;
+        }
+        
+        // Fallback: if role is a string, find the corresponding TeamRole
+        if (is_string($userMembership->role)) {
+            return TeamRole::where('workspace_id', $workspaceId)
+                ->where('name', ucfirst($userMembership->role))
+                ->first();
+        }
+        
+        return null;
+    }
+    
+    /**
+     * Helper method to check if user has permission
+     */
+    private function userHasPermission($userId, $workspaceId, $module, $action)
+    {
+        $role = $this->getUserRole($userId, $workspaceId);
+        return $role && $role->hasPermission($module, $action);
+    }
+    /**
      * Get team dashboard
      */
     public function getDashboard(Request $request)
