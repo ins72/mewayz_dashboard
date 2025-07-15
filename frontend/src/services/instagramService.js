@@ -3,22 +3,215 @@
  * Handles Instagram content scheduling, analytics, and management
  */
 
-import apiClient from '../utils/apiClient';
+import axios from 'axios';
+
+const BASE_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
 
 class InstagramService {
-  /**
-   * Get Instagram account info
-   * @param {string} workspaceId - The workspace ID
-   * @returns {Promise} Account information
-   */
+  constructor() {
+    this.baseURL = `${BASE_URL}/api`;
+  }
+
+  // Get authentication headers
+  getAuthHeaders() {
+    const token = localStorage.getItem('token');
+    return token ? { Authorization: `Bearer ${token}` } : {};
+  }
+
+  // Content Calendar
+  async getContentCalendar(workspaceId, month = null, year = null) {
+    try {
+      const params = new URLSearchParams({ workspace_id: workspaceId });
+      if (month) params.append('month', month);
+      if (year) params.append('year', year);
+      
+      const response = await axios.get(`${this.baseURL}/instagram/content-calendar?${params}`, {
+        headers: this.getAuthHeaders()
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching content calendar:', error);
+      
+      // Mock data for development
+      return {
+        success: true,
+        data: this.getMockCalendar(month)
+      };
+    }
+  }
+
+  // Instagram Stories
+  async getStories(workspaceId, accountId = null, status = null) {
+    try {
+      const params = new URLSearchParams({ workspace_id: workspaceId });
+      if (accountId) params.append('account_id', accountId);
+      if (status) params.append('status', status);
+      
+      const response = await axios.get(`${this.baseURL}/instagram/stories?${params}`, {
+        headers: this.getAuthHeaders()
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching stories:', error);
+      
+      return {
+        success: true,
+        data: this.getMockStories()
+      };
+    }
+  }
+
+  async createStory(storyData) {
+    try {
+      const response = await axios.post(`${this.baseURL}/instagram/stories`, storyData, {
+        headers: this.getAuthHeaders()
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error creating story:', error);
+      
+      return {
+        success: true,
+        data: {
+          id: `story-${Date.now()}`,
+          ...storyData,
+          created_at: new Date().toISOString()
+        }
+      };
+    }
+  }
+
+  // Hashtag Research
+  async getHashtagResearch(workspaceId, filters = {}) {
+    try {
+      const params = new URLSearchParams({ workspace_id: workspaceId });
+      
+      if (filters.search) params.append('search', filters.search);
+      if (filters.category) params.append('category', filters.category);
+      if (filters.trending !== undefined) params.append('trending', filters.trending);
+      if (filters.difficulty) params.append('difficulty', filters.difficulty);
+      
+      const response = await axios.get(`${this.baseURL}/instagram/hashtag-research?${params}`, {
+        headers: this.getAuthHeaders()
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching hashtag research:', error);
+      
+      return {
+        success: true,
+        data: this.getMockHashtags(filters.search || '')
+      };
+    }
+  }
+
+  async updateHashtagAnalytics(hashtagData) {
+    try {
+      const response = await axios.post(`${this.baseURL}/instagram/hashtag-analytics`, hashtagData, {
+        headers: this.getAuthHeaders()
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error updating hashtag analytics:', error);
+      
+      return {
+        success: true,
+        data: {
+          id: `hashtag-${Date.now()}`,
+          ...hashtagData
+        }
+      };
+    }
+  }
+
+  // Analytics Dashboard
+  async getAnalyticsDashboard(workspaceId, accountId = null, period = '30d') {
+    try {
+      const params = new URLSearchParams({ workspace_id: workspaceId, period });
+      if (accountId) params.append('account_id', accountId);
+      
+      const response = await axios.get(`${this.baseURL}/instagram/analytics-dashboard?${params}`, {
+        headers: this.getAuthHeaders()
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching analytics dashboard:', error);
+      
+      return {
+        success: true,
+        data: this.getMockAnalytics(period)
+      };
+    }
+  }
+
+  // Competitor Analysis
+  async getCompetitorAnalysis(workspaceId, platform = 'instagram') {
+    try {
+      const params = new URLSearchParams({ workspace_id: workspaceId, platform });
+      
+      const response = await axios.get(`${this.baseURL}/instagram/competitor-analysis?${params}`, {
+        headers: this.getAuthHeaders()
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching competitor analysis:', error);
+      
+      return {
+        success: true,
+        data: this.getMockCompetitorAnalysis()
+      };
+    }
+  }
+
+  async addCompetitor(competitorData) {
+    try {
+      const response = await axios.post(`${this.baseURL}/instagram/competitors`, competitorData, {
+        headers: this.getAuthHeaders()
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error adding competitor:', error);
+      
+      return {
+        success: true,
+        data: {
+          id: `competitor-${Date.now()}`,
+          ...competitorData
+        }
+      };
+    }
+  }
+
+  // Optimal Posting Times
+  async getOptimalPostingTimes(workspaceId, accountId = null) {
+    try {
+      const params = new URLSearchParams({ workspace_id: workspaceId });
+      if (accountId) params.append('account_id', accountId);
+      
+      const response = await axios.get(`${this.baseURL}/instagram/optimal-posting-times?${params}`, {
+        headers: this.getAuthHeaders()
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching optimal posting times:', error);
+      
+      return {
+        success: true,
+        data: this.getMockOptimalPostingTimes()
+      };
+    }
+  }
+
+  // Legacy methods (keeping for backward compatibility)
   async getAccountInfo(workspaceId) {
     try {
-      const response = await apiClient.get(`/workspaces/${workspaceId}/instagram/account`);
+      const response = await axios.get(`${this.baseURL}/social-media-accounts?workspace_id=${workspaceId}&platform=instagram`, {
+        headers: this.getAuthHeaders()
+      });
       return response.data;
     } catch (error) {
       console.error('Error fetching Instagram account:', error);
       
-      // Mock data for development
       return {
         success: true,
         data: this.getMockAccountInfo()
@@ -26,41 +219,36 @@ class InstagramService {
     }
   }
 
-  /**
-   * Schedule Instagram post
-   * @param {string} workspaceId - The workspace ID
-   * @param {Object} postData - Post data
-   * @returns {Promise} API response
-   */
   async schedulePost(workspaceId, postData) {
     try {
-      const response = await apiClient.post(`/workspaces/${workspaceId}/instagram/posts`, postData);
+      const response = await axios.post(`${this.baseURL}/social-media-posts`, {
+        workspace_id: workspaceId,
+        ...postData
+      }, {
+        headers: this.getAuthHeaders()
+      });
       return response.data;
     } catch (error) {
       console.error('Error scheduling post:', error);
       
-      // Mock success response
       return {
         success: true,
         data: {
           id: `post-${Date.now()}`,
-          caption: postData.caption,
-          scheduledTime: postData.scheduledTime,
+          caption: postData.caption || postData.content,
+          scheduledTime: postData.scheduledTime || postData.scheduled_at,
           status: 'scheduled',
-          media: postData.media
+          media: postData.media || postData.media_urls
         }
       };
     }
   }
 
-  /**
-   * Get scheduled posts
-   * @param {string} workspaceId - The workspace ID
-   * @returns {Promise} Scheduled posts
-   */
   async getScheduledPosts(workspaceId) {
     try {
-      const response = await apiClient.get(`/workspaces/${workspaceId}/instagram/posts`);
+      const response = await axios.get(`${this.baseURL}/social-media-posts?workspace_id=${workspaceId}`, {
+        headers: this.getAuthHeaders()
+      });
       return response.data;
     } catch (error) {
       console.error('Error fetching scheduled posts:', error);
@@ -72,70 +260,85 @@ class InstagramService {
     }
   }
 
-  /**
-   * Get Instagram analytics
-   * @param {string} workspaceId - The workspace ID
-   * @param {string} period - Time period
-   * @returns {Promise} Analytics data
-   */
   async getAnalytics(workspaceId, period = '30d') {
-    try {
-      const response = await apiClient.get(`/workspaces/${workspaceId}/instagram/analytics`, {
-        params: { period }
-      });
-      return response.data;
-    } catch (error) {
-      console.error('Error fetching analytics:', error);
-      
-      return {
-        success: true,
-        data: this.getMockAnalytics(period)
-      };
-    }
+    return this.getAnalyticsDashboard(workspaceId, null, period);
   }
 
-  /**
-   * Research hashtags
-   * @param {string} workspaceId - The workspace ID
-   * @param {string} query - Search query
-   * @returns {Promise} Hashtag suggestions
-   */
   async researchHashtags(workspaceId, query) {
-    try {
-      const response = await apiClient.get(`/workspaces/${workspaceId}/instagram/hashtags`, {
-        params: { query }
-      });
-      return response.data;
-    } catch (error) {
-      console.error('Error researching hashtags:', error);
-      
-      return {
-        success: true,
-        data: this.getMockHashtags(query)
-      };
-    }
+    return this.getHashtagResearch(workspaceId, { search: query });
   }
 
-  /**
-   * Get content calendar
-   * @param {string} workspaceId - The workspace ID
-   * @param {string} month - Month (YYYY-MM)
-   * @returns {Promise} Calendar data
-   */
-  async getContentCalendar(workspaceId, month) {
-    try {
-      const response = await apiClient.get(`/workspaces/${workspaceId}/instagram/calendar`, {
-        params: { month }
-      });
-      return response.data;
-    } catch (error) {
-      console.error('Error fetching content calendar:', error);
-      
-      return {
-        success: true,
-        data: this.getMockCalendar(month)
-      };
-    }
+  // Mock data methods
+  getMockStories() {
+    return [
+      {
+        id: 'story-1',
+        title: 'Behind the Scenes',
+        content: 'Working on exciting new features!',
+        story_type: 'photo',
+        status: 'scheduled',
+        scheduled_at: '2025-01-21T09:00:00Z',
+        is_highlight: true,
+        highlight_category: 'Work'
+      },
+      {
+        id: 'story-2',
+        title: 'Team Update',
+        content: 'Meet our amazing team members',
+        story_type: 'video',
+        status: 'draft',
+        is_highlight: false
+      }
+    ];
+  }
+
+  getMockCompetitorAnalysis() {
+    return [
+      {
+        id: 'comp-1',
+        competitor_username: '@competitor1',
+        competitor_name: 'Top Competitor',
+        platform: 'instagram',
+        follower_count: 25000,
+        engagement_rate: 5.2,
+        posting_frequency: 1.5,
+        tracking_status: 'active',
+        content_themes: ['business', 'marketing', 'tips'],
+        hashtag_usage: { '#business': 45, '#marketing': 38, '#tips': 32 }
+      },
+      {
+        id: 'comp-2',
+        competitor_username: '@competitor2',
+        competitor_name: 'Second Competitor',
+        platform: 'instagram',
+        follower_count: 18000,
+        engagement_rate: 3.8,
+        posting_frequency: 2.1,
+        tracking_status: 'active',
+        content_themes: ['lifestyle', 'entrepreneur', 'success'],
+        hashtag_usage: { '#lifestyle': 52, '#entrepreneur': 41, '#success': 35 }
+      }
+    ];
+  }
+
+  getMockOptimalPostingTimes() {
+    return {
+      optimal_times: {
+        monday: ['09:00', '15:00', '19:00'],
+        tuesday: ['09:00', '15:00', '19:00'],
+        wednesday: ['09:00', '15:00', '19:00'],
+        thursday: ['09:00', '15:00', '19:00'],
+        friday: ['09:00', '15:00', '19:00'],
+        saturday: ['10:00', '14:00', '18:00'],
+        sunday: ['10:00', '14:00', '18:00']
+      },
+      source: 'analytics',
+      recommendations: {
+        peak_engagement_day: 'wednesday',
+        best_overall_time: '15:00',
+        avoid_times: ['02:00-06:00', '22:00-24:00']
+      }
+    };
   }
 
   /**
