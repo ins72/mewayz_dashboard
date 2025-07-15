@@ -414,6 +414,71 @@ class PaymentController extends Controller
     }
 
     /**
+     * Get payment statistics for a workspace
+     */
+    public function getStats($workspaceId)
+    {
+        $workspace = Workspace::find($workspaceId);
+        
+        if (!$workspace || !$workspace->members()->where('user_id', auth()->id())->exists()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized access to workspace'
+            ], 403);
+        }
+
+        $stats = [
+            'totalRevenue' => PaymentTransaction::where('workspace_id', $workspaceId)
+                ->where('payment_status', 'paid')
+                ->sum('amount'),
+            'monthlyRevenue' => PaymentTransaction::where('workspace_id', $workspaceId)
+                ->where('payment_status', 'paid')
+                ->whereMonth('created_at', now()->month)
+                ->sum('amount'),
+            'activeSubscriptions' => Subscription::where('workspace_id', $workspaceId)
+                ->where('status', 'active')
+                ->count(),
+            'totalTransactions' => PaymentTransaction::where('workspace_id', $workspaceId)->count(),
+            'pendingPayments' => PaymentTransaction::where('workspace_id', $workspaceId)
+                ->where('payment_status', 'pending')
+                ->sum('amount'),
+            'refundedAmount' => PaymentTransaction::where('workspace_id', $workspaceId)
+                ->where('payment_status', 'refunded')
+                ->sum('amount')
+        ];
+
+        return response()->json([
+            'success' => true,
+            'stats' => $stats
+        ]);
+    }
+
+    /**
+     * Get all subscriptions for a workspace
+     */
+    public function getAllSubscriptions($workspaceId)
+    {
+        $workspace = Workspace::find($workspaceId);
+        
+        if (!$workspace || !$workspace->members()->where('user_id', auth()->id())->exists()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized access to workspace'
+            ], 403);
+        }
+
+        $subscriptions = Subscription::where('workspace_id', $workspaceId)
+            ->with(['user'])
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return response()->json([
+            'success' => true,
+            'subscriptions' => $subscriptions
+        ]);
+    }
+
+    /**
      * Get packages array
      */
     private function getPackagesArray()
