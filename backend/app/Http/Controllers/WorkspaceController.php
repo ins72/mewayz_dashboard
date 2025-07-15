@@ -371,10 +371,25 @@ class WorkspaceController extends Controller
         
         // Check if user has permission to complete setup
         $member = $workspace->members()->where('user_id', auth()->id())->first();
-        if (!$member || !in_array($member->role, ['owner', 'admin'])) {
+        if (!$member) {
             return response()->json([
                 'success' => false,
-                'message' => 'Insufficient permissions'
+                'message' => 'You are not a member of this workspace'
+            ], 403);
+        }
+
+        // Check if user has owner or admin permissions
+        $hasPermission = in_array($member->role, ['owner', 'admin']);
+        
+        // If role is null or not owner/admin, check if user is workspace owner
+        if (!$hasPermission && $workspace->owner_id === auth()->id()) {
+            $hasPermission = true;
+        }
+
+        if (!$hasPermission) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Insufficient permissions. Only workspace owners and admins can complete setup.'
             ], 403);
         }
 
