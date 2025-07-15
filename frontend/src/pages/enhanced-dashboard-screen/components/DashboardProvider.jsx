@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import { useAuth } from '../../../contexts/AuthContext';
-import dashboardService from '../../../utils/dashboardService';
+import dashboardService from '../../../services/dashboardService';
 
 const DashboardContext = createContext();
 
