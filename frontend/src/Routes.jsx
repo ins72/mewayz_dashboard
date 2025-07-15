@@ -9,6 +9,7 @@ import LandingPage from "pages/LandingPage";
 import InvitationAcceptancePage from "pages/InvitationAcceptancePage";
 import OnboardingWizard from "components/onboarding/OnboardingWizard";
 import QuickActionsHub from "components/dashboard/QuickActionsHub";
+import DashboardInstagramManagement from "components/dashboard/InstagramManagement";
 import LinkInBioBuilder from "components/dashboard/LinkInBioBuilder";
 import PaymentDashboard from "components/dashboard/PaymentDashboard";
 import EmailCampaignBuilder from "components/dashboard/EmailCampaignBuilder";
