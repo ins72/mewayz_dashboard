@@ -162,7 +162,8 @@ class MewayzBackendTester:
             response = self.make_request("GET", f"/workspaces/{self.workspace_id}")
             if response and response.status_code == 200:
                 data = response.json()
-                if data.get("id") == self.workspace_id:
+                workspace_data = data.get("workspace", data)  # Handle both formats
+                if workspace_data.get("id") == self.workspace_id:
                     self.log_test("Get Workspace", "PASS", "Workspace retrieved successfully")
                 else:
                     self.log_test("Get Workspace", "FAIL", "Workspace ID mismatch")
