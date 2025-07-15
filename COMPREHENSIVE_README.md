@@ -194,10 +194,16 @@ STRIPE_PUBLISHABLE_KEY=your-stripe-publishable-key
 STRIPE_SECRET_KEY=your-stripe-secret-key
 ```
 
-### Frontend (.env)
+### Production Environment
+Production domain: **mewayz.com**
+
 ```env
-REACT_APP_BACKEND_URL=http://localhost:8001/api
-REACT_APP_FRONTEND_URL=http://localhost:4028
+# Backend (.env)
+APP_URL=https://mewayz.com
+FRONTEND_URL=https://mewayz.com
+
+# Frontend (.env)
+REACT_APP_BACKEND_URL=https://mewayz.com/api
 ```
 
 ## 📊 Testing Results
