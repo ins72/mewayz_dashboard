@@ -688,6 +688,447 @@ class BackendTester:
             self.log_test("E-commerce Product Analytics", False, "Invalid JSON response from product creation")
             return False
     
+    def test_crm_pipeline_management(self):
+        """Test CRM pipeline and deals management"""
+        if not self.token or not self.workspace_id:
+            self.log_test("CRM Pipeline Management", False, "Missing authentication token or workspace ID")
+            return False
+        
+        # Test creating default pipeline stages
+        stage_data = {"workspace_id": self.workspace_id}
+        response, error = self.make_request('POST', '/crm-pipeline/default-stages', stage_data)
+        
+        if error:
+            self.log_test("CRM Pipeline Management", False, f"Pipeline stages creation failed: {error}")
+            return False
+        
+        if response.status_code in [200, 201]:
+            try:
+                result = response.json()
+                if result.get('success') and result.get('stages'):
+                    # Test getting pipeline with stages
+                    pipeline_response, pipeline_error = self.make_request('GET', f'/crm-pipeline?workspace_id={self.workspace_id}')
+                    
+                    if pipeline_error or pipeline_response.status_code != 200:
+                        self.log_test("CRM Pipeline Management", False, f"Pipeline retrieval failed: {pipeline_error or pipeline_response.text[:200]}")
+                        return False
+                    
+                    pipeline_result = pipeline_response.json()
+                    if pipeline_result.get('success') and pipeline_result.get('data'):
+                        self.log_test("CRM Pipeline Management", True, "Pipeline stages creation and retrieval working correctly")
+                        return True
+                    else:
+                        self.log_test("CRM Pipeline Management", False, f"Pipeline data format unexpected: {pipeline_result}")
+                        return False
+                else:
+                    self.log_test("CRM Pipeline Management", False, f"Pipeline stages creation failed: {result.get('message', 'Unknown error')}")
+                    return False
+            except json.JSONDecodeError:
+                self.log_test("CRM Pipeline Management", False, "Invalid JSON response from pipeline stages creation")
+                return False
+        else:
+            # If stages already exist, that's fine - test pipeline retrieval
+            pipeline_response, pipeline_error = self.make_request('GET', f'/crm-pipeline?workspace_id={self.workspace_id}')
+            
+            if pipeline_error or pipeline_response.status_code != 200:
+                self.log_test("CRM Pipeline Management", False, f"Pipeline retrieval failed: {pipeline_error or pipeline_response.text[:200]}")
+                return False
+            
+            try:
+                pipeline_result = pipeline_response.json()
+                if pipeline_result.get('success'):
+                    self.log_test("CRM Pipeline Management", True, "Pipeline retrieval working correctly (stages already exist)")
+                    return True
+                else:
+                    self.log_test("CRM Pipeline Management", False, f"Pipeline retrieval failed: {pipeline_result.get('message', 'Unknown error')}")
+                    return False
+            except json.JSONDecodeError:
+                self.log_test("CRM Pipeline Management", False, "Invalid JSON response from pipeline retrieval")
+                return False
+
+    def test_crm_deals_management(self):
+        """Test CRM deals CRUD operations"""
+        if not self.token or not self.workspace_id:
+            self.log_test("CRM Deals Management", False, "Missing authentication token or workspace ID")
+            return False
+        
+        # First create a contact for the deal
+        contact_data = {
+            "workspace_id": self.workspace_id,
+            "first_name": "John",
+            "last_name": "Doe",
+            "email": f"john.doe.{datetime.now().strftime('%Y%m%d_%H%M%S')}@example.com",
+            "company": "Test Company",
+            "lead_score": 75
+        }
+        
+        contact_response, contact_error = self.make_request('POST', '/crm-contacts', contact_data)
+        if contact_error or contact_response.status_code not in [200, 201]:
+            self.log_test("CRM Deals Management", False, f"Failed to create test contact: {contact_error or contact_response.text[:200]}")
+            return False
+        
+        try:
+            contact_result = contact_response.json()
+            if not contact_result.get('success') or not contact_result.get('contact'):
+                self.log_test("CRM Deals Management", False, "Failed to create test contact for deals testing")
+                return False
+            
+            contact_id = contact_result['contact']['id']
+            
+            # Get pipeline stages
+            pipeline_response, pipeline_error = self.make_request('GET', f'/crm-pipeline?workspace_id={self.workspace_id}')
+            if pipeline_error or pipeline_response.status_code != 200:
+                self.log_test("CRM Deals Management", False, f"Failed to get pipeline stages: {pipeline_error or pipeline_response.text[:200]}")
+                return False
+            
+            pipeline_result = pipeline_response.json()
+            if not pipeline_result.get('success') or not pipeline_result.get('data', {}).get('stages'):
+                self.log_test("CRM Deals Management", False, "No pipeline stages available for deals testing")
+                return False
+            
+            stage_id = pipeline_result['data']['stages'][0]['id']
+            
+            # Test creating a deal
+            deal_data = {
+                "workspace_id": self.workspace_id,
+                "contact_id": contact_id,
+                "pipeline_stage_id": stage_id,
+                "title": "Test Deal",
+                "description": "A test deal for CRM testing",
+                "value": 5000.00,
+                "probability": 50,
+                "expected_close_date": "2025-02-15",
+                "status": "active",
+                "source": "website"
+            }
+            
+            response, error = self.make_request('POST', '/crm-deals', deal_data)
+            
+            if error:
+                self.log_test("CRM Deals Management", False, f"Deal creation failed: {error}")
+                return False
+            
+            if response.status_code in [200, 201]:
+                try:
+                    result = response.json()
+                    if result.get('success') and result.get('deal'):
+                        deal_id = result['deal']['id']
+                        
+                        # Test getting the deal
+                        get_response, get_error = self.make_request('GET', f'/crm-deals/{deal_id}')
+                        if get_error or get_response.status_code != 200:
+                            self.log_test("CRM Deals Management", False, f"Deal retrieval failed: {get_error or get_response.text[:200]}")
+                            return False
+                        
+                        # Test updating deal stage
+                        if len(pipeline_result['data']['stages']) > 1:
+                            new_stage_id = pipeline_result['data']['stages'][1]['id']
+                            stage_update_data = {"stage_id": new_stage_id}
+                            stage_response, stage_error = self.make_request('PUT', f'/crm-deals/{deal_id}/stage', stage_update_data)
+                            
+                            if stage_error or stage_response.status_code != 200:
+                                self.log_test("CRM Deals Management", False, f"Deal stage update failed: {stage_error or stage_response.text[:200]}")
+                                return False
+                        
+                        # Test listing deals
+                        list_response, list_error = self.make_request('GET', f'/crm-deals?workspace_id={self.workspace_id}')
+                        if list_error or list_response.status_code != 200:
+                            self.log_test("CRM Deals Management", False, f"Deals listing failed: {list_error or list_response.text[:200]}")
+                            return False
+                        
+                        self.log_test("CRM Deals Management", True, "Deal CRUD operations working correctly")
+                        return True
+                    else:
+                        self.log_test("CRM Deals Management", False, f"Deal creation failed: {result.get('message', 'Unknown error')}")
+                        return False
+                except json.JSONDecodeError:
+                    self.log_test("CRM Deals Management", False, "Invalid JSON response from deal creation")
+                    return False
+            else:
+                self.log_test("CRM Deals Management", False, f"Deal creation failed with HTTP {response.status_code}: {response.text[:200]}")
+                return False
+                
+        except json.JSONDecodeError:
+            self.log_test("CRM Deals Management", False, "Invalid JSON response from contact creation")
+            return False
+
+    def test_crm_tasks_management(self):
+        """Test CRM tasks CRUD operations"""
+        if not self.token or not self.workspace_id:
+            self.log_test("CRM Tasks Management", False, "Missing authentication token or workspace ID")
+            return False
+        
+        # Test creating a task
+        task_data = {
+            "workspace_id": self.workspace_id,
+            "title": "Follow up call",
+            "description": "Call the client to discuss proposal",
+            "type": "call",
+            "priority": "high",
+            "status": "pending",
+            "due_date": "2025-01-20"
+        }
+        
+        response, error = self.make_request('POST', '/crm-tasks', task_data)
+        
+        if error:
+            self.log_test("CRM Tasks Management", False, f"Task creation failed: {error}")
+            return False
+        
+        if response.status_code in [200, 201]:
+            try:
+                result = response.json()
+                if result.get('success') and result.get('task'):
+                    task_id = result['task']['id']
+                    
+                    # Test getting the task
+                    get_response, get_error = self.make_request('GET', f'/crm-tasks/{task_id}')
+                    if get_error or get_response.status_code != 200:
+                        self.log_test("CRM Tasks Management", False, f"Task retrieval failed: {get_error or get_response.text[:200]}")
+                        return False
+                    
+                    # Test updating task status
+                    status_data = {"status": "completed"}
+                    status_response, status_error = self.make_request('PUT', f'/crm-tasks/{task_id}/status', status_data)
+                    
+                    if status_error or status_response.status_code != 200:
+                        self.log_test("CRM Tasks Management", False, f"Task status update failed: {status_error or status_response.text[:200]}")
+                        return False
+                    
+                    # Test listing tasks
+                    list_response, list_error = self.make_request('GET', f'/crm-tasks?workspace_id={self.workspace_id}')
+                    if list_error or list_response.status_code != 200:
+                        self.log_test("CRM Tasks Management", False, f"Tasks listing failed: {list_error or list_response.text[:200]}")
+                        return False
+                    
+                    self.log_test("CRM Tasks Management", True, "Task CRUD operations working correctly")
+                    return True
+                else:
+                    self.log_test("CRM Tasks Management", False, f"Task creation failed: {result.get('message', 'Unknown error')}")
+                    return False
+            except json.JSONDecodeError:
+                self.log_test("CRM Tasks Management", False, "Invalid JSON response from task creation")
+                return False
+        else:
+            self.log_test("CRM Tasks Management", False, f"Task creation failed with HTTP {response.status_code}: {response.text[:200]}")
+            return False
+
+    def test_crm_communications_management(self):
+        """Test CRM communications CRUD operations"""
+        if not self.token or not self.workspace_id:
+            self.log_test("CRM Communications Management", False, "Missing authentication token or workspace ID")
+            return False
+        
+        # First create a contact for the communication
+        contact_data = {
+            "workspace_id": self.workspace_id,
+            "first_name": "Jane",
+            "last_name": "Smith",
+            "email": f"jane.smith.{datetime.now().strftime('%Y%m%d_%H%M%S')}@example.com",
+            "company": "Test Corp"
+        }
+        
+        contact_response, contact_error = self.make_request('POST', '/crm-contacts', contact_data)
+        if contact_error or contact_response.status_code not in [200, 201]:
+            self.log_test("CRM Communications Management", False, f"Failed to create test contact: {contact_error or contact_response.text[:200]}")
+            return False
+        
+        try:
+            contact_result = contact_response.json()
+            if not contact_result.get('success') or not contact_result.get('contact'):
+                self.log_test("CRM Communications Management", False, "Failed to create test contact for communications testing")
+                return False
+            
+            contact_id = contact_result['contact']['id']
+            
+            # Test creating a communication
+            comm_data = {
+                "workspace_id": self.workspace_id,
+                "contact_id": contact_id,
+                "type": "email",
+                "direction": "outbound",
+                "subject": "Follow up on proposal",
+                "content": "Hi Jane, I wanted to follow up on our proposal discussion.",
+                "summary": "Sent follow-up email about proposal",
+                "outcome": "Awaiting response"
+            }
+            
+            response, error = self.make_request('POST', '/crm-communications', comm_data)
+            
+            if error:
+                self.log_test("CRM Communications Management", False, f"Communication creation failed: {error}")
+                return False
+            
+            if response.status_code in [200, 201]:
+                try:
+                    result = response.json()
+                    if result.get('success') and result.get('communication'):
+                        comm_id = result['communication']['id']
+                        
+                        # Test getting contact communications
+                        contact_comms_response, contact_comms_error = self.make_request('GET', f'/crm-contacts/{contact_id}/communications')
+                        if contact_comms_error or contact_comms_response.status_code != 200:
+                            self.log_test("CRM Communications Management", False, f"Contact communications retrieval failed: {contact_comms_error or contact_comms_response.text[:200]}")
+                            return False
+                        
+                        # Test listing all communications
+                        list_response, list_error = self.make_request('GET', f'/crm-communications?workspace_id={self.workspace_id}')
+                        if list_error or list_response.status_code != 200:
+                            self.log_test("CRM Communications Management", False, f"Communications listing failed: {list_error or list_response.text[:200]}")
+                            return False
+                        
+                        self.log_test("CRM Communications Management", True, "Communication CRUD operations working correctly")
+                        return True
+                    else:
+                        self.log_test("CRM Communications Management", False, f"Communication creation failed: {result.get('message', 'Unknown error')}")
+                        return False
+                except json.JSONDecodeError:
+                    self.log_test("CRM Communications Management", False, "Invalid JSON response from communication creation")
+                    return False
+            else:
+                self.log_test("CRM Communications Management", False, f"Communication creation failed with HTTP {response.status_code}: {response.text[:200]}")
+                return False
+                
+        except json.JSONDecodeError:
+            self.log_test("CRM Communications Management", False, "Invalid JSON response from contact creation")
+            return False
+
+    def test_crm_contact_analytics(self):
+        """Test CRM contact analytics endpoints"""
+        if not self.token or not self.workspace_id:
+            self.log_test("CRM Contact Analytics", False, "Missing authentication token or workspace ID")
+            return False
+        
+        # First create a contact for analytics testing
+        contact_data = {
+            "workspace_id": self.workspace_id,
+            "first_name": "Analytics",
+            "last_name": "Test",
+            "email": f"analytics.test.{datetime.now().strftime('%Y%m%d_%H%M%S')}@example.com",
+            "company": "Analytics Corp",
+            "lead_score": 85
+        }
+        
+        contact_response, contact_error = self.make_request('POST', '/crm-contacts', contact_data)
+        if contact_error or contact_response.status_code not in [200, 201]:
+            self.log_test("CRM Contact Analytics", False, f"Failed to create test contact: {contact_error or contact_response.text[:200]}")
+            return False
+        
+        try:
+            contact_result = contact_response.json()
+            if not contact_result.get('success') or not contact_result.get('contact'):
+                self.log_test("CRM Contact Analytics", False, "Failed to create test contact for analytics testing")
+                return False
+            
+            contact_id = contact_result['contact']['id']
+            
+            # Test individual contact analytics
+            analytics_response, analytics_error = self.make_request('GET', f'/crm-contacts/{contact_id}/analytics')
+            
+            if analytics_error:
+                self.log_test("CRM Contact Analytics", False, f"Contact analytics request failed: {analytics_error}")
+                return False
+            
+            if analytics_response.status_code == 200:
+                try:
+                    analytics_result = analytics_response.json()
+                    if analytics_result.get('success') and analytics_result.get('data'):
+                        # Test e-commerce import endpoint
+                        import_response, import_error = self.make_request('POST', '/crm-contacts/import/ecommerce', {"workspace_id": self.workspace_id})
+                        
+                        if import_error or import_response.status_code not in [200, 201]:
+                            self.log_test("CRM Contact Analytics", False, f"E-commerce import failed: {import_error or import_response.text[:200]}")
+                            return False
+                        
+                        self.log_test("CRM Contact Analytics", True, "Contact analytics and e-commerce integration working correctly")
+                        return True
+                    else:
+                        self.log_test("CRM Contact Analytics", False, f"Contact analytics returned unexpected format: {analytics_result}")
+                        return False
+                except json.JSONDecodeError:
+                    self.log_test("CRM Contact Analytics", False, "Invalid JSON response from contact analytics")
+                    return False
+            else:
+                self.log_test("CRM Contact Analytics", False, f"Contact analytics failed with HTTP {analytics_response.status_code}: {analytics_response.text[:200]}")
+                return False
+                
+        except json.JSONDecodeError:
+            self.log_test("CRM Contact Analytics", False, "Invalid JSON response from contact creation")
+            return False
+
+    def test_crm_automation_rules(self):
+        """Test CRM automation rules CRUD operations"""
+        if not self.token or not self.workspace_id:
+            self.log_test("CRM Automation Rules", False, "Missing authentication token or workspace ID")
+            return False
+        
+        # Test creating an automation rule
+        rule_data = {
+            "workspace_id": self.workspace_id,
+            "name": "New Contact Welcome",
+            "description": "Send welcome email to new contacts",
+            "trigger": "contact_created",
+            "conditions": [
+                {
+                    "field": "lead_score",
+                    "operator": "greater_than",
+                    "value": 50
+                }
+            ],
+            "actions": [
+                {
+                    "type": "send_email",
+                    "data": {
+                        "template": "welcome",
+                        "subject": "Welcome to our CRM!"
+                    }
+                }
+            ],
+            "is_active": True
+        }
+        
+        response, error = self.make_request('POST', '/crm-automation-rules', rule_data)
+        
+        if error:
+            self.log_test("CRM Automation Rules", False, f"Automation rule creation failed: {error}")
+            return False
+        
+        if response.status_code in [200, 201]:
+            try:
+                result = response.json()
+                if result.get('success') and result.get('data'):
+                    rule_id = result['data']['id']
+                    
+                    # Test getting the rule
+                    get_response, get_error = self.make_request('GET', f'/crm-automation-rules/{rule_id}')
+                    if get_error or get_response.status_code != 200:
+                        self.log_test("CRM Automation Rules", False, f"Automation rule retrieval failed: {get_error or get_response.text[:200]}")
+                        return False
+                    
+                    # Test toggling rule status
+                    toggle_response, toggle_error = self.make_request('POST', f'/crm-automation-rules/{rule_id}/toggle')
+                    if toggle_error or toggle_response.status_code != 200:
+                        self.log_test("CRM Automation Rules", False, f"Automation rule toggle failed: {toggle_error or toggle_response.text[:200]}")
+                        return False
+                    
+                    # Test listing rules
+                    list_response, list_error = self.make_request('GET', f'/crm-automation-rules?workspace_id={self.workspace_id}')
+                    if list_error or list_response.status_code != 200:
+                        self.log_test("CRM Automation Rules", False, f"Automation rules listing failed: {list_error or list_response.text[:200]}")
+                        return False
+                    
+                    self.log_test("CRM Automation Rules", True, "Automation rule CRUD operations working correctly")
+                    return True
+                else:
+                    self.log_test("CRM Automation Rules", False, f"Automation rule creation failed: {result.get('message', 'Unknown error')}")
+                    return False
+            except json.JSONDecodeError:
+                self.log_test("CRM Automation Rules", False, "Invalid JSON response from automation rule creation")
+                return False
+        else:
+            self.log_test("CRM Automation Rules", False, f"Automation rule creation failed with HTTP {response.status_code}: {response.text[:200]}")
+            return False
+
     def run_all_tests(self):
         """Run all backend tests"""
         print("=" * 60)
@@ -709,12 +1150,19 @@ class BackendTester:
             self.test_product_endpoints,
             self.test_authentication_protection,
             self.test_database_connectivity,
-            # New e-commerce tests
+            # E-commerce tests
             self.test_ecommerce_stock_management,
             self.test_ecommerce_order_management,
             self.test_ecommerce_inventory_alerts,
             self.test_ecommerce_product_categories,
-            self.test_ecommerce_product_analytics
+            self.test_ecommerce_product_analytics,
+            # New CRM Phase 4 tests
+            self.test_crm_pipeline_management,
+            self.test_crm_deals_management,
+            self.test_crm_tasks_management,
+            self.test_crm_communications_management,
+            self.test_crm_contact_analytics,
+            self.test_crm_automation_rules
         ]
         
         passed = 0
