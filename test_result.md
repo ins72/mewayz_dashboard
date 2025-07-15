@@ -333,17 +333,65 @@ backend:
         comment: "✅ PASS: CRM Automation Rules working correctly. All endpoints functional: GET /api/crm-automation-rules (list), POST /api/crm-automation-rules (create), GET /api/crm-automation-rules/{id} (retrieve), PUT /api/crm-automation-rules/{id} (update), DELETE /api/crm-automation-rules/{id} (delete), POST /api/crm-automation-rules/{id}/toggle (toggle status). Rule creation with triggers, conditions, and actions working properly."
 
 frontend:
-  - task: "Frontend Integration Testing"
-    implemented: false
+  - task: "CRM Management Page Integration"
+    implemented: true
     working: "NA"
-    file: "N/A"
+    file: "/app/frontend/src/pages/CRMManagement.jsx"
     stuck_count: 0
-    priority: "low"
-    needs_retesting: false
+    priority: "high"
+    needs_retesting: true
     status_history:
       - working: "NA"
         agent: "testing"
-        comment: "Frontend testing not required per instructions"
+        comment: "Testing CRM Management page integration with backend APIs - contact listing, creation, editing, analytics display, lead scoring"
+
+  - task: "Sales Pipeline Component Integration"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/components/SalesPipeline.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "testing"
+        comment: "Testing Sales Pipeline component - pipeline stages display, drag-and-drop deal movement, deal creation/editing, value calculations, filtering"
+
+  - task: "Communication History Component Integration"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/components/CommunicationHistory.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "testing"
+        comment: "Testing Communication History component - communication logging/display, types (email, call, meeting), contact linking, history filtering"
+
+  - task: "CRM Service Layer Integration"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/services/crmService.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "testing"
+        comment: "Testing CRM service layer - API integration with backend endpoints, error handling, mock data fallbacks"
+
+  - task: "CRM Route Configuration"
+    implemented: false
+    working: "NA"
+    file: "/app/frontend/src/Routes.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "testing"
+        comment: "CRM Management route not configured in Routes.jsx - needs to be added for /crm-management path"
 
 metadata:
   created_by: "testing_agent"
