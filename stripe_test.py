@@ -399,14 +399,15 @@ class StripeIntegrationTester:
             self.log_test("Workspace Setup Progress", False, "No workspace ID available")
             return False
         
-        # Test saving setup progress
+        # Test saving setup progress with correct format
         progress_data = {
-            "step": "subscription_selection",
-            "completed_steps": ["welcome", "goals_selection", "features_selection"],
-            "selected_goals": ["social_media_growth", "lead_generation"],
-            "selected_features": ["instagram_management", "crm_system"],
-            "subscription_plan": "professional",
-            "progress_percentage": 80
+            "step": 2,
+            "data": {
+                "selected_goals": ["social_media_growth", "lead_generation"],
+                "selected_features": ["instagram_management", "crm_system"],
+                "subscription_plan": "professional",
+                "progress_percentage": 80
+            }
         }
         
         response, error = self.make_request('POST', f'/workspaces/{self.workspace_id}/setup-progress', progress_data)
