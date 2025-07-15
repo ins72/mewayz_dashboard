@@ -1,4 +1,4 @@
-import { supabase } from './supabase';
+import apiClient from './apiClient';
 
 class BrandingService {
   // Upload logo file
