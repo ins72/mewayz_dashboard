@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\WorkspaceSetupProgressUpdated;
+use App\Events\TeamActivityUpdated;
 use App\Models\Workspace;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
