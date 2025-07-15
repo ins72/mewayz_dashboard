@@ -18,12 +18,17 @@ import {
   BarChart3
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
+import { useWorkspace } from '../../contexts/WorkspaceContext';
+import paymentService from '../../services/paymentService';
 import Button from '../ui/Button';
 import { Card } from '../ui/Card';
 
 const PaymentDashboard = () => {
   const { user } = useAuth();
+  const { currentWorkspace } = useWorkspace();
   const [activeTab, setActiveTab] = useState('overview');
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [paymentStats, setPaymentStats] = useState({
     totalRevenue: 0,
     monthlyRevenue: 0,
@@ -36,93 +41,66 @@ const PaymentDashboard = () => {
   const [recentTransactions, setRecentTransactions] = useState([]);
   const [subscriptions, setSubscriptions] = useState([]);
 
-  // Mock data - in production, this would come from Stripe API
+  // Load payment data from API
   useEffect(() => {
-    setPaymentStats({
-      totalRevenue: 24567.89,
-      monthlyRevenue: 3456.78,
-      activeSubscriptions: 142,
-      totalTransactions: 1247,
-      pendingPayments: 234.56,
-      refundedAmount: 189.00
-    });
+    if (currentWorkspace?.id) {
+      loadPaymentData();
+    }
+  }, [currentWorkspace]);
 
-    setRecentTransactions([
-      {
-        id: 'txn_1234567890',
-        amount: 49.99,
-        currency: 'USD',
-        status: 'succeeded',
-        customer: 'john.doe@example.com',
-        description: 'Monthly Pro Subscription',
-        created: '2024-01-15T10:30:00Z',
-        payment_method: 'card_visa_4242'
-      },
-      {
-        id: 'txn_1234567891',
-        amount: 99.99,
-        currency: 'USD',
-        status: 'succeeded',
-        customer: 'jane.smith@example.com',
-        description: 'Annual Enterprise Plan',
-        created: '2024-01-15T09:15:00Z',
-        payment_method: 'card_mastercard_5555'
-      },
-      {
-        id: 'txn_1234567892',
-        amount: 29.99,
-        currency: 'USD',
-        status: 'failed',
-        customer: 'failed.payment@example.com',
-        description: 'Monthly Basic Plan',
-        created: '2024-01-15T08:45:00Z',
-        payment_method: 'card_visa_4000'
-      },
-      {
-        id: 'txn_1234567893',
-        amount: 149.99,
-        currency: 'USD',
-        status: 'refunded',
-        customer: 'refund.request@example.com',
-        description: 'Quarterly Pro Plan',
-        created: '2024-01-14T16:20:00Z',
-        payment_method: 'card_amex_3782'
-      }
-    ]);
+  const loadPaymentData = async () => {
+    try {
+      setLoading(true);
+      setError(null);
 
-    setSubscriptions([
-      {
-        id: 'sub_1234567890',
-        customer: 'john.doe@example.com',
-        plan: 'Pro Monthly',
-        amount: 49.99,
-        status: 'active',
-        current_period_start: '2024-01-01T00:00:00Z',
-        current_period_end: '2024-02-01T00:00:00Z',
-        cancel_at_period_end: false
-      },
-      {
-        id: 'sub_1234567891',
-        customer: 'jane.smith@example.com',
-        plan: 'Enterprise Annual',
-        amount: 999.99,
-        status: 'active',
-        current_period_start: '2024-01-01T00:00:00Z',
-        current_period_end: '2025-01-01T00:00:00Z',
-        cancel_at_period_end: false
-      },
-      {
-        id: 'sub_1234567892',
-        customer: 'basic.user@example.com',
-        plan: 'Basic Monthly',
-        amount: 29.99,
-        status: 'past_due',
-        current_period_start: '2024-01-01T00:00:00Z',
-        current_period_end: '2024-02-01T00:00:00Z',
-        cancel_at_period_end: true
+      // Load payment statistics
+      const statsResponse = await paymentService.getPaymentStats(currentWorkspace.id);
+      if (statsResponse.success) {
+        setPaymentStats(statsResponse.stats);
       }
-    ]);
-  }, []);
+
+      // Load recent transactions
+      const transactionsResponse = await paymentService.getTransactions(currentWorkspace.id, 1, 10);
+      if (transactionsResponse.success) {
+        setRecentTransactions(transactionsResponse.transactions.data || []);
+      }
+
+      // Load subscriptions
+      const subscriptionsResponse = await paymentService.getAllSubscriptions(currentWorkspace.id);
+      if (subscriptionsResponse.success) {
+        setSubscriptions(subscriptionsResponse.subscriptions || []);
+      }
+
+    } catch (error) {
+      setError('Failed to load payment data');
+      console.error('Error loading payment data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="max-w-7xl mx-auto p-6">
+        <div className="flex items-center justify-center h-64">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="max-w-7xl mx-auto p-6">
+        <Card className="p-6 text-center">
+          <AlertCircle className="h-12 w-12 text-red-400 mx-auto mb-4" />
+          <h3 className="text-lg font-semibold text-white mb-2">Error Loading Payment Data</h3>
+          <p className="text-gray-400 mb-4">{error}</p>
+          <Button onClick={loadPaymentData}>Try Again</Button>
+        </Card>
+      </div>
+    );
+  }
 
   const getStatusIcon = (status) => {
     switch (status) {
