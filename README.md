@@ -219,3 +219,137 @@ OAuth:       Google OAuth 2.0
 - **Database Sharding** for large datasets
 - **CDN Integration** for global performance
 - **Caching Strategy** with Redis
+---
+
+## 🛠️ **Development Guidelines**
+
+### **Code Standards**
+- **PHP**: PSR-12 compliance
+- **JavaScript**: ESLint + Prettier
+- **CSS**: Tailwind CSS utilities
+- **Database**: UUID primary keys
+- **API**: RESTful design patterns
+
+### **Testing Requirements**
+- **Unit Tests**: 80% coverage minimum
+- **Integration Tests**: API endpoint testing
+- **E2E Tests**: Complete user workflows
+- **Performance Tests**: Load and stress testing
+- **Security Tests**: Vulnerability scanning
+
+### **Deployment Process**
+- **Version Control**: Git with feature branches
+- **CI/CD Pipeline**: Automated testing and deployment
+- **Environment Management**: Dev, staging, production
+- **Database Migrations**: Automated schema updates
+- **Rollback Strategy**: Quick rollback capabilities
+
+---
+
+## 🔄 **Maintenance & Support**
+
+### **Regular Maintenance**
+- **Security Updates**: Weekly security patches
+- **Feature Updates**: Bi-weekly feature releases
+- **Performance Monitoring**: 24/7 system monitoring
+- **Database Optimization**: Monthly performance tuning
+- **Backup Verification**: Daily backup testing
+
+### **Support Channels**
+- **Technical Support**: support@mewayz.com
+- **Documentation**: mewayz.com/docs
+- **Community Forum**: community.mewayz.com
+- **Status Page**: status.mewayz.com
+- **Emergency Support**: 24/7 availability
+
+---
+
+## 🚀 **Roadmap**
+
+### **Q1 2025**
+- ✅ Core platform development
+- ✅ Authentication system
+- ✅ Dashboard and analytics
+- ✅ Social media integration
+- ✅ CRM functionality
+
+### **Q2 2025**
+- 🔄 Mobile application development
+- 🔄 Advanced analytics features
+- 🔄 API marketplace
+- 🔄 Third-party integrations
+- 🔄 White-label solutions
+
+### **Q3 2025**
+- 📋 AI-powered features
+- 📋 Machine learning integration
+- 📋 Advanced automation
+- 📋 Enterprise features
+- 📋 Custom integrations
+
+---
+
+## 📄 **License & Legal**
+
+### **Software License**
+- **License Type**: MIT License
+- **Commercial Use**: Permitted
+- **Modification**: Permitted
+- **Distribution**: Permitted
+- **Private Use**: Permitted
+
+### **Third-party Licenses**
+- **React**: MIT License
+- **Laravel**: MIT License
+- **Tailwind CSS**: MIT License
+- **Lucide Icons**: ISC License
+- **Stripe**: Commercial API Terms
+
+### **Data Privacy**
+- **GDPR Compliance**: Full compliance
+- **Data Retention**: Configurable policies
+- **Data Export**: User data portability
+- **Data Deletion**: Right to be forgotten
+- **Privacy Policy**: Available at mewayz.com/privacy
+
+---
+
+## 🤝 **Contributing**
+
+We welcome contributions from the community! Please read our [Contributing Guide](./CONTRIBUTING.md) for details on our development process, coding standards, and how to submit pull requests.
+
+### **Development Process**
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Add tests for new features
+5. Ensure all tests pass
+6. Submit a pull request
+
+### **Code of Conduct**
+Please read our [Code of Conduct](./CODE_OF_CONDUCT.md) to understand our community standards and expectations.
+
+---
+
+## 📞 **Contact Information**
+
+**Mewayz Technologies Inc.**
+- **Website**: https://mewayz.com
+- **Email**: contact@mewayz.com
+- **Support**: support@mewayz.com
+- **Sales**: sales@mewayz.com
+- **LinkedIn**: https://linkedin.com/company/mewayz
+- **Twitter**: https://twitter.com/mewayz
+
+---
+
+## 🏆 **Acknowledgments**
+
+Special thanks to all contributors, beta testers, and the open-source community for making Mewayz possible.
+
+**Built with ❤️ by Mewayz Technologies Inc.**
+
+---
+
+*Last Updated: January 15, 2025*
+*Version: 1.0.0*
