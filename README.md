@@ -129,66 +129,53 @@ OAuth:       Google OAuth 2.0
 - [Security Guide](./SECURITY_GUIDE.md) - Security best practices
 - [Maintenance Guide](./MAINTENANCE_GUIDE.md) - System maintenance
 
-## 🔧 Development Workflow
+---
 
-### Backend Development
-```bash
-cd backend
-php artisan serve --host=0.0.0.0 --port=8001
-php artisan migrate
-php artisan tinker
-```
+## 🔧 **Core Features**
 
-### Frontend Development  
-```bash
-yarn start
-yarn build
-yarn test
-```
+### **Authentication System**
+- **JWT Token Authentication** with Laravel Sanctum
+- **Google OAuth Integration** for social login
+- **Role-based Access Control** (Owner, Admin, Editor, Contributor, Viewer)
+- **Session Management** with automatic token refresh
+- **Password Reset** functionality
 
-### Database Operations
-```bash
-php artisan migrate
-php artisan db:seed
-php artisan tinker
-```
+### **Dashboard & Analytics**
+- **Real-time Metrics**: Revenue, users, conversion rates
+- **Visual Analytics**: Charts and graphs
+- **Quick Actions**: Direct access to key features
+- **Customizable Widgets**: Personalized dashboard
+- **Export Capabilities**: PDF and CSV reports
 
-## 🚀 Deployment
+### **Business Features**
 
-### Production Deployment
-1. Follow the [Deployment Setup Guide](./DEPLOYMENT_SETUP_GUIDE.md)
-2. Configure environment variables
-3. Set up SSL certificates
-4. Configure Nginx/Apache
-5. Set up monitoring and backups
+#### **Social Media Management**
+- **Multi-Platform Support**: 6 major social platforms
+- **Content Scheduling**: Advanced scheduling with timezone support
+- **Analytics Dashboard**: Engagement metrics and insights
+- **Hashtag Management**: Trending hashtag suggestions
+- **Team Collaboration**: Multi-user post approval
 
-### Production Environment
-Production domain: **mewayz.com**
+#### **CRM & Sales**
+- **Contact Management**: Comprehensive contact database
+- **Lead Scoring**: Automated lead qualification
+- **Sales Pipeline**: Visual sales process tracking
+- **Custom Fields**: Flexible data structure
+- **Communication History**: Complete interaction logs
 
-```env
-# Backend (.env)
-APP_URL=https://mewayz.com
-FRONTEND_URL=https://mewayz.com
+#### **E-commerce**
+- **Product Management**: Comprehensive product catalog
+- **Inventory Tracking**: Real-time stock management
+- **Order Processing**: Complete order lifecycle
+- **Payment Integration**: Stripe payment processing
+- **Shipping Management**: Carrier integrations
 
-# Frontend (.env)
-REACT_APP_BACKEND_URL=https://mewayz.com/api
-```
-
-## 🧪 Testing
-
-### Backend Testing
-```bash
-cd backend
-php artisan test
-```
-
-### Frontend Testing
-```bash
-yarn test
-```
-
-### Integration Testing
-See [Testing & Troubleshooting Guide](./TESTING_TROUBLESHOOTING_GUIDE.md) for comprehensive testing procedures.
+#### **Email Marketing**
+- **Campaign Builder**: Visual email editor
+- **Template Library**: Professional email templates
+- **Automation**: Drip campaigns and workflows
+- **Segmentation**: Advanced audience targeting
+- **Analytics**: Open rates, click rates, conversions
 
 ## 🔐 Security
 
