@@ -27,6 +27,7 @@ use App\Http\Controllers\TemplateCreatorController;
 use App\Http\Controllers\AnalyticsController;
 use App\Http\Controllers\GamificationController;
 use App\Http\Controllers\TeamManagementController;
+use App\Http\Controllers\SubscriptionController;
 
 /*
 |--------------------------------------------------------------------------
