@@ -96,6 +96,31 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('payments/checkout/status/{sessionId}', [PaymentController::class, 'getCheckoutStatus']);
     Route::get('payments/transactions', [PaymentController::class, 'getTransactions']);
     Route::get('payments/subscription/{workspaceId}', [PaymentController::class, 'getSubscription']);
+    Route::get('payments/stats/{workspaceId}', [PaymentController::class, 'getStats']);
+    Route::get('payments/subscriptions/{workspaceId}', [PaymentController::class, 'getAllSubscriptions']);
+
+    // Email routes
+    Route::get('email/stats/{workspaceId}', [EmailController::class, 'getStats']);
+    Route::get('email/campaigns', [EmailController::class, 'getCampaigns']);
+    Route::post('email/campaigns', [EmailController::class, 'createCampaign']);
+    Route::put('email/campaigns/{campaignId}', [EmailController::class, 'updateCampaign']);
+    Route::delete('email/campaigns/{campaignId}', [EmailController::class, 'deleteCampaign']);
+    Route::post('email/campaigns/{campaignId}/send', [EmailController::class, 'sendCampaign']);
+    Route::get('email/campaigns/{campaignId}/analytics', [EmailController::class, 'getCampaignAnalytics']);
+    Route::get('email/templates', [EmailController::class, 'getTemplates']);
+    Route::post('email/templates', [EmailController::class, 'createTemplate']);
+    Route::get('email/audiences', [EmailController::class, 'getAudiences']);
+    Route::post('email/audiences', [EmailController::class, 'createAudience']);
+
+    // Dashboard routes
+    Route::get('dashboard/stats/{workspaceId}', [DashboardController::class, 'getStats']);
+    Route::get('dashboard/recent-activity/{workspaceId}', [DashboardController::class, 'getRecentActivity']);
+    Route::get('dashboard/quick-stats/{workspaceId}', [DashboardController::class, 'getQuickStats']);
+    Route::get('dashboard/workspace-overview/{workspaceId}', [DashboardController::class, 'getWorkspaceOverview']);
+    Route::post('dashboard/activity', [DashboardController::class, 'logActivity']);
+
+    // Social Media Analytics routes
+    Route::get('social-media/analytics', [SocialMediaPostController::class, 'getAnalytics']);
 });
 
 // Public Link in Bio page view
