@@ -167,146 +167,279 @@ const wizardReducer = (state, action) => {
   }
 };
 
-export function WizardProvider({ children }) {
+// WizardProvider component
+export const WizardProvider = ({ children }) => {
   const [state, dispatch] = useReducer(wizardReducer, initialState);
-  const { user } = useAuth();
+  const navigate = useNavigate();
 
-  // Load saved wizard state from localStorage
+  // Initialize workspace and load progress
   useEffect(() => {
-    if (user?.id) {
-      const savedState = localStorage.getItem(`wizard_state_${user.id}`);
-      if (savedState) {
-        try {
-          const parsedState = JSON.parse(savedState);
-          dispatch({ type: 'LOAD_SAVED_STATE', payload: parsedState });
-        } catch (error) {
-          console.log('Error loading saved wizard state:', error);
-        }
+    initializeWorkspace();
+  }, []);
+
+  // Auto-save progress when form data changes
+  useEffect(() => {
+    if (state.workspaceId && state.currentStep > 1) {
+      saveProgressToServer();
+    }
+  }, [state.formData, state.currentStep]);
+
+  // Initialize workspace
+  const initializeWorkspace = async () => {
+    try {
+      // Check if we have a workspace ID from URL params or localStorage
+      const urlParams = new URLSearchParams(window.location.search);
+      const workspaceId = urlParams.get('workspace') || localStorage.getItem('currentWorkspaceId');
+      
+      if (workspaceId) {
+        dispatch({ type: 'SET_WORKSPACE_ID', payload: workspaceId });
+        await loadSetupProgress(workspaceId);
       }
+    } catch (error) {
+      console.error('Error initializing workspace:', error);
     }
-  }, [user?.id]);
-
-  // Save wizard state to localStorage whenever it changes
-  useEffect(() => {
-    if (user?.id) {
-      const stateToSave = {
-        currentStep: state.currentStep,
-        completedSteps: state.completedSteps,
-        formData: state.formData
-      };
-      localStorage.setItem(`wizard_state_${user.id}`, JSON.stringify(stateToSave));
-    }
-  }, [state.currentStep, state.completedSteps, state.formData, user?.id]);
-
-  // Wizard actions
-  const setLoading = (loading) => {
-    dispatch({ type: 'SET_LOADING', payload: loading });
   };
 
+  // Load setup progress from server
+  const loadSetupProgress = async (workspaceId) => {
+    try {
+      const result = await workspaceService.getSetupProgress(workspaceId);
+      if (result.success && result.data) {
+        dispatch({ type: 'SET_SETUP_PROGRESS', payload: result.data });
+        
+        // Restore form data if available
+        if (result.data.formData) {
+          Object.keys(result.data.formData).forEach(step => {
+            dispatch({
+              type: 'UPDATE_FORM_DATA',
+              payload: {
+                step,
+                data: result.data.formData[step]
+              }
+            });
+          });
+        }
+        
+        // Set current step
+        if (result.data.currentStep) {
+          dispatch({ type: 'SET_CURRENT_STEP', payload: result.data.currentStep });
+        }
+      }
+    } catch (error) {
+      console.error('Error loading setup progress:', error);
+    }
+  };
+
+  // Save progress to server
+  const saveProgressToServer = async () => {
+    if (!state.workspaceId) return;
+    
+    try {
+      await workspaceService.saveSetupProgress(state.workspaceId, state.currentStep, {
+        formData: state.formData,
+        currentStep: state.currentStep,
+        completedSteps: Array.from(state.completedSteps)
+      });
+    } catch (error) {
+      console.error('Error saving progress:', error);
+    }
+  };
+
+  // Navigation functions
   const goToStep = (step) => {
-    if (step >= 1 && step <= TOTAL_STEPS) {
+    if (step >= 1 && step <= 6) {
       dispatch({ type: 'SET_CURRENT_STEP', payload: step });
+      
+      // Navigate to the appropriate route
+      const routes = {
+        1: '/workspace-setup-wizard-welcome-basics',
+        2: '/workspace-setup-wizard-goal-selection',
+        3: '/workspace-setup-wizard-feature-selection',
+        4: '/workspace-setup-wizard-subscription-plan',
+        5: '/workspace-setup-wizard-team-setup',
+        6: '/workspace-setup-wizard-branding'
+      };
+      
+      if (routes[step]) {
+        navigate(routes[step]);
+      }
     }
   };
 
   const nextStep = () => {
-    if (state.currentStep < TOTAL_STEPS) {
-      dispatch({ type: 'COMPLETE_STEP', payload: state.currentStep });
-      dispatch({ type: 'SET_CURRENT_STEP', payload: state.currentStep + 1 });
-    }
+    dispatch({ type: 'NEXT_STEP' });
   };
 
   const previousStep = () => {
-    if (state.currentStep > 1) {
-      dispatch({ type: 'SET_CURRENT_STEP', payload: state.currentStep - 1 });
-    }
+    dispatch({ type: 'PREVIOUS_STEP' });
   };
 
+  // Form data management
   const updateFormData = (step, data) => {
-    dispatch({ type: 'UPDATE_FORM_DATA', step, payload: data });
+    dispatch({
+      type: 'UPDATE_FORM_DATA',
+      payload: { step, data }
+    });
   };
 
+  // Loading state management
+  const setLoading = (loading) => {
+    dispatch({ type: 'SET_LOADING', payload: loading });
+  };
+
+  // Error management
   const setError = (field, message) => {
-    dispatch({ type: 'SET_ERROR', field, payload: message });
+    dispatch({
+      type: 'SET_ERROR',
+      payload: { field, message }
+    });
   };
 
   const clearError = (field) => {
-    dispatch({ type: 'CLEAR_ERROR', field });
+    dispatch({ type: 'CLEAR_ERROR', payload: field });
   };
 
   const clearAllErrors = () => {
     dispatch({ type: 'CLEAR_ALL_ERRORS' });
   };
 
-  const resetWizard = () => {
-    dispatch({ type: 'RESET_WIZARD' });
-    if (user?.id) {
-      localStorage.removeItem(`wizard_state_${user.id}`);
+  // Validation functions
+  const validateStep = (stepNumber) => {
+    const step = `step${stepNumber}`;
+    const stepData = state.formData[step];
+    const errors = {};
+
+    switch (stepNumber) {
+      case 1:
+        if (!stepData.workspaceName?.trim()) {
+          errors.workspaceName = 'Workspace name is required';
+        }
+        if (!stepData.industry?.trim()) {
+          errors.industry = 'Industry is required';
+        }
+        if (!stepData.teamSize?.trim()) {
+          errors.teamSize = 'Team size is required';
+        }
+        break;
+
+      case 2:
+        if (!stepData.selectedGoals || stepData.selectedGoals.length === 0) {
+          errors.goals = 'Please select at least one goal';
+        }
+        break;
+
+      case 3:
+        if (!stepData.selectedFeatures || stepData.selectedFeatures.length === 0) {
+          errors.features = 'Please select at least one feature';
+        }
+        const enabledFeatures = stepData.selectedFeatures?.filter(f => f.isEnabled) || [];
+        if (enabledFeatures.length === 0) {
+          errors.features = 'Please enable at least one feature';
+        }
+        break;
+
+      case 4:
+        if (!stepData.selectedPlan) {
+          errors.plan = 'Please select a subscription plan';
+        }
+        break;
+
+      case 5:
+        // Team setup is optional
+        break;
+
+      case 6:
+        // Branding is optional
+        break;
     }
+
+    return {
+      isValid: Object.keys(errors).length === 0,
+      errors
+    };
   };
 
-  // Calculate progress percentage
-  const getProgressPercentage = () => {
-    return Math.round((state.currentStep / TOTAL_STEPS) * 100);
-  };
+  // Complete setup
+  const completeSetup = async () => {
+    try {
+      setLoading(true);
+      clearAllErrors();
 
-  // Check if step is accessible
-  const isStepAccessible = (step) => {
-    if (step === 1) return true;
-    return state.completedSteps.includes(step - 1) || state.currentStep >= step;
-  };
+      // Validate all steps
+      let allValid = true;
+      for (let i = 1; i <= 6; i++) {
+        const validation = validateStep(i);
+        if (!validation.isValid) {
+          Object.keys(validation.errors).forEach(field => {
+            setError(field, validation.errors[field]);
+          });
+          allValid = false;
+        }
+      }
 
-  // Check if current step is valid
-  const canProceedToNextStep = () => {
-    const currentStepData = state.formData[`step${state.currentStep}`];
-    
-    switch (state.currentStep) {
-      case WIZARD_STEPS.WELCOME_BASICS:
-        return !!(currentStepData?.workspaceName && currentStepData?.industry && currentStepData?.teamSize);
-      
-      case WIZARD_STEPS.GOAL_SELECTION:
-        return currentStepData?.selectedGoals?.length > 0;
-      
-      case WIZARD_STEPS.FEATURE_SELECTION:
-        return currentStepData?.selectedFeatures?.length > 0;
-      
-      case WIZARD_STEPS.SUBSCRIPTION_PLAN:
-        return !!(currentStepData?.selectedPlan);
-      
-      case WIZARD_STEPS.TEAM_SETUP:
-        return true; // Optional step
-      
-      case WIZARD_STEPS.BRANDING:
-        return true; // Optional step
-      
-      default:
+      if (!allValid) {
+        setError('global', 'Please complete all required fields');
         return false;
+      }
+
+      // Send all data to complete workspace setup
+      const result = await workspaceService.completeWorkspaceSetup(state.workspaceId, {
+        ...state.formData,
+        completedSteps: Array.from(state.completedSteps)
+      });
+
+      if (result.success) {
+        // Clear the wizard data
+        dispatch({ type: 'RESET_WIZARD' });
+        localStorage.removeItem('currentWorkspaceId');
+        return true;
+      } else {
+        setError('global', result.error || 'Failed to complete setup');
+        return false;
+      }
+    } catch (error) {
+      setError('global', 'An error occurred while completing setup');
+      return false;
+    } finally {
+      setLoading(false);
     }
   };
 
+  // Context value
   const value = {
     // State
-    ...state,
-    
-    // Computed values
-    progressPercentage: getProgressPercentage(),
-    isStepAccessible,
-    canProceedToNextStep: canProceedToNextStep(),
-    
-    // Actions
-    setLoading,
+    currentStep: state.currentStep,
+    isLoading: state.isLoading,
+    errors: state.errors,
+    formData: state.formData,
+    completedSteps: state.completedSteps,
+    workspaceId: state.workspaceId,
+    setupProgress: state.setupProgress,
+
+    // Navigation
     goToStep,
     nextStep,
     previousStep,
+
+    // Form data
     updateFormData,
+
+    // Loading
+    setLoading,
+
+    // Errors
     setError,
     clearError,
     clearAllErrors,
-    resetWizard,
-    
+
+    // Validation
+    validateStep,
+
+    // Setup completion
+    completeSetup,
+
     // Constants
-    WIZARD_STEPS,
-    TOTAL_STEPS
+    WIZARD_STEPS
   };
 
   return (
@@ -314,8 +447,9 @@ export function WizardProvider({ children }) {
       {children}
     </WizardContext.Provider>
   );
-}
+};
 
+// Custom hook to use the wizard context
 export const useWizard = () => {
   const context = useContext(WizardContext);
   if (!context) {
