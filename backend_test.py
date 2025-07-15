@@ -641,6 +641,7 @@ class BackendTester:
         # First create a product to test analytics
         product_data = {
             "name": "Test Product for Analytics",
+            "slug": f"test-product-analytics-{datetime.now().strftime('%Y%m%d_%H%M%S')}",
             "description": "A test product for analytics testing",
             "price": 39.99,
             "stock_quantity": 50,
