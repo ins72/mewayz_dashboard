@@ -579,7 +579,7 @@ backend:
     implemented: true
     working: false
     file: "/app/backend/app/Http/Controllers/CrmAutomationController.php"
-    stuck_count: 1
+    stuck_count: 2
     priority: "medium"
     needs_retesting: true
     status_history:
@@ -592,6 +592,9 @@ backend:
       - working: false
         agent: "testing"
         comment: "❌ FAIL: CRM Automation Rules has permission issues. Automation rule toggle fails with 'Insufficient permissions to modify automation rule' error. Core CRUD operations may work but toggle functionality has authorization problems."
+      - working: false
+        agent: "testing"
+        comment: "❌ FAIL: CRM Automation Rules continues to have permission issues. Comprehensive gap-filling validation confirms automation rule toggle fails with 'Insufficient permissions to modify automation rule' error. Core CRUD operations work but toggle functionality has persistent authorization problems."
 
   - task: "Marketing Analytics Dashboard"
     implemented: true
