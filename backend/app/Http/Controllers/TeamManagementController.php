@@ -155,7 +155,7 @@ class TeamManagementController extends Controller
         }
         
         // Check if already a member
-        $existingMember = WorkspaceUser::where('workspace_id', $workspaceId)
+        $existingMember = WorkspaceMember::where('workspace_id', $workspaceId)
             ->where('user_id', $invitedUser->id)
             ->first();
         
