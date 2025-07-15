@@ -73,23 +73,19 @@ class BrandingService {
   // Get workspace branding
   async getWorkspaceBranding(workspaceId) {
     try {
-      const { data, error } = await supabase
-        .from('workspaces')
-        .select('branding, white_label_enabled, custom_domain')
-        .eq('id', workspaceId)
-        .single();
+      const response = await apiClient.get(`/workspaces/${workspaceId}/branding`);
 
-      if (error) {
-        return { success: false, error: error.message };
+      if (response.data.success) {
+        return response.data;
+      } else {
+        return { success: false, error: response.data.error };
       }
-
-      return { success: true, data };
     } catch (error) {
       if (error?.message?.includes('Failed to fetch') || 
           error?.message?.includes('NetworkError')) {
         return { 
           success: false, 
-          error: 'Cannot connect to database. Your Supabase project may be paused or deleted. Please visit your Supabase dashboard to check project status.' 
+          error: 'Cannot connect to server. Please check your internet connection and try again.' 
         };
       }
       
