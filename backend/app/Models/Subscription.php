@@ -27,17 +27,20 @@ class Subscription extends Model
         'user_id',
         'workspace_id',
         'package_id',
-        'stripe_subscription_id',
-        'stripe_customer_id',
+        'plan',
+        'billing_cycle',
         'status',
-        'current_period_start',
-        'current_period_end',
-        'cancelled_at',
-        'trial_ends_at',
         'amount',
         'currency',
         'quantity',
-        'metadata',
+        'stripe_subscription_id',
+        'stripe_customer_id',
+        'current_period_start',
+        'current_period_end',
+        'trial_ends_at',
+        'cancelled_at',
+        'features',
+        'metadata'
     ];
 
     /**
