@@ -26,6 +26,10 @@ import WorkspaceSetupWizardTeamSetup from "pages/workspace-setup-wizard-team-set
 import WorkspaceSetupWizardBranding from "pages/workspace-setup-wizard-branding";
 import InvitationManagement from "pages/invitation-management";
 import InvitationAcceptance from "pages/invitation-acceptance";
+import CRMManagement from "pages/CRMManagement";
+import ProductManagement from "pages/ProductManagement";
+import CourseManagement from "pages/CourseManagement";
+import LinkInBioManagement from "pages/LinkInBioManagement";
 import NotFound from "pages/NotFound";
 
 const Routes = () => {
