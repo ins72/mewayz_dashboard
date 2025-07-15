@@ -54,6 +54,9 @@ Route::get('/auth/google/callback', [AuthController::class, 'handleGoogleCallbac
 // Public invitation route
 Route::get('/invitations/{token}', [WorkspaceInvitationController::class, 'getByToken']);
 
+// Stripe webhook (must be outside auth middleware)
+Route::post('/stripe/webhook', [SubscriptionController::class, 'handleWebhook']);
+
 // Protected routes
 Route::middleware('auth:sanctum')->group(function () {
     // Workspace routes
