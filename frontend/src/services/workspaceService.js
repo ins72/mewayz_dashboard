@@ -153,6 +153,219 @@ const workspaceService = {
       console.error('Error canceling invitation:', error);
       throw error;
     }
+  },
+
+  // Get all available goals for workspace setup
+  async getGoals() {
+    try {
+      // Mock data for development - in production this would come from API
+      const mockGoals = [
+        {
+          id: 'instagram_management',
+          name: 'Instagram Management',
+          description: 'Manage your Instagram presence, generate leads, and grow your audience',
+          icon: '📸',
+          color: 'bg-pink-500',
+          features: ['social_media_management', 'lead_generation', 'content_scheduling', 'analytics'],
+          category: 'Social Media',
+          priority: 1
+        },
+        {
+          id: 'link_in_bio',
+          name: 'Link in Bio',
+          description: 'Create custom landing pages and manage your link in bio',
+          icon: '🔗',
+          color: 'bg-blue-500',
+          features: ['link_management', 'landing_pages', 'click_tracking', 'analytics'],
+          category: 'Marketing',
+          priority: 2
+        },
+        {
+          id: 'course_creation',
+          name: 'Course Creation',
+          description: 'Build and sell online courses with community features',
+          icon: '🎓',
+          color: 'bg-green-500',
+          features: ['course_builder', 'student_management', 'community_features', 'certification'],
+          category: 'Education',
+          priority: 3
+        },
+        {
+          id: 'ecommerce',
+          name: 'E-commerce',
+          description: 'Set up and manage your online store with inventory tracking',
+          icon: '🛒',
+          color: 'bg-yellow-500',
+          features: ['product_catalog', 'inventory_management', 'order_processing', 'payment_integration'],
+          category: 'Sales',
+          priority: 4
+        },
+        {
+          id: 'crm',
+          name: 'CRM',
+          description: 'Manage customer relationships and track sales pipeline',
+          icon: '👥',
+          color: 'bg-purple-500',
+          features: ['contact_management', 'lead_tracking', 'sales_pipeline', 'communication_history'],
+          category: 'Customer Management',
+          priority: 5
+        },
+        {
+          id: 'marketing_hub',
+          name: 'Marketing Hub',
+          description: 'Execute email campaigns and marketing automation',
+          icon: '📧',
+          color: 'bg-red-500',
+          features: ['email_campaigns', 'automation_workflows', 'list_management', 'campaign_analytics'],
+          category: 'Marketing',
+          priority: 6
+        }
+      ];
+
+      return {
+        success: true,
+        data: mockGoals
+      };
+    } catch (error) {
+      console.error('Error fetching goals:', error);
+      return {
+        success: false,
+        error: 'Failed to load goals'
+      };
+    }
+  },
+
+  // Get features for a specific goal
+  async getFeaturesByGoal(goalId) {
+    try {
+      // Mock data for development - in production this would come from API
+      const mockFeatures = {
+        'instagram_management': [
+          { id: 'content_scheduling', name: 'Content Scheduling', description: 'Schedule posts and stories', goal_id: 'instagram_management', category: 'Automation', required: true },
+          { id: 'hashtag_research', name: 'Hashtag Research', description: 'Find trending hashtags', goal_id: 'instagram_management', category: 'Research', required: false },
+          { id: 'analytics_dashboard', name: 'Analytics Dashboard', description: 'Track engagement metrics', goal_id: 'instagram_management', category: 'Analytics', required: true },
+          { id: 'dm_management', name: 'DM Management', description: 'Manage direct messages', goal_id: 'instagram_management', category: 'Communication', required: false },
+          { id: 'competitor_analysis', name: 'Competitor Analysis', description: 'Monitor competitor activity', goal_id: 'instagram_management', category: 'Research', required: false },
+          { id: 'story_highlights', name: 'Story Highlights', description: 'Organize story highlights', goal_id: 'instagram_management', category: 'Content', required: false }
+        ],
+        'link_in_bio': [
+          { id: 'page_builder', name: 'Page Builder', description: 'Drag-and-drop page builder', goal_id: 'link_in_bio', category: 'Design', required: true },
+          { id: 'link_management', name: 'Link Management', description: 'Manage multiple links', goal_id: 'link_in_bio', category: 'Organization', required: true },
+          { id: 'click_tracking', name: 'Click Tracking', description: 'Track link clicks', goal_id: 'link_in_bio', category: 'Analytics', required: true },
+          { id: 'custom_templates', name: 'Custom Templates', description: 'Pre-designed templates', goal_id: 'link_in_bio', category: 'Design', required: false },
+          { id: 'ab_testing', name: 'A/B Testing', description: 'Test different page versions', goal_id: 'link_in_bio', category: 'Optimization', required: false },
+          { id: 'mobile_optimization', name: 'Mobile Optimization', description: 'Mobile-responsive design', goal_id: 'link_in_bio', category: 'Design', required: true }
+        ],
+        'course_creation': [
+          { id: 'course_builder', name: 'Course Builder', description: 'Create structured courses', goal_id: 'course_creation', category: 'Content', required: true },
+          { id: 'video_hosting', name: 'Video Hosting', description: 'Host course videos', goal_id: 'course_creation', category: 'Media', required: true },
+          { id: 'student_management', name: 'Student Management', description: 'Manage enrollments', goal_id: 'course_creation', category: 'Management', required: true },
+          { id: 'discussion_forums', name: 'Discussion Forums', description: 'Community discussions', goal_id: 'course_creation', category: 'Community', required: false },
+          { id: 'assessments', name: 'Assessments', description: 'Quizzes and assignments', goal_id: 'course_creation', category: 'Assessment', required: false },
+          { id: 'certificates', name: 'Certificates', description: 'Course completion certificates', goal_id: 'course_creation', category: 'Certification', required: false }
+        ],
+        'ecommerce': [
+          { id: 'product_catalog', name: 'Product Catalog', description: 'Manage product listings', goal_id: 'ecommerce', category: 'Inventory', required: true },
+          { id: 'inventory_tracking', name: 'Inventory Tracking', description: 'Track stock levels', goal_id: 'ecommerce', category: 'Inventory', required: true },
+          { id: 'order_processing', name: 'Order Processing', description: 'Process and fulfill orders', goal_id: 'ecommerce', category: 'Orders', required: true },
+          { id: 'payment_gateway', name: 'Payment Gateway', description: 'Accept payments online', goal_id: 'ecommerce', category: 'Payments', required: true },
+          { id: 'shipping_management', name: 'Shipping Management', description: 'Manage shipping options', goal_id: 'ecommerce', category: 'Fulfillment', required: false },
+          { id: 'discount_codes', name: 'Discount Codes', description: 'Create promotional codes', goal_id: 'ecommerce', category: 'Marketing', required: false }
+        ],
+        'crm': [
+          { id: 'contact_management', name: 'Contact Management', description: 'Organize customer contacts', goal_id: 'crm', category: 'Contacts', required: true },
+          { id: 'lead_scoring', name: 'Lead Scoring', description: 'Score and prioritize leads', goal_id: 'crm', category: 'Leads', required: false },
+          { id: 'sales_pipeline', name: 'Sales Pipeline', description: 'Track sales opportunities', goal_id: 'crm', category: 'Sales', required: true },
+          { id: 'task_management', name: 'Task Management', description: 'Manage follow-up tasks', goal_id: 'crm', category: 'Organization', required: false },
+          { id: 'communication_history', name: 'Communication History', description: 'Track all interactions', goal_id: 'crm', category: 'Communication', required: true },
+          { id: 'reporting_dashboard', name: 'Reporting Dashboard', description: 'Sales and activity reports', goal_id: 'crm', category: 'Analytics', required: false }
+        ],
+        'marketing_hub': [
+          { id: 'email_campaigns', name: 'Email Campaigns', description: 'Create and send email campaigns', goal_id: 'marketing_hub', category: 'Email', required: true },
+          { id: 'automation_workflows', name: 'Automation Workflows', description: 'Set up marketing automation', goal_id: 'marketing_hub', category: 'Automation', required: true },
+          { id: 'list_management', name: 'List Management', description: 'Manage subscriber lists', goal_id: 'marketing_hub', category: 'Lists', required: true },
+          { id: 'campaign_analytics', name: 'Campaign Analytics', description: 'Track campaign performance', goal_id: 'marketing_hub', category: 'Analytics', required: true },
+          { id: 'ab_testing', name: 'A/B Testing', description: 'Test email variations', goal_id: 'marketing_hub', category: 'Optimization', required: false },
+          { id: 'social_integration', name: 'Social Integration', description: 'Connect with social media', goal_id: 'marketing_hub', category: 'Integration', required: false }
+        ]
+      };
+
+      return {
+        success: true,
+        data: mockFeatures[goalId] || []
+      };
+    } catch (error) {
+      console.error('Error fetching features:', error);
+      return {
+        success: false,
+        error: 'Failed to load features'
+      };
+    }
+  },
+
+  // Get all available features
+  async getAllFeatures() {
+    try {
+      const goals = await this.getGoals();
+      if (!goals.success) {
+        return goals;
+      }
+
+      const allFeatures = [];
+      for (const goal of goals.data) {
+        const features = await this.getFeaturesByGoal(goal.id);
+        if (features.success) {
+          allFeatures.push(...features.data);
+        }
+      }
+
+      return {
+        success: true,
+        data: allFeatures
+      };
+    } catch (error) {
+      console.error('Error fetching all features:', error);
+      return {
+        success: false,
+        error: 'Failed to load features'
+      };
+    }
+  },
+
+  // Complete workspace setup with wizard data
+  async completeWorkspaceSetup(workspaceId, setupData) {
+    try {
+      const response = await apiClient.post(`/workspaces/${workspaceId}/complete-setup`, setupData);
+      return response.data;
+    } catch (error) {
+      console.error('Error completing workspace setup:', error);
+      throw error;
+    }
+  },
+
+  // Save workspace setup progress
+  async saveSetupProgress(workspaceId, step, data) {
+    try {
+      const response = await apiClient.post(`/workspaces/${workspaceId}/setup-progress`, {
+        step,
+        data
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error saving setup progress:', error);
+      throw error;
+    }
+  },
+
+  // Get workspace setup progress
+  async getSetupProgress(workspaceId) {
+    try {
+      const response = await apiClient.get(`/workspaces/${workspaceId}/setup-progress`);
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching setup progress:', error);
+      throw error;
+    }
   }
 };
 
