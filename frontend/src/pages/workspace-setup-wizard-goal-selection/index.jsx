@@ -7,7 +7,7 @@ import WizardContainer from '../workspace-setup-wizard-welcome-basics/components
 import WizardNavigation from '../workspace-setup-wizard-welcome-basics/components/WizardNavigation';
 import GoalCard from './components/GoalCard';
 import SmartRecommendations from './components/SmartRecommendations';
-import workspaceService from '../../utils/workspaceService';
+import workspaceService from '../../services/workspaceService';
 
 const WorkspaceSetupWizardGoalSelection = () => {
   const navigate = useNavigate();
