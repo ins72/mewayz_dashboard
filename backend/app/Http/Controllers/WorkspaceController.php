@@ -520,4 +520,27 @@ class WorkspaceController extends Controller
             'data' => $setupProgress
         ]);
     }
+
+    /**
+     * Calculate subscription amount based on plan and features
+     */
+    private function calculatePlanAmount($plan, $billingCycle, $featureCount)
+    {
+        if ($plan === 'free') {
+            return 0;
+        }
+
+        $rates = [
+            'professional' => [
+                'monthly' => 1.00,
+                'yearly' => 10.00
+            ],
+            'enterprise' => [
+                'monthly' => 1.50,
+                'yearly' => 15.00
+            ]
+        ];
+
+        return ($rates[$plan][$billingCycle] ?? 0) * $featureCount;
+    }
 }
