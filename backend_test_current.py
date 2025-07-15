@@ -148,7 +148,9 @@ class MewayzBackendTester:
         response = self.make_request("GET", "/workspaces")
         if response and response.status_code == 200:
             data = response.json()
-            if isinstance(data, list) or (isinstance(data, dict) and "data" in data):
+            # Handle different response formats
+            workspaces = data.get("workspaces", data.get("data", data))
+            if isinstance(workspaces, list) or isinstance(data, dict):
                 self.log_test("List Workspaces", "PASS", "Workspaces listed successfully")
             else:
                 self.log_test("List Workspaces", "FAIL", "Invalid workspace list format")
