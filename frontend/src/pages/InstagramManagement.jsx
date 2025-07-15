@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/Card';
-import { Button } from '../components/ui/button';
+import { Button } from '../components/ui/Button';
 import { Badge } from '../components/ui/badge';
 import { AuthContext } from '../contexts/AuthContext';
 import { WorkspaceContext } from '../contexts/WorkspaceContext';
