@@ -12,8 +12,8 @@ import CreatorDashboard from '../components/marketplace/CreatorDashboard';
 import { Plus, FileText, Package, BarChart3, Settings, TrendingUp, DollarSign, Download, Star } from 'lucide-react';
 
 const TemplateCreator = () => {
-  const { user } = useContext(AuthContext);
-  const { currentWorkspace } = useContext(WorkspaceContext);
+  const { user } = useAuth();
+  const { currentWorkspace } = useWorkspace();
   const [activeTab, setActiveTab] = useState('dashboard');
   const [loading, setLoading] = useState(true);
   const [templates, setTemplates] = useState([]);
