@@ -503,7 +503,7 @@ class WorkspaceController extends Controller
         if (!$member) {
             return response()->json([
                 'success' => false,
-                'message' => 'Insufficient permissions'
+                'message' => 'You are not a member of this workspace'
             ], 403);
         }
 
