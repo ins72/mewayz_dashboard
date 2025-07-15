@@ -296,4 +296,69 @@ class SocialMediaPostController extends Controller
             'message' => 'Social media post duplicated successfully'
         ]);
     }
+
+    /**
+     * Get social media analytics
+     */
+    public function getAnalytics(Request $request)
+    {
+        $workspaceId = $request->input('workspace_id');
+        $accountId = $request->input('account_id');
+        $startDate = $request->input('start_date');
+        $endDate = $request->input('end_date');
+
+        // Validate workspace access
+        if ($workspaceId) {
+            $workspace = Workspace::find($workspaceId);
+            if (!$workspace || !$workspace->members()->where('user_id', auth()->id())->exists()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Unauthorized access to workspace'
+                ], 403);
+            }
+        }
+
+        $query = SocialMediaPost::query();
+        
+        if ($workspaceId) {
+            $query->where('workspace_id', $workspaceId);
+        } else {
+            // Get posts from all workspaces user has access to
+            $userWorkspaceIds = auth()->user()->workspaces()->pluck('workspaces.id');
+            $query->whereIn('workspace_id', $userWorkspaceIds);
+        }
+
+        if ($accountId) {
+            $query->where('social_media_account_id', $accountId);
+        }
+
+        if ($startDate) {
+            $query->where('created_at', '>=', $startDate);
+        }
+
+        if ($endDate) {
+            $query->where('created_at', '<=', $endDate);
+        }
+
+        $analytics = [
+            'totalPosts' => $query->count(),
+            'publishedPosts' => $query->where('status', 'published')->count(),
+            'draftPosts' => $query->where('status', 'draft')->count(),
+            'scheduledPosts' => $query->where('status', 'scheduled')->count(),
+            'totalLikes' => $query->sum('likes_count'),
+            'totalComments' => $query->sum('comments_count'),
+            'totalShares' => $query->sum('shares_count'),
+            'averageEngagement' => $query->avg('engagement_rate'),
+            'recentPosts' => $query->orderBy('created_at', 'desc')->limit(10)->get(),
+            'postsByPlatform' => $query->join('social_media_accounts', 'social_media_posts.social_media_account_id', '=', 'social_media_accounts.id')
+                ->select('social_media_accounts.platform', \DB::raw('count(*) as count'))
+                ->groupBy('social_media_accounts.platform')
+                ->get()
+        ];
+
+        return response()->json([
+            'success' => true,
+            'analytics' => $analytics
+        ]);
+    }
 }
