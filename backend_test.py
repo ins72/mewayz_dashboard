@@ -3058,7 +3058,28 @@ class BackendTester:
             self.test_instagram_hashtag_analytics,
             self.test_instagram_analytics_dashboard,
             self.test_instagram_competitor_analysis,
-            self.test_instagram_optimal_posting_times
+            self.test_instagram_optimal_posting_times,
+            # Template Marketplace Phase 7 tests
+            self.test_template_marketplace_browsing,
+            self.test_template_categories,
+            self.test_template_collections,
+            self.test_template_details,
+            self.test_collection_details,
+            self.test_template_purchase,
+            self.test_collection_purchase,
+            self.test_user_purchases,
+            self.test_template_reviews,
+            self.test_template_review_submission,
+            # Template Creator tests
+            self.test_creator_templates,
+            self.test_template_creation,
+            self.test_template_updating,
+            self.test_template_deletion,
+            self.test_template_publishing,
+            self.test_creator_collections,
+            self.test_collection_creation,
+            self.test_template_analytics,
+            self.test_creator_dashboard
         ]
         
         passed = 0
