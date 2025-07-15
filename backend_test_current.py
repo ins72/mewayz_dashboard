@@ -195,7 +195,8 @@ class MewayzBackendTester:
         response = self.make_request("POST", "/crm-contacts", contact_data)
         if response and response.status_code == 201:
             data = response.json()
-            if data.get("id"):
+            contact_data = data.get("contact", data)  # Handle both formats
+            if contact_data.get("id"):
                 self.log_test("CRM Contact Creation", "PASS", "CRM contact created successfully")
             else:
                 self.log_test("CRM Contact Creation", "FAIL", "Contact created but no ID returned")
