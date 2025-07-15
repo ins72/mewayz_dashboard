@@ -133,9 +133,14 @@ return new class extends Migration
      */
     private function createDatabaseViews(): void
     {
+        // Drop views first if they exist (SQLite compatible)
+        DB::statement("DROP VIEW IF EXISTS workspace_invitation_stats");
+        DB::statement("DROP VIEW IF EXISTS user_workspace_permissions");
+        DB::statement("DROP VIEW IF EXISTS invitation_analytics");
+        
         // View for workspace invitation statistics
         DB::statement("
-            CREATE OR REPLACE VIEW workspace_invitation_stats AS
+            CREATE VIEW workspace_invitation_stats AS
             SELECT 
                 workspace_id,
                 COUNT(*) as total_invitations,
@@ -154,7 +159,7 @@ return new class extends Migration
         
         // View for user workspace permissions
         DB::statement("
-            CREATE OR REPLACE VIEW user_workspace_permissions AS
+            CREATE VIEW user_workspace_permissions AS
             SELECT 
                 wm.user_id,
                 wm.workspace_id,
@@ -176,22 +181,17 @@ return new class extends Migration
             JOIN users u ON wm.user_id = u.id
         ");
         
-        // View for invitation analytics
+        // View for invitation analytics (simplified for SQLite)
         DB::statement("
-            CREATE OR REPLACE VIEW invitation_analytics AS
+            CREATE VIEW invitation_analytics AS
             SELECT 
                 wi.workspace_id,
                 wi.role,
                 COUNT(*) as invitation_count,
                 COUNT(CASE WHEN wi.status = 'accepted' THEN 1 END) as accepted_count,
-                AVG(CASE 
-                    WHEN wi.status = 'accepted' THEN 
-                        TIMESTAMPDIFF(HOUR, wi.created_at, wi.accepted_at)
-                    END
-                ) as avg_acceptance_time_hours,
-                DATE(wi.created_at) as invitation_date
+                date(wi.created_at) as invitation_date
             FROM workspace_invitations wi
-            GROUP BY wi.workspace_id, wi.role, DATE(wi.created_at)
+            GROUP BY wi.workspace_id, wi.role, date(wi.created_at)
         ");
     }
     
