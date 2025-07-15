@@ -259,12 +259,7 @@ class TeamManagementController extends Controller
         $workspaceId = $request->input('workspace_id');
         
         // Check permissions
-        $userMembership = WorkspaceMember::where('workspace_id', $workspaceId)
-            ->where('user_id', $user->id)
-            ->with('role')
-            ->first();
-        
-        if (!$userMembership || !$userMembership->role || !$userMembership->role->hasPermission('team', 'manage')) {
+        if (!$this->userHasPermission($user->id, $workspaceId, 'team', 'manage')) {
             return response()->json(['error' => 'Insufficient permissions'], 403);
         }
         
