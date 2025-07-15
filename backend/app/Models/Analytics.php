@@ -54,6 +54,11 @@ class Analytics extends Model
     }
 
     // Scopes
+    public function scopeForUser($query, $userId)
+    {
+        return $query->where('user_id', $userId);
+    }
+    
     public function scopeForWorkspace($query, $workspaceId)
     {
         return $query->where('workspace_id', $workspaceId);
