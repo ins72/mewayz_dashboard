@@ -87,7 +87,7 @@ class TeamManagementController extends Controller
         $status = $request->input('status');
         $roleId = $request->input('role_id');
         
-        $query = WorkspaceUser::where('workspace_id', $workspaceId)
+        $query = WorkspaceMember::where('workspace_id', $workspaceId)
             ->with(['user', 'role']);
         
         if ($status) {
