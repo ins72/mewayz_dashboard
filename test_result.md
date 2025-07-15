@@ -66,7 +66,7 @@ backend:
     implemented: true
     working: false
     file: "/app/backend/routes/api.php"
-    stuck_count: 1
+    stuck_count: 2
     priority: "high"
     needs_retesting: true
     status_history:
@@ -76,6 +76,9 @@ backend:
       - working: false
         agent: "testing"
         comment: "❌ FAIL: Workspace Complete Setup endpoint returns HTTP 403 'Insufficient permissions' error. Endpoint exists but has authorization/permission issues that prevent workspace setup completion."
+      - working: false
+        agent: "testing"
+        comment: "❌ FAIL: Workspace Complete Setup endpoint returns HTTP 500 Internal Server Error. Database error in subscription creation - model expects fields (user_id, package_id, metadata) but table has different structure (plan, features). Mismatch between Subscription model and actual database schema causing SQL constraint violations."
 
   - task: "Current Subscription Endpoint"
     implemented: true
