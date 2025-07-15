@@ -1514,6 +1514,465 @@ class BackendTester:
             self.log_test("Marketing Conversion Funnels", False, f"Conversion funnels failed with HTTP {response.status_code}: {response.text[:200]}")
             return False
 
+    def test_instagram_content_calendar(self):
+        """Test Instagram content calendar endpoint"""
+        if not self.token or not self.workspace_id:
+            self.log_test("Instagram Content Calendar", False, "Missing authentication token or workspace ID")
+            return False
+        
+        # Test with different parameters
+        test_params = [
+            {"workspace_id": self.workspace_id},
+            {"workspace_id": self.workspace_id, "month": 1, "year": 2025},
+            {"workspace_id": self.workspace_id, "month": 2, "year": 2025}
+        ]
+        
+        for params in test_params:
+            query_string = "&".join([f"{k}={v}" for k, v in params.items()])
+            response, error = self.make_request('GET', f'/instagram/content-calendar?{query_string}')
+            
+            if error:
+                self.log_test("Instagram Content Calendar", False, f"Content calendar request failed: {error}")
+                return False
+            
+            if response.status_code == 200:
+                try:
+                    result = response.json()
+                    if result.get('success') and result.get('calendar'):
+                        calendar_data = result['calendar']
+                        # Verify required fields
+                        if 'posts' in calendar_data and 'stories' in calendar_data and 'stats' in calendar_data:
+                            continue
+                        else:
+                            self.log_test("Instagram Content Calendar", False, f"Missing required fields in calendar data")
+                            return False
+                    else:
+                        self.log_test("Instagram Content Calendar", False, f"Content calendar returned unexpected format: {result}")
+                        return False
+                except json.JSONDecodeError:
+                    self.log_test("Instagram Content Calendar", False, "Invalid JSON response from content calendar")
+                    return False
+            else:
+                self.log_test("Instagram Content Calendar", False, f"Content calendar failed with HTTP {response.status_code}: {response.text[:200]}")
+                return False
+        
+        self.log_test("Instagram Content Calendar", True, "Content calendar endpoint working correctly with date filtering")
+        return True
+
+    def test_instagram_stories_management(self):
+        """Test Instagram stories listing and creation endpoints"""
+        if not self.token or not self.workspace_id:
+            self.log_test("Instagram Stories Management", False, "Missing authentication token or workspace ID")
+            return False
+        
+        # First create a social media account for testing
+        account_data = {
+            "workspace_id": self.workspace_id,
+            "platform": "instagram",
+            "username": f"test_instagram_{datetime.now().strftime('%Y%m%d_%H%M%S')}",
+            "display_name": "Test Instagram Account",
+            "is_active": True
+        }
+        
+        account_response, account_error = self.make_request('POST', '/social-media-accounts', account_data)
+        if account_error or account_response.status_code not in [200, 201]:
+            self.log_test("Instagram Stories Management", False, f"Failed to create test social media account: {account_error or account_response.text[:200]}")
+            return False
+        
+        try:
+            account_result = account_response.json()
+            if not account_result.get('success') or not account_result.get('account'):
+                self.log_test("Instagram Stories Management", False, "Failed to create test social media account for stories testing")
+                return False
+            
+            account_id = account_result['account']['id']
+            
+            # Test stories listing with filters
+            test_filters = [
+                {"workspace_id": self.workspace_id},
+                {"workspace_id": self.workspace_id, "account_id": account_id},
+                {"workspace_id": self.workspace_id, "status": "draft"},
+                {"workspace_id": self.workspace_id, "status": "scheduled"}
+            ]
+            
+            for filters in test_filters:
+                query_string = "&".join([f"{k}={v}" for k, v in filters.items()])
+                response, error = self.make_request('GET', f'/instagram/stories?{query_string}')
+                
+                if error:
+                    self.log_test("Instagram Stories Management", False, f"Stories listing request failed: {error}")
+                    return False
+                
+                if response.status_code != 200:
+                    self.log_test("Instagram Stories Management", False, f"Stories listing failed with HTTP {response.status_code}: {response.text[:200]}")
+                    return False
+                
+                try:
+                    result = response.json()
+                    if not result.get('success') or 'stories' not in result:
+                        self.log_test("Instagram Stories Management", False, f"Stories listing returned unexpected format: {result}")
+                        return False
+                except json.JSONDecodeError:
+                    self.log_test("Instagram Stories Management", False, "Invalid JSON response from stories listing")
+                    return False
+            
+            # Test story creation
+            story_data = {
+                "workspace_id": self.workspace_id,
+                "social_media_account_id": account_id,
+                "title": "Test Instagram Story",
+                "content": "This is a test Instagram story for backend testing",
+                "story_type": "photo",
+                "status": "draft",
+                "is_highlight": False,
+                "stickers": [{"type": "location", "data": {"name": "New York"}}],
+                "links": [{"url": "https://example.com", "text": "Learn More"}]
+            }
+            
+            create_response, create_error = self.make_request('POST', '/instagram/stories', story_data)
+            
+            if create_error:
+                self.log_test("Instagram Stories Management", False, f"Story creation failed: {create_error}")
+                return False
+            
+            if create_response.status_code in [200, 201]:
+                try:
+                    create_result = create_response.json()
+                    if create_result.get('success') and create_result.get('story'):
+                        story = create_result['story']
+                        # Verify story fields
+                        if story.get('id') and story.get('workspace_id') == self.workspace_id:
+                            self.log_test("Instagram Stories Management", True, "Stories listing and creation working correctly")
+                            return True
+                        else:
+                            self.log_test("Instagram Stories Management", False, f"Created story missing required fields: {story}")
+                            return False
+                    else:
+                        self.log_test("Instagram Stories Management", False, f"Story creation failed: {create_result.get('message', 'Unknown error')}")
+                        return False
+                except json.JSONDecodeError:
+                    self.log_test("Instagram Stories Management", False, "Invalid JSON response from story creation")
+                    return False
+            else:
+                self.log_test("Instagram Stories Management", False, f"Story creation failed with HTTP {create_response.status_code}: {create_response.text[:200]}")
+                return False
+                
+        except json.JSONDecodeError:
+            self.log_test("Instagram Stories Management", False, "Invalid JSON response from social media account creation")
+            return False
+
+    def test_instagram_hashtag_research(self):
+        """Test Instagram hashtag research endpoint"""
+        if not self.token or not self.workspace_id:
+            self.log_test("Instagram Hashtag Research", False, "Missing authentication token or workspace ID")
+            return False
+        
+        # First create some hashtag analytics data for testing
+        hashtag_data = {
+            "workspace_id": self.workspace_id,
+            "hashtag": "#marketing",
+            "platform": "instagram",
+            "post_count": 1500000,
+            "engagement_rate": 3.5,
+            "trending_score": 85.0,
+            "difficulty_score": 65.0,
+            "category": "business",
+            "is_trending": True,
+            "popularity_rank": 15,
+            "related_hashtags": ["#digitalmarketing", "#socialmedia", "#branding"],
+            "usage_metrics": {"daily_posts": 5000, "weekly_growth": 2.3}
+        }
+        
+        hashtag_response, hashtag_error = self.make_request('POST', '/instagram/hashtag-analytics', hashtag_data)
+        if hashtag_error or hashtag_response.status_code not in [200, 201]:
+            self.log_test("Instagram Hashtag Research", False, f"Failed to create test hashtag data: {hashtag_error or hashtag_response.text[:200]}")
+            return False
+        
+        # Test hashtag research with different filters
+        test_filters = [
+            {"workspace_id": self.workspace_id},
+            {"workspace_id": self.workspace_id, "search": "marketing"},
+            {"workspace_id": self.workspace_id, "category": "business"},
+            {"workspace_id": self.workspace_id, "trending": "true"},
+            {"workspace_id": self.workspace_id, "difficulty": "medium"}
+        ]
+        
+        for filters in test_filters:
+            query_string = "&".join([f"{k}={v}" for k, v in filters.items()])
+            response, error = self.make_request('GET', f'/instagram/hashtag-research?{query_string}')
+            
+            if error:
+                self.log_test("Instagram Hashtag Research", False, f"Hashtag research request failed: {error}")
+                return False
+            
+            if response.status_code == 200:
+                try:
+                    result = response.json()
+                    if result.get('success') and result.get('hashtags'):
+                        # Verify required fields
+                        if 'trending' in result and 'categories' in result and 'stats' in result:
+                            continue
+                        else:
+                            self.log_test("Instagram Hashtag Research", False, f"Missing required fields in hashtag research data")
+                            return False
+                    else:
+                        self.log_test("Instagram Hashtag Research", False, f"Hashtag research returned unexpected format: {result}")
+                        return False
+                except json.JSONDecodeError:
+                    self.log_test("Instagram Hashtag Research", False, "Invalid JSON response from hashtag research")
+                    return False
+            else:
+                self.log_test("Instagram Hashtag Research", False, f"Hashtag research failed with HTTP {response.status_code}: {response.text[:200]}")
+                return False
+        
+        self.log_test("Instagram Hashtag Research", True, "Hashtag research endpoint working correctly with all filters")
+        return True
+
+    def test_instagram_hashtag_analytics(self):
+        """Test Instagram hashtag analytics creation/update endpoint"""
+        if not self.token or not self.workspace_id:
+            self.log_test("Instagram Hashtag Analytics", False, "Missing authentication token or workspace ID")
+            return False
+        
+        # Test creating hashtag analytics
+        hashtag_data = {
+            "workspace_id": self.workspace_id,
+            "hashtag": "#socialmedia",
+            "platform": "instagram",
+            "post_count": 2500000,
+            "engagement_rate": 4.2,
+            "trending_score": 92.0,
+            "difficulty_score": 75.0,
+            "category": "social",
+            "is_trending": True,
+            "popularity_rank": 8,
+            "related_hashtags": ["#instagram", "#facebook", "#twitter"],
+            "usage_metrics": {"daily_posts": 8000, "weekly_growth": 3.1}
+        }
+        
+        response, error = self.make_request('POST', '/instagram/hashtag-analytics', hashtag_data)
+        
+        if error:
+            self.log_test("Instagram Hashtag Analytics", False, f"Hashtag analytics creation failed: {error}")
+            return False
+        
+        if response.status_code in [200, 201]:
+            try:
+                result = response.json()
+                if result.get('success') and result.get('hashtag'):
+                    hashtag = result['hashtag']
+                    # Verify hashtag fields
+                    if hashtag.get('id') and hashtag.get('workspace_id') == self.workspace_id:
+                        # Test updating the same hashtag (should update existing record)
+                        update_data = hashtag_data.copy()
+                        update_data['engagement_rate'] = 4.8
+                        update_data['trending_score'] = 95.0
+                        
+                        update_response, update_error = self.make_request('POST', '/instagram/hashtag-analytics', update_data)
+                        
+                        if update_error or update_response.status_code not in [200, 201]:
+                            self.log_test("Instagram Hashtag Analytics", False, f"Hashtag analytics update failed: {update_error or update_response.text[:200]}")
+                            return False
+                        
+                        self.log_test("Instagram Hashtag Analytics", True, "Hashtag analytics creation and update working correctly")
+                        return True
+                    else:
+                        self.log_test("Instagram Hashtag Analytics", False, f"Created hashtag missing required fields: {hashtag}")
+                        return False
+                else:
+                    self.log_test("Instagram Hashtag Analytics", False, f"Hashtag analytics creation failed: {result.get('message', 'Unknown error')}")
+                    return False
+            except json.JSONDecodeError:
+                self.log_test("Instagram Hashtag Analytics", False, "Invalid JSON response from hashtag analytics creation")
+                return False
+        else:
+            self.log_test("Instagram Hashtag Analytics", False, f"Hashtag analytics creation failed with HTTP {response.status_code}: {response.text[:200]}")
+            return False
+
+    def test_instagram_analytics_dashboard(self):
+        """Test Instagram analytics dashboard endpoint"""
+        if not self.token or not self.workspace_id:
+            self.log_test("Instagram Analytics Dashboard", False, "Missing authentication token or workspace ID")
+            return False
+        
+        # Test with different time periods
+        test_periods = ['7d', '30d', '90d', '1y']
+        
+        for period in test_periods:
+            params = {"workspace_id": self.workspace_id, "period": period}
+            query_string = "&".join([f"{k}={v}" for k, v in params.items()])
+            response, error = self.make_request('GET', f'/instagram/analytics-dashboard?{query_string}')
+            
+            if error:
+                self.log_test("Instagram Analytics Dashboard", False, f"Analytics dashboard request failed for {period}: {error}")
+                return False
+            
+            if response.status_code == 200:
+                try:
+                    result = response.json()
+                    if result.get('success') and result.get('analytics'):
+                        analytics_data = result['analytics']
+                        # Verify required fields
+                        required_fields = ['overview', 'growth_metrics', 'best_posting_times', 'top_hashtags', 'period', 'date_range']
+                        if all(field in analytics_data for field in required_fields):
+                            continue
+                        else:
+                            self.log_test("Instagram Analytics Dashboard", False, f"Missing required fields in analytics data for {period}")
+                            return False
+                    else:
+                        self.log_test("Instagram Analytics Dashboard", False, f"Analytics dashboard returned unexpected format for {period}: {result}")
+                        return False
+                except json.JSONDecodeError:
+                    self.log_test("Instagram Analytics Dashboard", False, f"Invalid JSON response from analytics dashboard for {period}")
+                    return False
+            else:
+                self.log_test("Instagram Analytics Dashboard", False, f"Analytics dashboard failed with HTTP {response.status_code} for {period}: {response.text[:200]}")
+                return False
+        
+        self.log_test("Instagram Analytics Dashboard", True, "Analytics dashboard working correctly for all time periods")
+        return True
+
+    def test_instagram_competitor_analysis(self):
+        """Test Instagram competitor analysis endpoints"""
+        if not self.token or not self.workspace_id:
+            self.log_test("Instagram Competitor Analysis", False, "Missing authentication token or workspace ID")
+            return False
+        
+        # Test adding a competitor
+        competitor_data = {
+            "workspace_id": self.workspace_id,
+            "competitor_username": f"competitor_{datetime.now().strftime('%Y%m%d_%H%M%S')}",
+            "competitor_name": "Test Competitor",
+            "platform": "instagram",
+            "follower_count": 150000,
+            "following_count": 1200,
+            "posts_count": 850,
+            "engagement_rate": 3.8,
+            "tracking_status": "active"
+        }
+        
+        response, error = self.make_request('POST', '/instagram/competitors', competitor_data)
+        
+        if error:
+            self.log_test("Instagram Competitor Analysis", False, f"Competitor addition failed: {error}")
+            return False
+        
+        if response.status_code in [200, 201]:
+            try:
+                result = response.json()
+                if result.get('success') and result.get('competitor'):
+                    competitor = result['competitor']
+                    # Verify competitor fields
+                    if competitor.get('id') and competitor.get('workspace_id') == self.workspace_id:
+                        # Test getting competitor analysis
+                        analysis_params = {"workspace_id": self.workspace_id, "platform": "instagram"}
+                        query_string = "&".join([f"{k}={v}" for k, v in analysis_params.items()])
+                        analysis_response, analysis_error = self.make_request('GET', f'/instagram/competitor-analysis?{query_string}')
+                        
+                        if analysis_error:
+                            self.log_test("Instagram Competitor Analysis", False, f"Competitor analysis request failed: {analysis_error}")
+                            return False
+                        
+                        if analysis_response.status_code == 200:
+                            try:
+                                analysis_result = analysis_response.json()
+                                if analysis_result.get('success') and analysis_result.get('competitors'):
+                                    # Verify insights data
+                                    if 'insights' in analysis_result:
+                                        insights = analysis_result['insights']
+                                        required_insights = ['total_competitors', 'avg_engagement_rate', 'avg_followers', 'top_performers']
+                                        if all(field in insights for field in required_insights):
+                                            self.log_test("Instagram Competitor Analysis", True, "Competitor analysis and addition working correctly")
+                                            return True
+                                        else:
+                                            self.log_test("Instagram Competitor Analysis", False, f"Missing required insights fields")
+                                            return False
+                                    else:
+                                        self.log_test("Instagram Competitor Analysis", False, f"Missing insights in competitor analysis")
+                                        return False
+                                else:
+                                    self.log_test("Instagram Competitor Analysis", False, f"Competitor analysis returned unexpected format: {analysis_result}")
+                                    return False
+                            except json.JSONDecodeError:
+                                self.log_test("Instagram Competitor Analysis", False, "Invalid JSON response from competitor analysis")
+                                return False
+                        else:
+                            self.log_test("Instagram Competitor Analysis", False, f"Competitor analysis failed with HTTP {analysis_response.status_code}: {analysis_response.text[:200]}")
+                            return False
+                    else:
+                        self.log_test("Instagram Competitor Analysis", False, f"Added competitor missing required fields: {competitor}")
+                        return False
+                else:
+                    self.log_test("Instagram Competitor Analysis", False, f"Competitor addition failed: {result.get('message', 'Unknown error')}")
+                    return False
+            except json.JSONDecodeError:
+                self.log_test("Instagram Competitor Analysis", False, "Invalid JSON response from competitor addition")
+                return False
+        else:
+            self.log_test("Instagram Competitor Analysis", False, f"Competitor addition failed with HTTP {response.status_code}: {response.text[:200]}")
+            return False
+
+    def test_instagram_optimal_posting_times(self):
+        """Test Instagram optimal posting times endpoint"""
+        if not self.token or not self.workspace_id:
+            self.log_test("Instagram Optimal Posting Times", False, "Missing authentication token or workspace ID")
+            return False
+        
+        # Test with workspace_id only
+        params = {"workspace_id": self.workspace_id}
+        query_string = "&".join([f"{k}={v}" for k, v in params.items()])
+        response, error = self.make_request('GET', f'/instagram/optimal-posting-times?{query_string}')
+        
+        if error:
+            self.log_test("Instagram Optimal Posting Times", False, f"Optimal posting times request failed: {error}")
+            return False
+        
+        if response.status_code == 200:
+            try:
+                result = response.json()
+                if result.get('success') and result.get('optimal_times'):
+                    optimal_times = result['optimal_times']
+                    # Verify required fields
+                    required_fields = ['source']
+                    if all(field in result for field in required_fields):
+                        # Verify optimal times structure (should have days of week)
+                        days_of_week = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']
+                        if result['source'] == 'default':
+                            # For default times, should have all days
+                            if all(day in optimal_times for day in days_of_week):
+                                # Test with recommendations if available
+                                if 'recommendations' in result:
+                                    recommendations = result['recommendations']
+                                    rec_fields = ['peak_engagement_day', 'best_overall_time', 'avoid_times']
+                                    if all(field in recommendations for field in rec_fields):
+                                        self.log_test("Instagram Optimal Posting Times", True, "Optimal posting times endpoint working correctly")
+                                        return True
+                                    else:
+                                        self.log_test("Instagram Optimal Posting Times", False, f"Missing recommendation fields")
+                                        return False
+                                else:
+                                    self.log_test("Instagram Optimal Posting Times", True, "Optimal posting times endpoint working correctly (default times)")
+                                    return True
+                            else:
+                                self.log_test("Instagram Optimal Posting Times", False, f"Missing days in optimal times structure")
+                                return False
+                        else:
+                            # For analytics-based times, structure may vary
+                            self.log_test("Instagram Optimal Posting Times", True, "Optimal posting times endpoint working correctly (analytics-based)")
+                            return True
+                    else:
+                        self.log_test("Instagram Optimal Posting Times", False, f"Missing required fields in optimal posting times")
+                        return False
+                else:
+                    self.log_test("Instagram Optimal Posting Times", False, f"Optimal posting times returned unexpected format: {result}")
+                    return False
+            except json.JSONDecodeError:
+                self.log_test("Instagram Optimal Posting Times", False, "Invalid JSON response from optimal posting times")
+                return False
+        else:
+            self.log_test("Instagram Optimal Posting Times", False, f"Optimal posting times failed with HTTP {response.status_code}: {response.text[:200]}")
+            return False
+
     def run_all_tests(self):
         """Run all backend tests"""
         print("=" * 60)
