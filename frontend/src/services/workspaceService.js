@@ -158,80 +158,11 @@ const workspaceService = {
   // Get all available goals for workspace setup
   async getGoals() {
     try {
-      // Mock data for development - in production this would come from API
-      const mockGoals = [
-        {
-          id: 'instagram_management',
-          name: 'Instagram Management',
-          description: 'Manage your Instagram presence, generate leads, and grow your audience',
-          icon: '📸',
-          color: 'bg-pink-500',
-          features: ['social_media_management', 'lead_generation', 'content_scheduling', 'analytics'],
-          category: 'Social Media',
-          priority: 1
-        },
-        {
-          id: 'link_in_bio',
-          name: 'Link in Bio',
-          description: 'Create custom landing pages and manage your link in bio',
-          icon: '🔗',
-          color: 'bg-blue-500',
-          features: ['link_management', 'landing_pages', 'click_tracking', 'analytics'],
-          category: 'Marketing',
-          priority: 2
-        },
-        {
-          id: 'course_creation',
-          name: 'Course Creation',
-          description: 'Build and sell online courses with community features',
-          icon: '🎓',
-          color: 'bg-green-500',
-          features: ['course_builder', 'student_management', 'community_features', 'certification'],
-          category: 'Education',
-          priority: 3
-        },
-        {
-          id: 'ecommerce',
-          name: 'E-commerce',
-          description: 'Set up and manage your online store with inventory tracking',
-          icon: '🛒',
-          color: 'bg-yellow-500',
-          features: ['product_catalog', 'inventory_management', 'order_processing', 'payment_integration'],
-          category: 'Sales',
-          priority: 4
-        },
-        {
-          id: 'crm',
-          name: 'CRM',
-          description: 'Manage customer relationships and track sales pipeline',
-          icon: '👥',
-          color: 'bg-purple-500',
-          features: ['contact_management', 'lead_tracking', 'sales_pipeline', 'communication_history'],
-          category: 'Customer Management',
-          priority: 5
-        },
-        {
-          id: 'marketing_hub',
-          name: 'Marketing Hub',
-          description: 'Execute email campaigns and marketing automation',
-          icon: '📧',
-          color: 'bg-red-500',
-          features: ['email_campaigns', 'automation_workflows', 'list_management', 'campaign_analytics'],
-          category: 'Marketing',
-          priority: 6
-        }
-      ];
-
-      return {
-        success: true,
-        data: mockGoals
-      };
+      const response = await apiClient.get('/goals');
+      return response.data;
     } catch (error) {
       console.error('Error fetching goals:', error);
-      return {
-        success: false,
-        error: 'Failed to load goals'
-      };
+      throw error;
     }
   },
 
