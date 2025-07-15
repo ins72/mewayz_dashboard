@@ -3877,6 +3877,194 @@ class BackendTester:
             self.log_test("Team Initialize Roles", False, f"Role initialization failed with HTTP {response.status_code}: {response.text[:200]}")
             return False
 
+    def test_critical_bug_fixes_team_management(self):
+        """Test critical bug fixes for Team Management endpoints that were previously failing with 500 errors"""
+        if not self.token or not self.workspace_id:
+            self.log_test("Team Management Critical Bug Fixes", False, "Missing authentication token or workspace ID")
+            return False
+        
+        print("🔧 Testing CRITICAL BUG FIXES for Team Management endpoints...")
+        
+        # Test POST /api/team/dashboard - Team dashboard
+        response, error = self.make_request('POST', '/team/dashboard', {'workspace_id': self.workspace_id})
+        if error or response.status_code != 200:
+            self.log_test("Team Dashboard (POST)", False, f"Team dashboard failed: {error or response.text[:200]}")
+            return False
+        
+        try:
+            result = response.json()
+            if not result.get('team_overview'):
+                self.log_test("Team Dashboard (POST)", False, "Team dashboard missing required data structure")
+                return False
+        except:
+            self.log_test("Team Dashboard (POST)", False, "Invalid JSON response from team dashboard")
+            return False
+        
+        # Test POST /api/team/roles - Create team role
+        role_data = {
+            'workspace_id': self.workspace_id,
+            'name': 'Test Role',
+            'description': 'A test role for bug fix validation',
+            'permissions': {
+                'team': {'manage': True, 'view': True},
+                'workspace': {'view': True}
+            }
+        }
+        
+        response, error = self.make_request('POST', '/team/roles', role_data)
+        if error or response.status_code not in [200, 201]:
+            self.log_test("Team Role Creation (POST)", False, f"Role creation failed: {error or response.text[:200]}")
+            return False
+        
+        try:
+            result = response.json()
+            if not result.get('success') or not result.get('role'):
+                self.log_test("Team Role Creation (POST)", False, "Role creation response missing required fields")
+                return False
+            
+            role_id = result['role']['id']
+        except:
+            self.log_test("Team Role Creation (POST)", False, "Invalid JSON response from role creation")
+            return False
+        
+        # Test PUT /api/team/roles/{id} - Update team role
+        update_data = {
+            'workspace_id': self.workspace_id,
+            'name': 'Updated Test Role',
+            'description': 'Updated description',
+            'permissions': {
+                'team': {'manage': True, 'view': True},
+                'workspace': {'view': True, 'manage': False}
+            }
+        }
+        
+        response, error = self.make_request('PUT', f'/team/roles/{role_id}', update_data)
+        if error or response.status_code != 200:
+            self.log_test("Team Role Update (PUT)", False, f"Role update failed: {error or response.text[:200]}")
+            return False
+        
+        # Test POST /api/team/invite - Invite team member
+        invite_data = {
+            'workspace_id': self.workspace_id,
+            'email': f'testinvite_{datetime.now().strftime("%Y%m%d_%H%M%S")}@example.com',
+            'role_id': role_id,
+            'message': 'Welcome to our team!'
+        }
+        
+        response, error = self.make_request('POST', '/team/invite', invite_data)
+        if error or response.status_code not in [200, 201]:
+            self.log_test("Team Member Invite (POST)", False, f"Team invite failed: {error or response.text[:200]}")
+            return False
+        
+        # Test DELETE /api/team/roles/{id} - Delete team role (should fail due to role in use)
+        response, error = self.make_request('DELETE', f'/team/roles/{role_id}', {'workspace_id': self.workspace_id})
+        # This should fail because role is in use, but endpoint should not return 500
+        if error:
+            self.log_test("Team Role Deletion (DELETE)", False, f"Role deletion request failed: {error}")
+            return False
+        
+        if response.status_code == 500:
+            self.log_test("Team Role Deletion (DELETE)", False, "Role deletion returned 500 error - bug not fixed")
+            return False
+        
+        self.log_test("Team Management Critical Bug Fixes", True, "All Team Management endpoints working without 500 errors")
+        return True
+    
+    def test_critical_bug_fixes_gamification(self):
+        """Test critical bug fixes for Gamification endpoints that were previously failing with 500 errors"""
+        if not self.token or not self.workspace_id:
+            self.log_test("Gamification Critical Bug Fixes", False, "Missing authentication token or workspace ID")
+            return False
+        
+        print("🎮 Testing CRITICAL BUG FIXES for Gamification endpoints...")
+        
+        # Test POST /api/gamification/progress - Update progress
+        progress_data = {
+            'workspace_id': self.workspace_id,
+            'module': 'test_module',
+            'action': 'test_action',
+            'increment': 1,
+            'target_value': 10,
+            'metadata': {'test': True}
+        }
+        
+        response, error = self.make_request('POST', '/gamification/progress', progress_data)
+        if error or response.status_code not in [200, 201]:
+            self.log_test("Gamification Progress Update (POST)", False, f"Progress update failed: {error or response.text[:200]}")
+            return False
+        
+        try:
+            result = response.json()
+            if not result.get('progress'):
+                self.log_test("Gamification Progress Update (POST)", False, "Progress update response missing required fields")
+                return False
+        except:
+            self.log_test("Gamification Progress Update (POST)", False, "Invalid JSON response from progress update")
+            return False
+        
+        # Test POST /api/gamification/check-achievements - Check achievements
+        response, error = self.make_request('POST', '/gamification/check-achievements', {'workspace_id': self.workspace_id})
+        if error or response.status_code not in [200, 201]:
+            self.log_test("Gamification Check Achievements (POST)", False, f"Check achievements failed: {error or response.text[:200]}")
+            return False
+        
+        try:
+            result = response.json()
+            if 'new_achievements' not in result:
+                self.log_test("Gamification Check Achievements (POST)", False, "Check achievements response missing required fields")
+                return False
+        except:
+            self.log_test("Gamification Check Achievements (POST)", False, "Invalid JSON response from check achievements")
+            return False
+        
+        # Test GET /api/gamification/dashboard - Gamification dashboard
+        response, error = self.make_request('GET', f'/gamification/dashboard?workspace_id={self.workspace_id}')
+        if error or response.status_code != 200:
+            self.log_test("Gamification Dashboard (GET)", False, f"Gamification dashboard failed: {error or response.text[:200]}")
+            return False
+        
+        try:
+            result = response.json()
+            if not result.get('achievements') or not result.get('progress'):
+                self.log_test("Gamification Dashboard (GET)", False, "Gamification dashboard missing required data structure")
+                return False
+        except:
+            self.log_test("Gamification Dashboard (GET)", False, "Invalid JSON response from gamification dashboard")
+            return False
+        
+        # Test GET /api/gamification/achievements - Get achievements
+        response, error = self.make_request('GET', f'/gamification/achievements?workspace_id={self.workspace_id}')
+        if error or response.status_code != 200:
+            self.log_test("Gamification Achievements (GET)", False, f"Get achievements failed: {error or response.text[:200]}")
+            return False
+        
+        try:
+            result = response.json()
+            if 'achievements' not in result:
+                self.log_test("Gamification Achievements (GET)", False, "Get achievements response missing required fields")
+                return False
+        except:
+            self.log_test("Gamification Achievements (GET)", False, "Invalid JSON response from get achievements")
+            return False
+        
+        # Test GET /api/gamification/leaderboard - Get leaderboard
+        response, error = self.make_request('GET', f'/gamification/leaderboard?workspace_id={self.workspace_id}')
+        if error or response.status_code != 200:
+            self.log_test("Gamification Leaderboard (GET)", False, f"Get leaderboard failed: {error or response.text[:200]}")
+            return False
+        
+        try:
+            result = response.json()
+            if 'leaderboard' not in result:
+                self.log_test("Gamification Leaderboard (GET)", False, "Get leaderboard response missing required fields")
+                return False
+        except:
+            self.log_test("Gamification Leaderboard (GET)", False, "Invalid JSON response from get leaderboard")
+            return False
+        
+        self.log_test("Gamification Critical Bug Fixes", True, "All Gamification endpoints working without 500 errors")
+        return True
+
     def run_all_tests(self):
         """Run all backend tests"""
         print("=" * 60)
