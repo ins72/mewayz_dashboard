@@ -149,7 +149,33 @@ class SubscriptionController extends Controller
 
         // Free plan doesn't need payment
         if ($request->plan_id === 'free') {
-            return $this->createFreeSubscription($request, $workspace);
+            // Create free subscription directly
+            $subscription = Subscription::create([
+                'id' => Str::uuid(),
+                'user_id' => $user->id,
+                'workspace_id' => $workspace->id,
+                'package_id' => 'free',
+                'plan' => 'free',
+                'billing_cycle' => 'yearly',
+                'status' => 'active',
+                'current_period_start' => now(),
+                'current_period_end' => now()->addYear(),
+                'amount' => 0,
+                'currency' => 'usd',
+                'quantity' => $request->feature_count,
+                'features' => [],
+                'metadata' => [
+                    'plan_id' => 'free',
+                    'feature_count' => $request->feature_count,
+                    'billing_cycle' => 'yearly'
+                ]
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'subscription' => $subscription,
+                'message' => 'Free subscription created successfully'
+            ]);
         }
 
         try {
