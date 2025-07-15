@@ -12,8 +12,22 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('user_achievements', function (Blueprint $table) {
-            $table->id();
+            $table->uuid('id')->primary();
+            $table->uuid('user_id');
+            $table->uuid('workspace_id');
+            $table->uuid('achievement_id');
+            $table->timestamp('earned_at')->nullable();
+            $table->decimal('progress', 5, 2)->default(0);
+            $table->boolean('is_completed')->default(false);
+            $table->json('metadata')->nullable();
             $table->timestamps();
+
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+            $table->foreign('workspace_id')->references('id')->on('workspaces')->onDelete('cascade');
+            $table->foreign('achievement_id')->references('id')->on('achievements')->onDelete('cascade');
+            
+            $table->unique(['user_id', 'workspace_id', 'achievement_id']);
+            $table->index(['user_id', 'workspace_id', 'is_completed']);
         });
     }
 

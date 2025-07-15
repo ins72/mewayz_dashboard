@@ -12,8 +12,24 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('team_roles', function (Blueprint $table) {
-            $table->id();
+            $table->uuid('id')->primary();
+            $table->uuid('workspace_id');
+            $table->string('name');
+            $table->text('description')->nullable();
+            $table->json('permissions');
+            $table->boolean('is_default')->default(false);
+            $table->boolean('is_system')->default(false);
+            $table->uuid('created_by')->nullable();
+            $table->uuid('updated_by')->nullable();
             $table->timestamps();
+
+            $table->foreign('workspace_id')->references('id')->on('workspaces')->onDelete('cascade');
+            $table->foreign('created_by')->references('id')->on('users')->onDelete('set null');
+            $table->foreign('updated_by')->references('id')->on('users')->onDelete('set null');
+            
+            $table->index(['workspace_id', 'name']);
+            $table->index(['workspace_id', 'is_default']);
+            $table->index(['is_system']);
         });
     }
 
