@@ -246,7 +246,7 @@ backend:
     implemented: true
     working: false
     file: "/app/backend/app/Http/Controllers/TeamManagementController.php"
-    stuck_count: 5
+    stuck_count: 6
     priority: "high"
     needs_retesting: false
     status_history:
@@ -268,6 +268,9 @@ backend:
       - working: false
         agent: "testing"
         comment: "❌ CRITICAL ISSUE CONFIRMED: After PHP Laravel backend fix, Team Management endpoints still return HTTP 500 server errors. Both GET /api/team/dashboard and GET /api/team/members return HTTP 500 with HTML error pages instead of JSON responses. This confirms server-side PHP errors in TeamManagementController implementation. Backend service is running correctly on port 8001, but the TeamManagementController has runtime errors preventing proper execution. This is a critical backend implementation issue requiring immediate attention."
+      - working: false
+        agent: "testing"
+        comment: "❌ MIXED RESULTS: After comprehensive backend testing, Team Management shows mixed results. Team Dashboard endpoint fails with 'Unknown error' but Team Members endpoint returns data with unexpected format (missing 'success' key but contains valid team_members data). This indicates partial functionality - data retrieval works but response formatting needs standardization. The TeamManagementController has implementation inconsistencies that need to be addressed."
 
   - task: "API Health/Status Endpoint"
     implemented: true
