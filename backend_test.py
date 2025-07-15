@@ -4065,6 +4065,391 @@ class BackendTester:
         self.log_test("Gamification Critical Bug Fixes", True, "All Gamification endpoints working without 500 errors")
         return True
 
+    def test_workspace_setup_wizard_goals(self):
+        """Test workspace setup wizard - goals endpoint"""
+        if not self.token:
+            self.log_test("Workspace Setup Wizard - Goals", False, "No authentication token available")
+            return False
+        
+        response, error = self.make_request('GET', '/goals')
+        
+        if error:
+            self.log_test("Workspace Setup Wizard - Goals", False, f"Goals request failed: {error}")
+            return False
+        
+        if response.status_code == 200:
+            try:
+                result = response.json()
+                if result.get('success') and result.get('goals'):
+                    goals = result['goals']
+                    if len(goals) >= 6:  # Should have 6 main goals
+                        # Verify goal structure
+                        first_goal = goals[0]
+                        if 'id' in first_goal and 'name' in first_goal and 'description' in first_goal:
+                            self.log_test("Workspace Setup Wizard - Goals", True, f"Retrieved {len(goals)} workspace setup goals")
+                            return True
+                        else:
+                            self.log_test("Workspace Setup Wizard - Goals", False, f"Goal structure missing required fields: {first_goal}")
+                            return False
+                    else:
+                        self.log_test("Workspace Setup Wizard - Goals", False, f"Expected at least 6 goals, got {len(goals)}")
+                        return False
+                else:
+                    self.log_test("Workspace Setup Wizard - Goals", False, f"Goals endpoint returned unexpected format: {result}")
+                    return False
+            except json.JSONDecodeError:
+                self.log_test("Workspace Setup Wizard - Goals", False, "Invalid JSON response from goals endpoint")
+                return False
+        else:
+            self.log_test("Workspace Setup Wizard - Goals", False, f"Goals endpoint failed with HTTP {response.status_code}: {response.text[:200]}")
+            return False
+
+    def test_workspace_setup_wizard_features_by_goal(self):
+        """Test workspace setup wizard - features by goal endpoint"""
+        if not self.token:
+            self.log_test("Workspace Setup Wizard - Features by Goal", False, "No authentication token available")
+            return False
+        
+        # First get goals to test with
+        goals_response, goals_error = self.make_request('GET', '/goals')
+        if goals_error or goals_response.status_code != 200:
+            self.log_test("Workspace Setup Wizard - Features by Goal", False, f"Failed to get goals for testing: {goals_error or goals_response.text[:200]}")
+            return False
+        
+        try:
+            goals_result = goals_response.json()
+            if not goals_result.get('success') or not goals_result.get('goals'):
+                self.log_test("Workspace Setup Wizard - Features by Goal", False, "No goals available for features testing")
+                return False
+            
+            goal_id = goals_result['goals'][0]['id']
+            
+            # Test features by goal endpoint
+            response, error = self.make_request('GET', f'/goals/{goal_id}/features')
+            
+            if error:
+                self.log_test("Workspace Setup Wizard - Features by Goal", False, f"Features by goal request failed: {error}")
+                return False
+            
+            if response.status_code == 200:
+                try:
+                    result = response.json()
+                    if result.get('success') and result.get('features'):
+                        features = result['features']
+                        if len(features) > 0:
+                            # Verify feature structure
+                            first_feature = features[0]
+                            if 'id' in first_feature and 'name' in first_feature and 'price' in first_feature:
+                                self.log_test("Workspace Setup Wizard - Features by Goal", True, f"Retrieved {len(features)} features for goal {goal_id}")
+                                return True
+                            else:
+                                self.log_test("Workspace Setup Wizard - Features by Goal", False, f"Feature structure missing required fields: {first_feature}")
+                                return False
+                        else:
+                            self.log_test("Workspace Setup Wizard - Features by Goal", True, f"No features found for goal {goal_id} (valid response)")
+                            return True
+                    else:
+                        self.log_test("Workspace Setup Wizard - Features by Goal", False, f"Features endpoint returned unexpected format: {result}")
+                        return False
+                except json.JSONDecodeError:
+                    self.log_test("Workspace Setup Wizard - Features by Goal", False, "Invalid JSON response from features endpoint")
+                    return False
+            else:
+                self.log_test("Workspace Setup Wizard - Features by Goal", False, f"Features endpoint failed with HTTP {response.status_code}: {response.text[:200]}")
+                return False
+                
+        except json.JSONDecodeError:
+            self.log_test("Workspace Setup Wizard - Features by Goal", False, "Invalid JSON response from goals endpoint")
+            return False
+
+    def test_workspace_setup_wizard_subscription_plans(self):
+        """Test workspace setup wizard - subscription plans endpoint"""
+        if not self.token:
+            self.log_test("Workspace Setup Wizard - Subscription Plans", False, "No authentication token available")
+            return False
+        
+        response, error = self.make_request('GET', '/subscription-plans')
+        
+        if error:
+            self.log_test("Workspace Setup Wizard - Subscription Plans", False, f"Subscription plans request failed: {error}")
+            return False
+        
+        if response.status_code == 200:
+            try:
+                result = response.json()
+                if result.get('success') and result.get('plans'):
+                    plans = result['plans']
+                    if len(plans) >= 3:  # Should have 3 subscription tiers
+                        # Verify plan structure
+                        first_plan = plans[0]
+                        if 'id' in first_plan and 'name' in first_plan and 'price' in first_plan:
+                            self.log_test("Workspace Setup Wizard - Subscription Plans", True, f"Retrieved {len(plans)} subscription plans")
+                            return True
+                        else:
+                            self.log_test("Workspace Setup Wizard - Subscription Plans", False, f"Plan structure missing required fields: {first_plan}")
+                            return False
+                    else:
+                        self.log_test("Workspace Setup Wizard - Subscription Plans", False, f"Expected at least 3 plans, got {len(plans)}")
+                        return False
+                else:
+                    self.log_test("Workspace Setup Wizard - Subscription Plans", False, f"Subscription plans endpoint returned unexpected format: {result}")
+                    return False
+            except json.JSONDecodeError:
+                self.log_test("Workspace Setup Wizard - Subscription Plans", False, "Invalid JSON response from subscription plans endpoint")
+                return False
+        else:
+            self.log_test("Workspace Setup Wizard - Subscription Plans", False, f"Subscription plans endpoint failed with HTTP {response.status_code}: {response.text[:200]}")
+            return False
+
+    def test_workspace_setup_progress(self):
+        """Test workspace setup progress save and retrieve"""
+        if not self.token or not self.workspace_id:
+            self.log_test("Workspace Setup Progress", False, "Missing authentication token or workspace ID")
+            return False
+        
+        # Test saving setup progress
+        progress_data = {
+            "step": "goals_selection",
+            "completed_steps": ["welcome", "goals_selection"],
+            "selected_goals": ["social_media_growth", "lead_generation"],
+            "selected_features": ["instagram_management", "crm_system"],
+            "progress_percentage": 60
+        }
+        
+        save_response, save_error = self.make_request('POST', f'/workspaces/{self.workspace_id}/setup-progress', progress_data)
+        
+        if save_error:
+            self.log_test("Workspace Setup Progress", False, f"Setup progress save failed: {save_error}")
+            return False
+        
+        if save_response.status_code in [200, 201]:
+            try:
+                save_result = save_response.json()
+                if save_result.get('success'):
+                    # Test retrieving setup progress
+                    get_response, get_error = self.make_request('GET', f'/workspaces/{self.workspace_id}/setup-progress')
+                    
+                    if get_error:
+                        self.log_test("Workspace Setup Progress", False, f"Setup progress retrieval failed: {get_error}")
+                        return False
+                    
+                    if get_response.status_code == 200:
+                        try:
+                            get_result = get_response.json()
+                            if get_result.get('success') and get_result.get('progress'):
+                                progress = get_result['progress']
+                                if progress.get('step') == 'goals_selection' and progress.get('progress_percentage') == 60:
+                                    self.log_test("Workspace Setup Progress", True, "Setup progress save and retrieve working correctly")
+                                    return True
+                                else:
+                                    self.log_test("Workspace Setup Progress", False, f"Retrieved progress doesn't match saved data: {progress}")
+                                    return False
+                            else:
+                                self.log_test("Workspace Setup Progress", False, f"Progress retrieval returned unexpected format: {get_result}")
+                                return False
+                        except json.JSONDecodeError:
+                            self.log_test("Workspace Setup Progress", False, "Invalid JSON response from progress retrieval")
+                            return False
+                    else:
+                        self.log_test("Workspace Setup Progress", False, f"Progress retrieval failed with HTTP {get_response.status_code}: {get_response.text[:200]}")
+                        return False
+                else:
+                    self.log_test("Workspace Setup Progress", False, f"Setup progress save failed: {save_result.get('message', 'Unknown error')}")
+                    return False
+            except json.JSONDecodeError:
+                self.log_test("Workspace Setup Progress", False, "Invalid JSON response from progress save")
+                return False
+        else:
+            self.log_test("Workspace Setup Progress", False, f"Setup progress save failed with HTTP {save_response.status_code}: {save_response.text[:200]}")
+            return False
+
+    def test_workspace_complete_setup(self):
+        """Test workspace complete setup endpoint"""
+        if not self.token or not self.workspace_id:
+            self.log_test("Workspace Complete Setup", False, "Missing authentication token or workspace ID")
+            return False
+        
+        # Test completing workspace setup
+        setup_data = {
+            "selected_goals": ["social_media_growth", "lead_generation", "e_commerce"],
+            "selected_features": ["instagram_management", "crm_system", "product_management"],
+            "subscription_plan": "professional",
+            "setup_completed": True
+        }
+        
+        response, error = self.make_request('POST', f'/workspaces/{self.workspace_id}/complete-setup', setup_data)
+        
+        if error:
+            self.log_test("Workspace Complete Setup", False, f"Complete setup request failed: {error}")
+            return False
+        
+        if response.status_code in [200, 201]:
+            try:
+                result = response.json()
+                if result.get('success'):
+                    self.log_test("Workspace Complete Setup", True, "Workspace setup completion working correctly")
+                    return True
+                else:
+                    self.log_test("Workspace Complete Setup", False, f"Setup completion failed: {result.get('message', 'Unknown error')}")
+                    return False
+            except json.JSONDecodeError:
+                self.log_test("Workspace Complete Setup", False, "Invalid JSON response from setup completion")
+                return False
+        else:
+            self.log_test("Workspace Complete Setup", False, f"Setup completion failed with HTTP {response.status_code}: {response.text[:200]}")
+            return False
+
+    def test_subscription_current(self):
+        """Test get current subscription endpoint"""
+        if not self.token:
+            self.log_test("Current Subscription", False, "No authentication token available")
+            return False
+        
+        response, error = self.make_request('GET', '/subscription/current')
+        
+        if error:
+            self.log_test("Current Subscription", False, f"Current subscription request failed: {error}")
+            return False
+        
+        if response.status_code == 200:
+            try:
+                result = response.json()
+                if result.get('success'):
+                    # May have subscription data or null if no subscription
+                    subscription = result.get('subscription')
+                    if subscription is None:
+                        self.log_test("Current Subscription", True, "No current subscription (valid response)")
+                        return True
+                    elif 'id' in subscription and 'plan' in subscription and 'status' in subscription:
+                        self.log_test("Current Subscription", True, f"Current subscription retrieved: {subscription.get('plan')} ({subscription.get('status')})")
+                        return True
+                    else:
+                        self.log_test("Current Subscription", False, f"Subscription structure missing required fields: {subscription}")
+                        return False
+                else:
+                    self.log_test("Current Subscription", False, f"Current subscription endpoint returned unexpected format: {result}")
+                    return False
+            except json.JSONDecodeError:
+                self.log_test("Current Subscription", False, "Invalid JSON response from current subscription endpoint")
+                return False
+        else:
+            self.log_test("Current Subscription", False, f"Current subscription endpoint failed with HTTP {response.status_code}: {response.text[:200]}")
+            return False
+
+    def test_subscription_plans(self):
+        """Test get subscription plans endpoint"""
+        if not self.token:
+            self.log_test("Subscription Plans", False, "No authentication token available")
+            return False
+        
+        response, error = self.make_request('GET', '/subscription/plans')
+        
+        if error:
+            self.log_test("Subscription Plans", False, f"Subscription plans request failed: {error}")
+            return False
+        
+        if response.status_code == 200:
+            try:
+                result = response.json()
+                if result.get('success') and result.get('plans'):
+                    plans = result['plans']
+                    if len(plans) >= 3:  # Should have multiple subscription plans
+                        # Verify plan structure
+                        first_plan = plans[0]
+                        if 'id' in first_plan and 'name' in first_plan and 'price' in first_plan:
+                            self.log_test("Subscription Plans", True, f"Retrieved {len(plans)} subscription plans")
+                            return True
+                        else:
+                            self.log_test("Subscription Plans", False, f"Plan structure missing required fields: {first_plan}")
+                            return False
+                    else:
+                        self.log_test("Subscription Plans", False, f"Expected multiple plans, got {len(plans)}")
+                        return False
+                else:
+                    self.log_test("Subscription Plans", False, f"Subscription plans endpoint returned unexpected format: {result}")
+                    return False
+            except json.JSONDecodeError:
+                self.log_test("Subscription Plans", False, "Invalid JSON response from subscription plans endpoint")
+                return False
+        else:
+            self.log_test("Subscription Plans", False, f"Subscription plans endpoint failed with HTTP {response.status_code}: {response.text[:200]}")
+            return False
+
+    def test_subscription_checkout(self):
+        """Test create Stripe checkout session endpoint"""
+        if not self.token:
+            self.log_test("Subscription Checkout", False, "No authentication token available")
+            return False
+        
+        # Test creating checkout session
+        checkout_data = {
+            "plan_id": "professional",
+            "selected_features": ["instagram_management", "crm_system", "analytics"],
+            "success_url": "http://localhost:4028/subscription/success",
+            "cancel_url": "http://localhost:4028/subscription/cancel"
+        }
+        
+        response, error = self.make_request('POST', '/subscription/checkout', checkout_data)
+        
+        if error:
+            self.log_test("Subscription Checkout", False, f"Checkout session request failed: {error}")
+            return False
+        
+        if response.status_code in [200, 201]:
+            try:
+                result = response.json()
+                if result.get('success') and result.get('checkout_url'):
+                    checkout_url = result['checkout_url']
+                    if checkout_url.startswith('https://checkout.stripe.com/'):
+                        self.log_test("Subscription Checkout", True, "Stripe checkout session created successfully")
+                        return True
+                    else:
+                        self.log_test("Subscription Checkout", False, f"Invalid checkout URL format: {checkout_url}")
+                        return False
+                else:
+                    self.log_test("Subscription Checkout", False, f"Checkout session creation failed: {result.get('message', 'Unknown error')}")
+                    return False
+            except json.JSONDecodeError:
+                self.log_test("Subscription Checkout", False, "Invalid JSON response from checkout session creation")
+                return False
+        else:
+            self.log_test("Subscription Checkout", False, f"Checkout session creation failed with HTTP {response.status_code}: {response.text[:200]}")
+            return False
+
+    def test_subscription_usage(self):
+        """Test get subscription usage stats endpoint"""
+        if not self.token:
+            self.log_test("Subscription Usage", False, "No authentication token available")
+            return False
+        
+        response, error = self.make_request('GET', '/subscription/usage')
+        
+        if error:
+            self.log_test("Subscription Usage", False, f"Subscription usage request failed: {error}")
+            return False
+        
+        if response.status_code == 200:
+            try:
+                result = response.json()
+                if result.get('success') and result.get('usage'):
+                    usage = result['usage']
+                    # Verify usage structure
+                    if 'features_used' in usage and 'total_features' in usage and 'usage_percentage' in usage:
+                        self.log_test("Subscription Usage", True, f"Subscription usage stats retrieved: {usage.get('features_used')}/{usage.get('total_features')} features used")
+                        return True
+                    else:
+                        self.log_test("Subscription Usage", False, f"Usage structure missing required fields: {usage}")
+                        return False
+                else:
+                    self.log_test("Subscription Usage", False, f"Subscription usage endpoint returned unexpected format: {result}")
+                    return False
+            except json.JSONDecodeError:
+                self.log_test("Subscription Usage", False, "Invalid JSON response from subscription usage endpoint")
+                return False
+        else:
+            self.log_test("Subscription Usage", False, f"Subscription usage endpoint failed with HTTP {response.status_code}: {response.text[:200]}")
+            return False
+
     def run_all_tests(self):
         """Run all backend tests"""
         print("=" * 60)
