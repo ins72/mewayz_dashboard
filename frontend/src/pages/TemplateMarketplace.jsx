@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/Card'
 import { Button } from '../components/ui/Button';
 import { Badge } from '../components/ui/badge';
 import { Input } from '../components/ui/Input';
-import { AuthContext } from '../contexts/AuthContext';
+import { useAuth } from '../contexts/AuthContext';
 import { WorkspaceContext } from '../contexts/WorkspaceContext';
 import TemplateMarketplaceService from '../services/templateMarketplaceService';
 import TemplateGrid from '../components/marketplace/TemplateGrid';
