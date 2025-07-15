@@ -21,6 +21,7 @@ use App\Http\Controllers\WorkspaceInvitationController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\EmailController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\InstagramManagementController;
 
 /*
 |--------------------------------------------------------------------------
