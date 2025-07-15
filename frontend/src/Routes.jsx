@@ -174,6 +174,11 @@ const Routes = () => {
               <MarketingHub />
             </ProtectedRoute>
           } />
+          <Route path="/instagram-management" element={
+            <ProtectedRoute>
+              <InstagramManagement />
+            </ProtectedRoute>
+          } />
           
           {/* 404 route */}
           <Route path="*" element={<NotFound />} />
