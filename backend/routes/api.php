@@ -66,6 +66,14 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('workspaces/{workspace}/setup-progress', [WorkspaceController::class, 'saveSetupProgress']);
     Route::get('workspaces/{workspace}/setup-progress', [WorkspaceController::class, 'getSetupProgress']);
     
+    // Subscription routes
+    Route::get('subscription/current', [SubscriptionController::class, 'getCurrentSubscription']);
+    Route::get('subscription/plans', [SubscriptionController::class, 'getSubscriptionPlans']);
+    Route::post('subscription/checkout', [SubscriptionController::class, 'createCheckoutSession']);
+    Route::put('subscription/{subscription}', [SubscriptionController::class, 'updateSubscription']);
+    Route::delete('subscription/{subscription}', [SubscriptionController::class, 'cancelSubscription']);
+    Route::get('subscription/usage', [SubscriptionController::class, 'getSubscriptionUsage']);
+    
     // Workspace invitation routes
     Route::get('workspaces/{workspace}/invitations', [WorkspaceInvitationController::class, 'index']);
     Route::post('workspaces/{workspace}/invitations', [WorkspaceInvitationController::class, 'store']);
