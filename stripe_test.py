@@ -463,10 +463,28 @@ class StripeIntegrationTester:
             return False
         
         setup_data = {
-            "selected_goals": ["social_media_growth", "lead_generation", "e_commerce"],
-            "selected_features": ["instagram_management", "crm_system", "product_management"],
-            "subscription_plan": "professional",
-            "setup_completed": True
+            "step1": {
+                "workspaceName": "Stripe Test Workspace Updated",
+                "industry": "technology",
+                "teamSize": "1-5",
+                "businessType": "startup",
+                "businessDescription": "Testing Stripe integration",
+                "timezone": "UTC",
+                "currency": "USD"
+            },
+            "step2": {
+                "selectedGoals": ["social_media_growth", "lead_generation", "e_commerce"]
+            },
+            "step3": {
+                "selectedFeatures": ["instagram_management", "crm_system", "product_management"]
+            },
+            "step4": {
+                "selectedPlan": "professional"
+            },
+            "step5": {},
+            "step6": {
+                "branding": {}
+            }
         }
         
         response, error = self.make_request('POST', f'/workspaces/{self.workspace_id}/complete-setup', setup_data)
