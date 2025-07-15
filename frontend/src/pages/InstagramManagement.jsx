@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
-import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/Card';
 import { Button } from '../components/ui/button';
 import { Badge } from '../components/ui/badge';
 import { AuthContext } from '../contexts/AuthContext';
