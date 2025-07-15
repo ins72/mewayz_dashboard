@@ -206,8 +206,28 @@ class SubscriptionController extends Controller
     /**
      * Create free subscription
      */
-    private function createFreeSubscription(Request $request, Workspace $workspace)
+    public function createFreeSubscription(Request $request)
     {
+        $request->validate([
+            'workspace_id' => 'required|exists:workspaces,id',
+            'feature_count' => 'required|integer|min:1|max:10'
+        ]);
+
+        $user = auth()->user();
+        $workspace = Workspace::findOrFail($request->workspace_id);
+        
+        // Check if user has permission to manage workspace
+        $member = $workspace->members()->where('user_id', $user->id)->first();
+        $isOwner = $workspace->owner_id === $user->id;
+        $isAdmin = $member && in_array($member->role, ['owner', 'admin']);
+        
+        if (!$isOwner && !$isAdmin) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Insufficient permissions. Only workspace owners and admins can create subscriptions.'
+            ], 403);
+        }
+
         // Check feature limits for free plan
         if ($request->feature_count > 10) {
             return response()->json([
@@ -218,15 +238,18 @@ class SubscriptionController extends Controller
 
         $subscription = Subscription::create([
             'id' => Str::uuid(),
-            'user_id' => auth()->id(),
+            'user_id' => $user->id,
             'workspace_id' => $workspace->id,
             'package_id' => 'free',
+            'plan' => 'free',
+            'billing_cycle' => 'yearly',
             'status' => 'active',
             'current_period_start' => now(),
             'current_period_end' => now()->addYear(), // Free plan is yearly
             'amount' => 0,
             'currency' => 'usd',
             'quantity' => $request->feature_count,
+            'features' => [],
             'metadata' => [
                 'plan_id' => 'free',
                 'feature_count' => $request->feature_count,
