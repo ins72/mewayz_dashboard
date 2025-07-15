@@ -134,6 +134,21 @@ backend:
         agent: "testing"
         comment: "❌ FAIL: Stripe Checkout Session Creation still returns invalid JSON response after fixes. Endpoint may have implementation issues with Stripe API integration or response formatting that prevent proper checkout session creation."
 
+  - task: "Free Subscription Creation Endpoint"
+    implemented: true
+    working: true
+    file: "/app/backend/routes/api.php"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Implemented free subscription creation endpoint (POST /api/subscription/free) as part of Stripe integration fixes"
+      - working: true
+        agent: "testing"
+        comment: "✅ PASS: Free Subscription Creation endpoint working correctly! Successfully creates free subscriptions with proper validation and workspace association. New endpoint is fully functional and addresses the need for free subscription creation without Stripe integration."
+
   - task: "Subscription Usage Stats Endpoint"
     implemented: true
     working: true
