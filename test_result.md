@@ -177,9 +177,9 @@ backend:
         comment: "✅ PASS: Order management CRUD operations working correctly. All endpoints now implemented and functional: GET /api/orders (list), POST /api/orders (create), GET /api/orders/{id} (retrieve), PUT /api/orders/{id}/status (update status). Full order lifecycle management is working."
 
   - task: "E-commerce Inventory Alerts"
-    implemented: false
-    working: "NA"
-    file: "N/A"
+    implemented: true
+    working: true
+    file: "/app/backend/app/Http/Controllers/ProductController.php"
     stuck_count: 0
     priority: "medium"
     needs_retesting: false
@@ -190,6 +190,9 @@ backend:
       - working: "NA"
         agent: "testing"
         comment: "❌ NOT IMPLEMENTED: Inventory alerts endpoint (GET /api/inventory/alerts) is not implemented. Returns 404 and not present in Laravel routes."
+      - working: true
+        agent: "testing"
+        comment: "✅ PASS: Inventory alerts endpoint (GET /api/inventory/alerts) now working correctly. Returns proper JSON response for low stock and out of stock alerts. Endpoint is fully implemented and functional."
 
   - task: "E-commerce Product Categories"
     implemented: false
