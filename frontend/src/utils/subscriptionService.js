@@ -227,6 +227,34 @@ class SubscriptionService {
   }
 
   /**
+   * Create Stripe checkout session
+   * @param {Object} checkoutData - The checkout data
+   * @returns {Promise} API response
+   */
+  async createCheckoutSession(checkoutData) {
+    try {
+      const response = await apiClient.post('/subscription/checkout', checkoutData);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  /**
+   * Create free subscription
+   * @param {Object} subscriptionData - The subscription data
+   * @returns {Promise} API response
+   */
+  async createFreeSubscription(subscriptionData) {
+    try {
+      const response = await apiClient.post('/subscription/free', subscriptionData);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  /**
    * Validate feature limits for plan
    * @param {string} planSlug - The plan slug
    * @param {number} featureCount - Number of features
