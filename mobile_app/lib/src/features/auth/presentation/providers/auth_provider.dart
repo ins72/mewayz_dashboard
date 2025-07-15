@@ -13,7 +13,7 @@ import '../../domain/usecases/register_usecase.dart';
 // Repository provider
 final authRepositoryProvider = Provider<AuthRepository>((ref) {
   return AuthRepositoryImpl(
-    remoteDataSource: AuthRemoteDataSource(DependencyInjection.dioClient._dio),
+    remoteDataSource: AuthRemoteDataSource(DependencyInjection.dioClient.dio),
   );
 });
 
