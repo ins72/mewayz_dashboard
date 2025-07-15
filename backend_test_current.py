@@ -278,7 +278,7 @@ class MewayzBackendTester:
             self.log_test("Products", "FAIL", f"Products failed: {response.status_code if response else 'No response'}")
         
         # Test payment packages endpoint
-        response = self.make_request("GET", "/payment/packages")
+        response = self.make_request("GET", "/payments/packages")
         if response and response.status_code == 200:
             self.log_test("Payment Packages", "PASS", "Payment packages endpoint working")
         else:
