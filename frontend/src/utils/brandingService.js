@@ -4,33 +4,27 @@ class BrandingService {
   // Upload logo file
   async uploadLogo(workspaceId, logoFile) {
     try {
-      const fileExt = logoFile.name.split('.').pop();
-      const fileName = `${workspaceId}/logo.${fileExt}`;
-      const filePath = `workspace-branding/${fileName}`;
+      const formData = new FormData();
+      formData.append('logo', logoFile);
+      formData.append('workspace_id', workspaceId);
 
-      const { data, error } = await supabase.storage
-        .from('assets')
-        .upload(filePath, logoFile, {
-          cacheControl: '3600',
-          upsert: true
-        });
+      const response = await apiClient.post('/branding/logo', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
 
-      if (error) {
-        return { success: false, error: error.message };
+      if (response.data.success) {
+        return response.data;
+      } else {
+        return { success: false, error: response.data.error };
       }
-
-      // Get public URL
-      const { data: { publicUrl } } = supabase.storage
-        .from('assets')
-        .getPublicUrl(filePath);
-
-      return { success: true, data: { path: data.path, publicUrl } };
     } catch (error) {
       if (error?.message?.includes('Failed to fetch') || 
           error?.message?.includes('NetworkError')) {
         return { 
           success: false, 
-          error: 'Cannot connect to storage service. Please check your internet connection and try again.' 
+          error: 'Cannot connect to server. Please check your internet connection and try again.' 
         };
       }
       
