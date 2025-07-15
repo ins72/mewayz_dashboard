@@ -141,16 +141,15 @@ php artisan tinker
 4. Configure Nginx/Apache
 5. Set up monitoring and backups
 
-### Environment Configuration
-```bash
-# Backend (.env)
-APP_ENV=production
-DB_CONNECTION=mysql
-STRIPE_SECRET_KEY=sk_live_...
-GOOGLE_CLIENT_ID=...
-ELASTICMAIL_API_KEY=...
+### Production Environment
+Production domain: **mewayz.com**
 
-# Production Environment
+```env
+# Backend (.env)
+APP_URL=https://mewayz.com
+FRONTEND_URL=https://mewayz.com
+
+# Frontend (.env)
 REACT_APP_BACKEND_URL=https://mewayz.com/api
 ```
 
