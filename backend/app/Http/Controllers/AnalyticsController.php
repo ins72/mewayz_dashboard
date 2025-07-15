@@ -124,6 +124,20 @@ class AnalyticsController extends Controller
             $request->input('metadata', []),
             $request->input('value', 0)
         );
+
+        // Broadcast real-time analytics update
+        broadcast(new AnalyticsUpdated(
+            $workspaceId,
+            $user->id,
+            $request->input('module'),
+            [
+                'action' => $request->input('action'),
+                'entity_type' => $request->input('entity_type'),
+                'entity_id' => $request->input('entity_id'),
+                'value' => $request->input('value', 0),
+                'metadata' => $request->input('metadata', [])
+            ]
+        ));
         
         return response()->json([
             'success' => true,
