@@ -263,12 +263,9 @@ metadata:
 
 test_plan:
   current_focus:
-    - "E-commerce Stock Management"
-    - "E-commerce Order Management"
-    - "E-commerce Inventory Alerts"
-    - "E-commerce Product Categories"
+    []
   stuck_tasks:
-    - "E-commerce Stock Management"
+    []
   test_all: false
   test_priority: "high_first"
 
