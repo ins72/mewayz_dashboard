@@ -164,7 +164,7 @@ class TeamManagementController extends Controller
         }
         
         // Create workspace user
-        $workspaceUser = WorkspaceUser::create([
+        $workspaceUser = WorkspaceMember::create([
             'workspace_id' => $workspaceId,
             'user_id' => $invitedUser->id,
             'role_id' => $roleId,
