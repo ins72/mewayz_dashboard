@@ -491,11 +491,12 @@ metadata:
 
 test_plan:
   current_focus:
-    - "CRM Management Page Integration"
-    - "Sales Pipeline Component Integration"
-    - "Communication History Component Integration"
-    - "CRM Service Layer Integration"
-    - "CRM Route Configuration"
+    - "Marketing Analytics Dashboard"
+    - "Marketing Automation Workflows"
+    - "Marketing Content Management"
+    - "Marketing Lead Magnets"
+    - "Marketing Social Media Management"
+    - "Marketing Conversion Funnels"
   stuck_tasks:
     []
   test_all: false
