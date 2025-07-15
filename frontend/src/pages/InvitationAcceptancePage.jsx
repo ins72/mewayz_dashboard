@@ -25,7 +25,7 @@ const InvitationAcceptancePage = () => {
       setLoading(true);
       setError(null);
       
-      const result = await laravelInvitationService.getInvitationByToken(token);
+      const result = await invitationService.getInvitationByToken(token);
       
       if (result.success) {
         setInvitation(result.data);
