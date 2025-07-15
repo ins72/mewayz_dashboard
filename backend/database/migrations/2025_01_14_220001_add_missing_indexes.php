@@ -183,9 +183,10 @@ return new class extends Migration
         
         foreach ($tables as $table) {
             try {
-                DB::statement("ANALYZE TABLE {$table}");
+                // SQLite uses ANALYZE instead of ANALYZE TABLE
+                DB::statement("ANALYZE {$table}");
             } catch (\Exception $e) {
-                // Handle databases that don't support ANALYZE TABLE
+                // Handle databases that don't support ANALYZE
                 \Log::info("Could not analyze table {$table}: " . $e->getMessage());
             }
         }
