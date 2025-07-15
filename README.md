@@ -137,58 +137,38 @@ yarn start
 - Sales pipeline
 - Customer insights
 
-## 🔧 **Development**
+## 📚 Documentation
 
-### **Project Structure**
-```
-/app/
-├── backend/                 # Laravel application
-│   ├── app/
-│   │   ├── Http/Controllers/    # API controllers
-│   │   ├── Models/             # Eloquent models
-│   │   └── Services/           # Business logic
-│   ├── database/
-│   │   ├── migrations/         # Database migrations
-│   │   └── seeders/           # Database seeders
-│   └── routes/api.php         # API routes
-├── src/                     # React application
-│   ├── components/            # UI components
-│   ├── pages/                # Page components
-│   ├── services/             # API services
-│   ├── contexts/             # React contexts
-│   └── utils/                # Utility functions
-└── public/                  # Static assets
-```
+All documentation is organized in the `/docs` folder:
 
-### **Key Commands**
+- **API Documentation**: Complete API reference
+- **Development Guide**: Setup and development instructions
+- **User Guide**: End-user documentation
+- **Deployment Guide**: Production deployment instructions
+- **Security Guide**: Security best practices
+
+## 🧪 Testing
+
+The project includes comprehensive testing:
+
+### Backend Testing
 ```bash
-# Backend
-composer install              # Install PHP dependencies
-php artisan migrate           # Run database migrations
-php artisan serve            # Start development server
-php artisan test             # Run tests
-
-# Frontend
-yarn install                 # Install Node.js dependencies
-yarn start                  # Start development server
-yarn build                  # Build for production
-```
-
-## 🧪 **Testing**
-
-### **Test Coverage**
-- **Backend**: 88.6% success rate (31/35 tests)
-- **Frontend**: 98% success rate (49/50 elements)
-- **Overall**: 93.2% success rate
-
-### **Testing Commands**
-```bash
-# Backend tests
+# Run backend tests
 cd backend
 php artisan test
+```
 
-# Frontend tests
+### Frontend Testing
+```bash
+# Run frontend tests
+cd frontend
 yarn test
+```
+
+### Integration Testing
+```bash
+# Run integration tests
+python tests/scripts/backend_test_comprehensive.py
 ```
 
 ## 📈 **Performance**
