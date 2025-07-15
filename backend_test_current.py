@@ -135,8 +135,9 @@ class MewayzBackendTester:
         response = self.make_request("POST", "/workspaces", workspace_data)
         if response and response.status_code == 201:
             data = response.json()
-            if data.get("id"):
-                self.workspace_id = data["id"]
+            workspace_data = data.get("workspace", data)  # Handle both formats
+            if workspace_data.get("id"):
+                self.workspace_id = workspace_data["id"]
                 self.log_test("Create Workspace", "PASS", "Workspace created successfully")
             else:
                 self.log_test("Create Workspace", "FAIL", "Workspace created but no ID returned")
