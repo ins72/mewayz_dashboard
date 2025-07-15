@@ -171,6 +171,17 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Social Media Analytics routes
     Route::get('social-media/analytics', [SocialMediaPostController::class, 'getAnalytics']);
+    
+    // Instagram Management routes
+    Route::get('instagram/content-calendar', [InstagramManagementController::class, 'getContentCalendar']);
+    Route::get('instagram/stories', [InstagramManagementController::class, 'getStories']);
+    Route::post('instagram/stories', [InstagramManagementController::class, 'createStory']);
+    Route::get('instagram/hashtag-research', [InstagramManagementController::class, 'getHashtagResearch']);
+    Route::post('instagram/hashtag-analytics', [InstagramManagementController::class, 'updateHashtagAnalytics']);
+    Route::get('instagram/analytics-dashboard', [InstagramManagementController::class, 'getAnalyticsDashboard']);
+    Route::get('instagram/competitor-analysis', [InstagramManagementController::class, 'getCompetitorAnalysis']);
+    Route::post('instagram/competitors', [InstagramManagementController::class, 'addCompetitor']);
+    Route::get('instagram/optimal-posting-times', [InstagramManagementController::class, 'getOptimalPostingTimes']);
 });
 
 // Public Link in Bio page view
