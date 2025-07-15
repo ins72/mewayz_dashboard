@@ -207,7 +207,7 @@ class WorkspaceController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => $goals
+            'goals' => $goals
         ]);
     }
 
