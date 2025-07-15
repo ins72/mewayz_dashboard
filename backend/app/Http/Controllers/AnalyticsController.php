@@ -6,6 +6,10 @@ use App\Models\Analytics;
 use App\Models\Workspace;
 use App\Models\User;
 use App\Events\AnalyticsUpdated;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class AnalyticsController extends Controller
 {
