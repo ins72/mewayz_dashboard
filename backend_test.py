@@ -4450,6 +4450,192 @@ class BackendTester:
             self.log_test("Subscription Usage", False, f"Subscription usage endpoint failed with HTTP {response.status_code}: {response.text[:200]}")
             return False
 
+    def test_stripe_integration_fixes(self):
+        """Test the Stripe integration fixes mentioned in the review request"""
+        print("🔧 Testing Stripe Integration Fixes")
+        print("=" * 50)
+        
+        # Test 1: Create free subscription (NEW endpoint)
+        self.test_free_subscription_creation()
+        
+        # Test 2: Stripe checkout session creation (FIXED)
+        self.test_stripe_checkout_session_creation()
+        
+        # Test 3: Complete workspace setup (FIXED)
+        self.test_workspace_complete_setup_fixed()
+        
+        # Test 4: Get current subscription
+        self.test_current_subscription_fixed()
+        
+        # Test 5: Get subscription usage stats
+        self.test_subscription_usage_stats_fixed()
+    
+    def test_free_subscription_creation(self):
+        """Test POST /api/subscription/free - Create free subscription (NEW)"""
+        if not self.token or not self.workspace_id:
+            self.log_test("Free Subscription Creation", False, "Missing authentication token or workspace ID")
+            return False
+        
+        data = {
+            "workspace_id": self.workspace_id,
+            "feature_count": 5
+        }
+        
+        response, error = self.make_request('POST', '/subscription/free', data)
+        
+        if error:
+            self.log_test("Free Subscription Creation", False, f"Request failed: {error}")
+            return False
+        
+        if response.status_code in [200, 201]:
+            try:
+                result = response.json()
+                if result.get('success') and result.get('subscription'):
+                    self.log_test("Free Subscription Creation", True, "Free subscription created successfully")
+                    return True
+                else:
+                    self.log_test("Free Subscription Creation", False, f"Free subscription creation failed: {result.get('message', 'Unknown error')}")
+                    return False
+            except json.JSONDecodeError:
+                self.log_test("Free Subscription Creation", False, "Invalid JSON response")
+                return False
+        else:
+            self.log_test("Free Subscription Creation", False, f"HTTP {response.status_code}: {response.text[:200]}")
+            return False
+    
+    def test_stripe_checkout_session_creation(self):
+        """Test POST /api/subscription/checkout - Stripe checkout session creation (FIXED)"""
+        if not self.token or not self.workspace_id:
+            self.log_test("Stripe Checkout Session Creation", False, "Missing authentication token or workspace ID")
+            return False
+        
+        data = {
+            "workspace_id": self.workspace_id,
+            "plan": "professional",
+            "billing_cycle": "monthly"
+        }
+        
+        response, error = self.make_request('POST', '/subscription/checkout', data)
+        
+        if error:
+            self.log_test("Stripe Checkout Session Creation", False, f"Request failed: {error}")
+            return False
+        
+        if response.status_code in [200, 201]:
+            try:
+                result = response.json()
+                if result.get('success') and result.get('checkout_url'):
+                    self.log_test("Stripe Checkout Session Creation", True, "Stripe checkout session created successfully")
+                    return True
+                else:
+                    self.log_test("Stripe Checkout Session Creation", False, f"Checkout session creation failed: {result.get('message', 'Unknown error')}")
+                    return False
+            except json.JSONDecodeError:
+                self.log_test("Stripe Checkout Session Creation", False, "Invalid JSON response")
+                return False
+        else:
+            self.log_test("Stripe Checkout Session Creation", False, f"HTTP {response.status_code}: {response.text[:200]}")
+            return False
+    
+    def test_workspace_complete_setup_fixed(self):
+        """Test POST /api/workspaces/{id}/complete-setup - Complete workspace setup (FIXED)"""
+        if not self.token or not self.workspace_id:
+            self.log_test("Workspace Complete Setup (Fixed)", False, "Missing authentication token or workspace ID")
+            return False
+        
+        data = {
+            "selected_goals": ["content_creation", "audience_growth"],
+            "selected_features": ["social_media_management", "analytics"],
+            "subscription_plan": "free",
+            "feature_count": 3
+        }
+        
+        response, error = self.make_request('POST', f'/workspaces/{self.workspace_id}/complete-setup', data)
+        
+        if error:
+            self.log_test("Workspace Complete Setup (Fixed)", False, f"Request failed: {error}")
+            return False
+        
+        if response.status_code in [200, 201]:
+            try:
+                result = response.json()
+                if result.get('success'):
+                    self.log_test("Workspace Complete Setup (Fixed)", True, "Workspace setup completed successfully")
+                    return True
+                else:
+                    self.log_test("Workspace Complete Setup (Fixed)", False, f"Workspace setup failed: {result.get('message', 'Unknown error')}")
+                    return False
+            except json.JSONDecodeError:
+                self.log_test("Workspace Complete Setup (Fixed)", False, "Invalid JSON response")
+                return False
+        else:
+            self.log_test("Workspace Complete Setup (Fixed)", False, f"HTTP {response.status_code}: {response.text[:200]}")
+            return False
+    
+    def test_current_subscription_fixed(self):
+        """Test GET /api/subscription/current - Get current subscription (Fixed)"""
+        if not self.token:
+            self.log_test("Current Subscription (Fixed)", False, "No authentication token available")
+            return False
+        
+        response, error = self.make_request('GET', '/subscription/current')
+        
+        if error:
+            self.log_test("Current Subscription (Fixed)", False, f"Request failed: {error}")
+            return False
+        
+        if response.status_code == 200:
+            try:
+                result = response.json()
+                if result.get('success'):
+                    subscription = result.get('subscription')
+                    if subscription:
+                        self.log_test("Current Subscription (Fixed)", True, f"Current subscription retrieved: {subscription.get('plan', 'Unknown plan')}")
+                    else:
+                        self.log_test("Current Subscription (Fixed)", True, "No current subscription (expected for new user)")
+                    return True
+                else:
+                    self.log_test("Current Subscription (Fixed)", False, f"Failed to get current subscription: {result.get('message', 'Unknown error')}")
+                    return False
+            except json.JSONDecodeError:
+                self.log_test("Current Subscription (Fixed)", False, "Invalid JSON response")
+                return False
+        else:
+            self.log_test("Current Subscription (Fixed)", False, f"HTTP {response.status_code}: {response.text[:200]}")
+            return False
+    
+    def test_subscription_usage_stats_fixed(self):
+        """Test GET /api/subscription/usage - Get subscription usage stats (Fixed)"""
+        if not self.token:
+            self.log_test("Subscription Usage Stats (Fixed)", False, "No authentication token available")
+            return False
+        
+        response, error = self.make_request('GET', '/subscription/usage')
+        
+        if error:
+            self.log_test("Subscription Usage Stats (Fixed)", False, f"Request failed: {error}")
+            return False
+        
+        if response.status_code == 200:
+            try:
+                result = response.json()
+                if result.get('success') and result.get('usage'):
+                    self.log_test("Subscription Usage Stats (Fixed)", True, "Subscription usage stats retrieved successfully")
+                    return True
+                else:
+                    self.log_test("Subscription Usage Stats (Fixed)", False, f"Failed to get usage stats: {result.get('message', 'Unknown error')}")
+                    return False
+            except json.JSONDecodeError:
+                self.log_test("Subscription Usage Stats (Fixed)", False, "Invalid JSON response")
+                return False
+        elif response.status_code == 404:
+            # 404 is expected if no subscription exists
+            self.log_test("Subscription Usage Stats (Fixed)", True, "No subscription found (expected behavior)")
+            return True
+        else:
+            self.log_test("Subscription Usage Stats (Fixed)", False, f"HTTP {response.status_code}: {response.text[:200]}")
+            return False
+
     def run_all_tests(self):
         """Run all backend tests"""
         print("=" * 60)
