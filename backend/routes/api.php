@@ -58,6 +58,14 @@ Route::middleware('auth:sanctum')->group(function () {
     // Workspace routes
     Route::apiResource('workspaces', WorkspaceController::class);
     
+    // Workspace setup wizard routes
+    Route::get('goals', [WorkspaceController::class, 'getGoals']);
+    Route::get('goals/{goalId}/features', [WorkspaceController::class, 'getFeaturesByGoal']);
+    Route::get('subscription-plans', [WorkspaceController::class, 'getSubscriptionPlans']);
+    Route::post('workspaces/{workspace}/complete-setup', [WorkspaceController::class, 'completeWorkspaceSetup']);
+    Route::post('workspaces/{workspace}/setup-progress', [WorkspaceController::class, 'saveSetupProgress']);
+    Route::get('workspaces/{workspace}/setup-progress', [WorkspaceController::class, 'getSetupProgress']);
+    
     // Workspace invitation routes
     Route::get('workspaces/{workspace}/invitations', [WorkspaceInvitationController::class, 'index']);
     Route::post('workspaces/{workspace}/invitations', [WorkspaceInvitationController::class, 'store']);
