@@ -14,70 +14,82 @@ return new class extends Migration
     {
         // Add performance indexes for workspace_invitations
         Schema::table('workspace_invitations', function (Blueprint $table) {
-            // Composite index for most common query patterns
-            $table->index(['workspace_id', 'status', 'created_at'], 'idx_workspace_status_created');
+            // Only add indexes if they don't exist
+            if (!$this->indexExists('workspace_invitations', 'idx_workspace_status_created')) {
+                $table->index(['workspace_id', 'status', 'created_at'], 'idx_workspace_status_created');
+            }
             
-            // Index for email lookups
-            $table->index(['email', 'status'], 'idx_email_status');
+            if (!$this->indexExists('workspace_invitations', 'idx_email_status')) {
+                $table->index(['email', 'status'], 'idx_email_status');
+            }
             
-            // Index for token lookups (already exists but ensure it's optimized)
-            $table->index(['token', 'status', 'expires_at'], 'idx_token_status_expires');
+            if (!$this->indexExists('workspace_invitations', 'idx_token_status_expires')) {
+                $table->index(['token', 'status', 'expires_at'], 'idx_token_status_expires');
+            }
             
-            // Index for invited_by user
-            $table->index(['invited_by', 'created_at'], 'idx_invited_by_created');
+            if (!$this->indexExists('workspace_invitations', 'idx_invited_by_created')) {
+                $table->index(['invited_by', 'created_at'], 'idx_invited_by_created');
+            }
             
-            // Index for role-based queries
-            $table->index(['role', 'workspace_id'], 'idx_role_workspace');
+            if (!$this->indexExists('workspace_invitations', 'idx_role_workspace')) {
+                $table->index(['role', 'workspace_id'], 'idx_role_workspace');
+            }
         });
         
         // Add performance indexes for users
         Schema::table('users', function (Blueprint $table) {
-            // Index for email lookups (if not already exists)
-            if (!$this->indexExists('users', 'users_email_index')) {
-                $table->index(['email'], 'idx_users_email');
+            if (!$this->indexExists('users', 'idx_users_google_id')) {
+                $table->index(['google_id'], 'idx_users_google_id');
             }
             
-            // Index for Google OAuth
-            $table->index(['google_id'], 'idx_users_google_id');
+            if (!$this->indexExists('users', 'idx_users_email_verified')) {
+                $table->index(['email_verified_at'], 'idx_users_email_verified');
+            }
             
-            // Index for email verification
-            $table->index(['email_verified_at'], 'idx_users_email_verified');
-            
-            // Index for active users
-            $table->index(['created_at', 'email_verified_at'], 'idx_users_created_verified');
+            if (!$this->indexExists('users', 'idx_users_created_verified')) {
+                $table->index(['created_at', 'email_verified_at'], 'idx_users_created_verified');
+            }
         });
         
         // Add performance indexes for workspaces
         Schema::table('workspaces', function (Blueprint $table) {
-            // Index for user's workspaces
-            $table->index(['owner_id', 'created_at'], 'idx_workspaces_owner_created');
+            if (!$this->indexExists('workspaces', 'idx_workspaces_owner_created')) {
+                $table->index(['owner_id', 'created_at'], 'idx_workspaces_owner_created');
+            }
             
-            // Index for workspace search
-            $table->index(['name'], 'idx_workspaces_name');
+            if (!$this->indexExists('workspaces', 'idx_workspaces_name')) {
+                $table->index(['name'], 'idx_workspaces_name');
+            }
             
-            // Index for active workspaces
-            $table->index(['status', 'created_at'], 'idx_workspaces_status_created');
+            if (!$this->indexExists('workspaces', 'idx_workspaces_status_created')) {
+                $table->index(['status', 'created_at'], 'idx_workspaces_status_created');
+            }
         });
         
         // Add performance indexes for workspace_members
         Schema::table('workspace_members', function (Blueprint $table) {
-            // Composite index for member lookups
-            $table->index(['workspace_id', 'user_id'], 'idx_workspace_user');
+            if (!$this->indexExists('workspace_members', 'idx_workspace_user')) {
+                $table->index(['workspace_id', 'user_id'], 'idx_workspace_user');
+            }
             
-            // Index for user's workspaces
-            $table->index(['user_id', 'role'], 'idx_user_role');
+            if (!$this->indexExists('workspace_members', 'idx_user_role')) {
+                $table->index(['user_id', 'role'], 'idx_user_role');
+            }
             
-            // Index for workspace team
-            $table->index(['workspace_id', 'role', 'joined_at'], 'idx_workspace_role_joined');
+            if (!$this->indexExists('workspace_members', 'idx_workspace_role_joined')) {
+                $table->index(['workspace_id', 'role', 'joined_at'], 'idx_workspace_role_joined');
+            }
         });
         
         // Add performance indexes for invitation_batches
         Schema::table('invitation_batches', function (Blueprint $table) {
-            // Index for workspace batch lookups
-            $table->index(['workspace_id', 'status'], 'idx_batch_workspace_status');
+            if (!$this->indexExists('invitation_batches', 'idx_batch_workspace_status')) {
+                $table->index(['workspace_id', 'status'], 'idx_batch_workspace_status');
+            }
             
-            // Index for user's batches
-            $table->index(['created_by', 'created_at'], 'idx_batch_created_by');
+            if (!$this->indexExists('invitation_batches', 'idx_batch_created_by')) {
+                $table->index(['created_by', 'created_at'], 'idx_batch_created_by');
+            }
         });
         
         // Create database views for common queries
