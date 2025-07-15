@@ -58,6 +58,14 @@ class InvitationService {
     } catch (error) {
       console.error('Error creating bulk invitations:', error);
       
+      if (error?.message?.includes('Failed to fetch') || 
+          error?.message?.includes('NetworkError')) {
+        return { 
+          success: false, 
+          error: 'Cannot connect to invitation service. Please check your internet connection and try again.' 
+        };
+      }
+      
       // Mock success response for development
       return {
         success: true,
@@ -70,19 +78,6 @@ class InvitationService {
             createdAt: new Date().toISOString()
           }))
         }
-      };
-    } catch (error) {
-      if (error?.message?.includes('Failed to fetch') || 
-          error?.message?.includes('NetworkError')) {
-        return { 
-          success: false, 
-          error: 'Cannot connect to invitation service. Please check your internet connection and try again.' 
-        };
-      }
-      
-      return { 
-        success: false, 
-        error: 'Failed to create bulk invitations' 
       };
     }
   }
