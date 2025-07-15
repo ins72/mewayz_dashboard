@@ -34,7 +34,7 @@ class AnalyticsController extends Controller
         $overview = $this->getOverviewMetrics($workspaceId, $startDate);
         
         // Get module-specific analytics
-        $moduleAnalytics = $this->getModuleAnalytics($workspaceId, $startDate, $modules);
+        $moduleAnalytics = $this->getModuleAnalyticsData($workspaceId, $startDate, $modules);
         
         // Get timeline data
         $timeline = $this->getTimelineData($workspaceId, $startDate, $period);
