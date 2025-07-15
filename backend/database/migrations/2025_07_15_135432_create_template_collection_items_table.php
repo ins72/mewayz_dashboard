@@ -12,8 +12,17 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('template_collection_items', function (Blueprint $table) {
-            $table->id();
+            $table->uuid('id')->primary();
+            $table->uuid('template_collection_id');
+            $table->uuid('template_id');
+            $table->integer('sort_order')->default(0);
             $table->timestamps();
+
+            $table->foreign('template_collection_id')->references('id')->on('template_collections')->onDelete('cascade');
+            $table->foreign('template_id')->references('id')->on('templates')->onDelete('cascade');
+            
+            $table->unique(['template_collection_id', 'template_id']);
+            $table->index(['template_collection_id', 'sort_order']);
         });
     }
 
