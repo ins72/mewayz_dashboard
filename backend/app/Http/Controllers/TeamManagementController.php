@@ -294,7 +294,7 @@ class TeamManagementController extends Controller
             return response()->json(['error' => 'Insufficient permissions'], 403);
         }
         
-        $member = WorkspaceUser::where('id', $memberId)
+        $member = WorkspaceMember::where('id', $memberId)
             ->where('workspace_id', $workspaceId)
             ->with('user')
             ->first();
