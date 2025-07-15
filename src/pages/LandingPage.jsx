@@ -37,7 +37,7 @@ const LandingPage = () => {
       role: "Marketing Director",
       company: "TechStart Inc.",
       avatar: "https://images.unsplash.com/photo-1494790108755-2616b5fc121d?w=150&h=150&fit=crop&crop=face",
-      content: "Mewayz transformed our social media strategy. We've seen a 300% increase in engagement and our workflow is now seamless."
+      content: "Mewayz transformed our social media strategy. We've seen a 300% increase in engagement and our workflow is now smooth and efficient."
     },
     {
       name: "Michael Chen",
