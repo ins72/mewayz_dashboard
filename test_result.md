@@ -48,7 +48,7 @@ backend:
     implemented: true
     working: false
     file: "/app/backend/routes/api.php"
-    stuck_count: 3
+    stuck_count: 4
     priority: "high"
     needs_retesting: false
     status_history:
@@ -70,6 +70,9 @@ backend:
       - working: false
         agent: "testing"
         comment: "❌ CRITICAL ISSUE CONFIRMED: After PHP Laravel backend fix, Workspace Setup Progress endpoints still return HTML instead of JSON. Both POST and GET /api/workspaces/{id}/setup-progress return HTTP 200 with HTML content (React dev server response). This confirms routing misconfiguration where API endpoints are being intercepted by frontend routing instead of reaching Laravel backend. Backend service is running correctly on port 8001, but API routing is not properly configured."
+      - working: false
+        agent: "testing"
+        comment: "❌ CRITICAL ISSUE PERSISTS: After comprehensive backend testing, Workspace Setup Progress endpoints still return HTML instead of JSON - routing misconfiguration remains unresolved. Both POST and GET /api/workspaces/{id}/setup-progress return HTTP 200 with HTML content, confirming that API requests are being intercepted by frontend routing instead of reaching Laravel backend. This is a critical infrastructure issue requiring immediate attention to fix API routing configuration."
 
   - task: "Workspace Complete Setup Endpoint"
     implemented: true
