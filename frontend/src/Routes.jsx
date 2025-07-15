@@ -168,6 +168,11 @@ const Routes = () => {
               <LinkInBioManagement />
             </ProtectedRoute>
           } />
+          <Route path="/marketing-hub" element={
+            <ProtectedRoute>
+              <MarketingHub />
+            </ProtectedRoute>
+          } />
           
           {/* 404 route */}
           <Route path="*" element={<NotFound />} />
