@@ -51,6 +51,8 @@ class User extends Authenticatable
         'status',
         'preferences',
         'stripe_customer_id',
+        'google_id',
+        'avatar',
     ];
 
     /**
