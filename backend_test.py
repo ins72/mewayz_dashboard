@@ -3891,6 +3891,9 @@ class BackendTester:
             self.test_authenticated_user_data,
             self.test_workspace_creation,
             self.test_workspace_listing,
+            # CRITICAL BUG FIXES VALIDATION - Priority Testing
+            self.test_critical_bug_fixes_team_management,
+            self.test_critical_bug_fixes_gamification,
             self.test_social_media_endpoints,
             self.test_link_in_bio_endpoints,
             self.test_crm_endpoints,
