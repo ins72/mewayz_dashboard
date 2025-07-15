@@ -143,7 +143,7 @@ class TeamManagementController extends Controller
                 'status' => $member->status,
                 'joined_at' => $member->created_at,
                 'last_activity' => $member->last_activity_at,
-                'permissions' => $member->role->permissions
+                'permissions' => $member->role && is_object($member->role) ? $member->role->permissions : []
             ];
         });
         
