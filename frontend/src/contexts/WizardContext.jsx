@@ -1,16 +1,20 @@
 import React, { createContext, useContext, useReducer, useEffect } from 'react';
-import { useAuth } from './AuthContext';
+import { useNavigate } from 'react-router-dom';
+import invitationService from '../utils/invitationService';
+import workspaceService from '../services/workspaceService';
+import subscriptionService from '../utils/subscriptionService';
+import brandingService from '../utils/brandingService';
 
 const WizardContext = createContext();
 
 // Wizard steps configuration
-export const WIZARD_STEPS = {
+const WIZARD_STEPS = {
   WELCOME_BASICS: 1,
   GOAL_SELECTION: 2,
   FEATURE_SELECTION: 3,
   SUBSCRIPTION_PLAN: 4,
   TEAM_SETUP: 5,
-  BRANDING: 6
+  BRANDING_CONFIGURATION: 6
 };
 
 export const TOTAL_STEPS = 6;
