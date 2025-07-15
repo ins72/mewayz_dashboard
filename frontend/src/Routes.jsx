@@ -146,6 +146,28 @@ const Routes = () => {
             </ProtectedRoute>
           } />
           
+          {/* Management Pages */}
+          <Route path="/crm-management" element={
+            <ProtectedRoute>
+              <CRMManagement />
+            </ProtectedRoute>
+          } />
+          <Route path="/product-management" element={
+            <ProtectedRoute>
+              <ProductManagement />
+            </ProtectedRoute>
+          } />
+          <Route path="/course-management" element={
+            <ProtectedRoute>
+              <CourseManagement />
+            </ProtectedRoute>
+          } />
+          <Route path="/link-in-bio-management" element={
+            <ProtectedRoute>
+              <LinkInBioManagement />
+            </ProtectedRoute>
+          } />
+          
           {/* 404 route */}
           <Route path="*" element={<NotFound />} />
         </RouterRoutes>
