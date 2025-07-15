@@ -150,8 +150,8 @@ STRIPE_SECRET_KEY=sk_live_...
 GOOGLE_CLIENT_ID=...
 ELASTICMAIL_API_KEY=...
 
-# Frontend (.env)
-REACT_APP_BACKEND_URL=https://yourdomain.com/api
+# Production Environment
+REACT_APP_BACKEND_URL=https://mewayz.com/api
 ```
 
 ## 🧪 Testing
