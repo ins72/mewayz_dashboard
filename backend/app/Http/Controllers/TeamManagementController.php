@@ -6,7 +6,7 @@ use App\Models\TeamRole;
 use App\Models\TeamActivity;
 use App\Models\TeamNotification;
 use App\Models\TeamTask;
-use App\Models\WorkspaceUser;
+use App\Models\WorkspaceMember;
 use App\Models\Workspace;
 use App\Models\User;
 use Illuminate\Http\Request;
