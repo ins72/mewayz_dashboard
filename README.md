@@ -171,47 +171,35 @@ yarn test
 python tests/scripts/backend_test_comprehensive.py
 ```
 
-## 📈 **Performance**
+## 🚀 Deployment
 
-### **Backend Performance**
-- **API Response Time**: Average 200ms
-- **Database Queries**: Optimized with proper indexing
-- **Error Rate**: <2% (88.6% success rate)
-- **Concurrent Users**: Designed for enterprise scale
+### Development
+```bash
+# Start all services
+sudo supervisorctl start all
+```
 
-### **Frontend Performance**
-- **Load Time**: <3 seconds initial load
-- **Bundle Size**: Optimized with Vite
-- **Interactive Elements**: 49/50 working (98%)
-- **Mobile Performance**: Fully responsive
+### Production
+See [docs/deployment/UPDATED_DEPLOYMENT_GUIDE.md](docs/deployment/UPDATED_DEPLOYMENT_GUIDE.md) for detailed deployment instructions.
 
-## 🔐 **Security**
+## 🔑 Environment Variables
 
-### **Authentication & Authorization**
-- JWT tokens with Laravel Sanctum
-- Role-based access control
-- OAuth integration (Google)
-- Session management
-- API rate limiting
+### Backend (.env)
+```env
+DB_CONNECTION=sqlite
+DB_DATABASE=/app/backend/database/database.sqlite
+JWT_SECRET=your-jwt-secret
+STRIPE_SECRET=your-stripe-secret
+GOOGLE_CLIENT_ID=your-google-client-id
+GOOGLE_CLIENT_SECRET=your-google-client-secret
+```
 
-### **Data Protection**
-- UUID primary keys
-- Input validation on all endpoints
-- CSRF protection
-- Password hashing (Bcrypt)
-- SQL injection prevention
-
-## 🚀 **Deployment**
-
-### **Production Requirements**
-- **Server**: Linux server with PHP 8.2+
-- **Database**: MySQL 8.0+ or PostgreSQL 13+
-- **Web Server**: Nginx or Apache
-- **SSL**: HTTPS certificate required
-- **Environment**: .env configuration for production
-
-### **Deployment Steps**
-See [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md) for detailed instructions.
+### Frontend (.env)
+```env
+VITE_API_URL=http://localhost:8001/api
+VITE_STRIPE_PUBLISHABLE_KEY=your-stripe-publishable-key
+VITE_GOOGLE_CLIENT_ID=your-google-client-id
+```
 
 ## 🌟 **Business Features**
 
