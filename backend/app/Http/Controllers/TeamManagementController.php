@@ -500,7 +500,7 @@ class TeamManagementController extends Controller
         }
         
         // Check if role is in use
-        $roleInUse = WorkspaceUser::where('role_id', $roleId)->exists();
+        $roleInUse = WorkspaceMember::where('role_id', $roleId)->exists();
         if ($roleInUse) {
             return response()->json(['error' => 'Cannot delete role that is currently assigned to users'], 400);
         }
