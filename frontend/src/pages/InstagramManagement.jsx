@@ -15,8 +15,8 @@ import OptimalPostingTimes from '../components/instagram/OptimalPostingTimes';
 import { Calendar, Video, Hash, BarChart3, Users, Clock } from 'lucide-react';
 
 const InstagramManagement = () => {
-  const { user } = useContext(AuthContext);
-  const { currentWorkspace } = useContext(WorkspaceContext);
+  const { user } = useAuth();
+  const { currentWorkspace } = useWorkspace();
   const [activeTab, setActiveTab] = useState('calendar');
   const [loading, setLoading] = useState(true);
   const [accountInfo, setAccountInfo] = useState(null);
