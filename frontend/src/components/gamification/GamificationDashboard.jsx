@@ -8,6 +8,7 @@ import {
   Crown, Medal, Zap, Fire, Calendar, Gift
 } from 'lucide-react';
 import gamificationService from '../../services/gamificationService';
+import { useRealTimeWorkspace } from '../../hooks/useRealTime';
 
 const GamificationDashboard = ({ workspaceId }) => {
   const [gamificationData, setGamificationData] = useState(null);
@@ -17,12 +18,31 @@ const GamificationDashboard = ({ workspaceId }) => {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('overview');
   const [selectedCategory, setSelectedCategory] = useState('all');
+  
+  // Use real-time WebSocket connection for gamification updates
+  const { gamificationUpdate, isConnected } = useRealTimeWorkspace(workspaceId);
 
   useEffect(() => {
     if (workspaceId) {
       loadGamificationData();
     }
   }, [workspaceId]);
+
+  // Handle real-time gamification updates (achievements, progress, etc.)
+  useEffect(() => {
+    if (gamificationUpdate) {
+      console.log('Real-time gamification update received:', gamificationUpdate);
+      
+      // Update specific gamification data based on the update type
+      if (gamificationUpdate.type === 'achievement_unlocked') {
+        setAchievements(prev => [...prev, gamificationUpdate.achievement]);
+      } else if (gamificationUpdate.type === 'progress_updated') {
+        setUserProgress(prev => ({ ...prev, ...gamificationUpdate.progress }));
+      } else if (gamificationUpdate.type === 'leaderboard_updated') {
+        setLeaderboard(gamificationUpdate.leaderboard);
+      }
+    }
+  }, [gamificationUpdate]);
 
   const loadGamificationData = async () => {
     setLoading(true);
