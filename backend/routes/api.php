@@ -13,6 +13,7 @@ use App\Http\Controllers\CrmPipelineController;
 use App\Http\Controllers\CrmTaskController;
 use App\Http\Controllers\CrmCommunicationController;
 use App\Http\Controllers\CrmAutomationController;
+use App\Http\Controllers\MarketingHubController;
 use App\Http\Controllers\CourseController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\OrderController;
