@@ -133,4 +133,5 @@ export const useAuth = () => {
 };
 
 export { AuthContext };
+export { AuthContext };
 export default AuthContext;
