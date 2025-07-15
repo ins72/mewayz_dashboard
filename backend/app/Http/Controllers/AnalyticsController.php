@@ -318,7 +318,7 @@ class AnalyticsController extends Controller
         ];
     }
     
-    private function getModuleAnalytics($workspaceId, $startDate, $modules = [])
+    private function getModuleAnalyticsData($workspaceId, $startDate, $modules = [])
     {
         $query = Analytics::forWorkspace($workspaceId)
             ->forPeriod($startDate, now());
