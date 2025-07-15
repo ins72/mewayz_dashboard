@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import laravelInvitationService from '../utils/laravelInvitationService';
+import invitationService from '../utils/invitationService';
 import Button from '../components/ui/Button';
 import { Users, CheckCircle, XCircle, Clock, Mail, User } from 'lucide-react';
 
