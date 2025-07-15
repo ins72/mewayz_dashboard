@@ -528,7 +528,7 @@ backend:
     implemented: true
     working: false
     file: "/app/backend/app/Http/Controllers/CrmTaskController.php"
-    stuck_count: 1
+    stuck_count: 2
     priority: "high"
     needs_retesting: true
     status_history:
@@ -541,6 +541,9 @@ backend:
       - working: false
         agent: "testing"
         comment: "❌ FAIL: CRM Tasks Management has permission issues. Task status update fails with 'Insufficient permissions to update task' error. Core CRUD operations may work but status management has authorization problems."
+      - working: false
+        agent: "testing"
+        comment: "❌ FAIL: CRM Tasks Management continues to have permission issues. Comprehensive gap-filling validation confirms task status update fails with 'Insufficient permissions to update task' error. Core CRUD operations work but status management has persistent authorization problems."
 
   - task: "CRM Communications Management"
     implemented: true
